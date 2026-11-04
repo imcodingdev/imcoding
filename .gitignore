@@ -43,3 +43,9 @@ next-env.d.ts
 # playwright
 /test-results/
 /playwright-report/
+
+# Tài liệu nội bộ, chỉ giữ ở máy
+docs/research/
+docs/superpowers/
+docs/screenshots/
+docs/linkedin/
