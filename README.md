@@ -31,7 +31,7 @@ Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS 4 · Supabase 
 
 ## Roadmap
 
-See the [open issues](https://github.com/imcodingdev/imcoding/issues). Next up: growing the curriculum from 16 to 45 concepts, a "reading code" track, spaced review, and an English version of the lessons.
+See the [open issues](https://github.com/imcodingdev/imcoding/issues). Next up: growing the curriculum from 16 to 45 concepts, a "reading code" track, spaced review, an English version of the lessons, and OpenAI as a second provider in Ask AI.
 
 ## Run locally
 
