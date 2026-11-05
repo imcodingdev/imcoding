@@ -4,6 +4,7 @@ title: Cơ sở dữ liệu và bảng (Database & Table)
 group: database
 prerequisites: [server-code]
 priority: 1
+stage: 2
 signals:
   - "schema.prisma"
   - "prisma."

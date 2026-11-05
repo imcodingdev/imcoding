@@ -4,6 +4,7 @@ title: Điểm cuối API (API Endpoint)
 group: api
 prerequisites: [server-code, http-request-response]
 priority: 1
+stage: 2
 signals:
   - "app/api/**/route.ts"
   - "export async function GET"

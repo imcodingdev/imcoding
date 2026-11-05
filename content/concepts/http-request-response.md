@@ -4,6 +4,7 @@ title: Yêu cầu và phản hồi HTTP (HTTP Request–Response)
 group: web
 prerequisites: [client-server]
 priority: 1
+stage: 2
 signals:
   - "fetch("
   - "res.ok"

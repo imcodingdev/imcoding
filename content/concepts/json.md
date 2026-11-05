@@ -4,6 +4,7 @@ title: Định dạng dữ liệu JSON (JSON)
 group: api
 prerequisites: [http-request-response]
 priority: 1
+stage: 2
 signals:
   - "JSON.stringify"
   - "JSON.parse"

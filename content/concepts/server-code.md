@@ -4,6 +4,7 @@ title: Code chạy trên máy chủ (Server Code)
 group: backend
 prerequisites: [client-server]
 priority: 1
+stage: 1
 signals:
   - "'use server'"
   - "import 'server-only'"

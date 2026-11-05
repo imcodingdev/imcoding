@@ -26,18 +26,36 @@ export interface QuizItem {
   answer: string
 }
 
-export interface Concept {
+interface ConceptBase {
   id: string
   title: string
   group: ConceptGroup
   prerequisites: string[]
   priority: 1 | 2
   signals: string[]
+  stage: 1 | 2 | 3 | 4
+}
+
+export interface ConceptV1 extends ConceptBase {
+  format: 1
   /** markdown của 3 mục đầu */
   sections: { plain: string; inCode: string; pitfalls: string }
   /** từ mục "Tự kiểm tra" */
   quiz: QuizItem[]
 }
+
+export interface ConceptV2 extends ConceptBase {
+  format: 2
+  recall: QuizItem[]
+  predict: { scenario: string; answer: string }
+  example: string
+  findInProject: string
+  explain: QuizItem[]
+  check: QuizItem
+  misconceptions: { wrong: string; correction: string }[]
+}
+
+export type Concept = ConceptV1 | ConceptV2
 
 /** message luôn bắt đầu bằng tên file */
 export class ConceptError extends Error {

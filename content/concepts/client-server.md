@@ -4,6 +4,7 @@ title: Máy khách – máy chủ (Client–Server)
 group: web
 prerequisites: []
 priority: 1
+stage: 1
 signals:
   - "'use client'"
   - "app/api/**/route.ts"

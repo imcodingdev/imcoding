@@ -41,6 +41,7 @@ id: ${o.id ?? 'client-server'}
 title: Client và Server
 group: ${o.group ?? 'web'}
 prerequisites: [http]
+stage: 1
 priority: ${o.priority ?? 1}
 signals:
 ${signals}
@@ -62,6 +63,8 @@ describe('parseConcept', () => {
     expect(c.id).toBe('client-server')
     expect(c.group).toBe('web')
     expect(c.prerequisites).toEqual(['http'])
+    expect(c.format).toBe(1)
+    if (c.format !== 1) throw new Error('Expected v1')
     expect(c.sections.plain).not.toBe('')
     expect(c.sections.inCode).not.toBe('')
     expect(c.sections.pitfalls).not.toBe('')
@@ -76,6 +79,11 @@ describe('parseConcept', () => {
     const a = parseConcept('client-server.md', raw)
     const b = parseConcept('client-server.md', '\uFEFF' + raw.replace(/\n/g, '\r\n'))
     expect(b).toEqual(a)
+  })
+
+  it('stage bắt buộc cả với v1', () => {
+    expect(() => parseConcept('client-server.md', makeRaw().replace('stage: 1\n', ''))).toThrow(/stage/)
+    expect(() => parseConcept('client-server.md', makeRaw().replace('stage: 1', 'stage: 0'))).toThrow(/stage/)
   })
 
   it('id khác tên file', () => {

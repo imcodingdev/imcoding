@@ -4,6 +4,7 @@ title: Khóa bí mật (Secrets)
 group: auth
 prerequisites: [environment-variables]
 priority: 1
+stage: 1
 signals:
   - "sk-"
   - "API_KEY"

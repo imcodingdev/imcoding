@@ -4,6 +4,7 @@ title: Khái niệm aaa-api
 group: api
 prerequisites: [alpha-web]
 priority: 1
+stage: 1
 signals:
   - tín hiệu
 ---

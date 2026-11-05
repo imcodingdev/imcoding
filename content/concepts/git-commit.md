@@ -4,6 +4,7 @@ title: Lưu phiên bản bằng Git (Git Commit)
 group: ai-git
 prerequisites: []
 priority: 1
+stage: 1
 signals:
   - ".git"
   - ".gitignore"

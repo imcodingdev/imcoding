@@ -4,6 +4,7 @@ title: Thành phần giao diện (Component)
 group: frontend
 prerequisites: [html-css-js]
 priority: 1
+stage: 2
 signals:
   - "components/"
   - "export default function"

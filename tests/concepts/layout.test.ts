@@ -11,6 +11,8 @@ function c(id: string, group: ConceptGroup, prerequisites: string[] = []): Conce
     priority: 1,
     signals: ['x'],
     sections: { plain: '', inCode: '', pitfalls: '' },
+    format: 1,
+    stage: 1,
     quiz: [],
   }
 }

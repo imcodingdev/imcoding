@@ -1,4 +1,5 @@
 import matter from 'gray-matter'
+import { parseV2 } from './parse-v2'
 import { ConceptError, GROUPS } from './types'
 import type { Concept, ConceptGroup, QuizItem } from './types'
 
@@ -92,6 +93,20 @@ export function parseConcept(fileName: string, raw: string): Concept {
     throw new ConceptError(`${fileName}: trường "priority" phải là 1 hoặc 2, hiện là ${String(priority)}`)
   }
   const signals = stringArray(fileName, 'signals', data.signals, 1)
+  const stage = data.stage
+  if (stage !== 1 && stage !== 2 && stage !== 3 && stage !== 4) {
+    throw new ConceptError(`${fileName}: trường "stage" phải là 1, 2, 3 hoặc 4`)
+  }
+  const format = data.format === undefined ? 1 : data.format
+  if (format !== 1 && format !== 2) {
+    throw new ConceptError(`${fileName}: trường "format" phải là 1 hoặc 2`)
+  }
+  if (format === 2) {
+    return {
+      id, title, group: group as ConceptGroup, prerequisites, priority, signals, stage, format,
+      ...parseV2(fileName, parsed.content, prerequisites.length > 0),
+    }
+  }
 
   const sections = splitSections(parsed.content)
   for (let i = 0; i < HEADINGS.length; i++) {
@@ -114,6 +129,8 @@ export function parseConcept(fileName: string, raw: string): Concept {
   }
 
   return {
+    format: 1,
+    stage,
     id,
     title,
     group: group as ConceptGroup,

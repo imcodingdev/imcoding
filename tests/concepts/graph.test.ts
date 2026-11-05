@@ -12,6 +12,8 @@ function c(id: string, prerequisites: string[] = []): Concept {
     priority: 1,
     signals: ['x'],
     sections: { plain: 'a', inCode: 'b', pitfalls: 'c' },
+    format: 1,
+    stage: 1,
     quiz: [
       { question: 'q1', answer: 'a1' },
       { question: 'q2', answer: 'a2' },

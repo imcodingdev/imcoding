@@ -4,6 +4,7 @@ title: HTML, CSS và JavaScript (HTML–CSS–JS)
 group: web
 prerequisites: [client-server]
 priority: 1
+stage: 2
 signals:
   - "className="
   - "globals.css"

@@ -4,6 +4,7 @@ title: Xác thực đăng nhập (Authentication)
 group: auth
 prerequisites: [api-endpoint, database-table]
 priority: 1
+stage: 3
 signals:
   - "auth()"
   - "next-auth"

@@ -4,6 +4,7 @@ title: Định tuyến trang (Routing)
 group: frontend
 prerequisites: [component]
 priority: 1
+stage: 2
 signals:
   - "app/**/page.tsx"
   - "[id]"

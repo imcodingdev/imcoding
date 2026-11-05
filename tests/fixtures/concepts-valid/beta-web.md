@@ -4,6 +4,7 @@ title: Khái niệm beta-web
 group: web
 prerequisites: [alpha-web]
 priority: 1
+stage: 1
 signals:
   - tín hiệu
 ---

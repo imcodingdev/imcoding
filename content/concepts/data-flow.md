@@ -4,6 +4,7 @@ title: Dòng chảy dữ liệu (Data Flow)
 group: systems
 prerequisites: [client-server, api-endpoint, database-table]
 priority: 1
+stage: 2
 signals:
   - "onSubmit"
   - "fetch('/api/"

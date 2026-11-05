@@ -4,6 +4,7 @@ title: Biến môi trường (Environment Variables)
 group: backend
 prerequisites: [server-code]
 priority: 1
+stage: 1
 signals:
   - "process.env."
   - ".env.local"

@@ -4,6 +4,7 @@ title: Đưa ứng dụng lên mạng (Hosting & Deploy)
 group: deploy
 prerequisites: [git-commit, package-dependencies]
 priority: 1
+stage: 3
 signals:
   - "vercel.json"
   - ".vercel"

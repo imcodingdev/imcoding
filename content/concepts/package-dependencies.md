@@ -4,6 +4,7 @@ title: Gói thư viện và phụ thuộc (Packages & Dependencies)
 group: deploy
 prerequisites: []
 priority: 1
+stage: 1
 signals:
   - "package.json"
   - "package-lock.json"

@@ -4,6 +4,7 @@ title: Khái niệm alpha-web
 group: web
 prerequisites: []
 priority: 1
+stage: 1
 signals:
   - tín hiệu
 ---
