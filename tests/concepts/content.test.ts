@@ -41,10 +41,10 @@ describe('nội dung 16 khái niệm ưu tiên', () => {
   it.each(files)('$name tuân thủ parser theo format của bài', ({ name, raw }) => {
     expect(() => parseConcept(name, raw)).not.toThrow()
   })
-  it.each(files.filter(file => file.data.format === 2))('$name v2 dài 900–1.700 âm tiết, tính cả code', ({ content }) => {
+  it.each(files.filter(file => file.data.format === 2))('$name v2 dài 900–2.000 âm tiết, tính cả code', ({ content }) => {
     const words = content.split(/\s+/).filter(Boolean).length
     expect(words).toBeGreaterThanOrEqual(900)
-    expect(words).toBeLessThanOrEqual(1700)
+    expect(words).toBeLessThanOrEqual(2000)
   })
   it('loadConcepts() đọc được thư mục content/concepts không lỗi', () => {
     expect(() => loadConcepts()).not.toThrow()

@@ -5,6 +5,7 @@ group: deploy
 prerequisites: [git-commit, package-dependencies]
 priority: 1
 stage: 3
+format: 2
 signals:
   - "vercel.json"
   - ".vercel"
@@ -13,42 +14,115 @@ signals:
   - ".vercel.app"
 ---
 
-## Giải thích đời thường
+## Nhắc lại
 
-Bạn thử món mới trong bếp nhà mình, chỉ người nhà được nếm. Muốn bán thật, bạn thuê một **mặt bằng** ngoài phố, đưa **công thức** cho đội bếp ở đó. Họ nhập nguyên liệu theo danh sách, nấu theo công thức, rồi mở cửa đón khách ở một địa chỉ ai cũng tìm được.
+### Khi bạn sửa 3 file trong dự án nhưng chỉ chạy `git add` và `git commit` cho 2 file rồi bấm `git push`, file thứ 3 có xuất hiện trên kho chứa GitHub không?
 
-`localhost` là căn bếp nhà bạn: chỉ máy bạn mở được. **Hosting** là thuê mặt bằng, ví dụ Vercel. **Deploy** là quá trình đưa công thức lên đó: Vercel lấy code từ Git, chạy `npm install` để nhập "nguyên liệu" theo `package.json`, chạy **build** để nấu sẵn (dịch và tối ưu code), rồi mở ra ở một địa chỉ như `ten-du-an.vercel.app`.
+Không. Git chỉ đưa lên GitHub những thay đổi đã được đưa vào bản ghi (`git add` và `git commit`). File thứ 3 vẫn chỉ nằm trên ổ cứng máy cá nhân của bạn.
 
-Điều cần nhớ: mặt bằng chỉ có **đúng những gì bạn gửi lên Git** cộng với cấu hình bạn nhập trên trang quản lý (như biến môi trường). File chưa commit, khóa trong `.env.local`, gói chỉ cài trên máy bạn: Vercel đều không có. Vì vậy chuyện "máy tôi chạy được mà lên mạng thì hỏng" rất hay gặp, và thường lý do nằm ở những khác biệt đó.
+### Khi tải một dự án từ GitHub về máy mới (chưa có thư mục `node_modules`), lệnh `npm install` dựa vào file nào để biết cần tải về những thư viện nào?
 
-## Trong code trông như thế nào
+Lệnh `npm install` đọc danh sách thư viện và phiên bản trong `package.json` (cùng `package-lock.json`) để tải đúng các gói phụ thuộc về máy.
 
-Với Vercel nối sẵn với GitHub, quy trình thường là:
+## Đoán trước
 
-```bash
-npm run build      # thử build trên máy mình trước, bắt lỗi sớm
-git status         # xem file nào đã đổi
-git diff           # xem kỹ từng dòng trước khi chọn
-git add app/thanh-toan/page.tsx
-git commit -m "Thêm trang thanh toán"
-git push           # Vercel thấy commit mới, tự build và deploy
+Ở máy cá nhân chạy Windows, bạn tạo component tên file là `app/components/button.tsx`, nhưng trong trang thanh toán lại viết `import Button from '@/app/components/Button'`. Khi chạy `npm run dev` trên máy, mọi thứ hiển thị mượt mà. Bạn cũng cài thêm thư viện ngày tháng và thêm khóa `RESEND_API_KEY` vào `.env.local`. Tuy nhiên, ngay khi `git push` lên GitHub để Vercel tự động triển khai (deploy), quá trình lập tức dừng lại và báo lỗi: `Module not found: Can't resolve '@/app/components/Button'`. Tại sao cùng một bộ code mà máy bạn chạy tốt, lên Vercel lại hỏng?
+
+### Đáp án
+
+Windows không phân biệt chữ hoa và chữ thường trong tên file: `button.tsx` và `Button.tsx` là một. Nhưng máy chủ đám mây của Vercel chạy **Linux**, phân biệt tuyệt đối chữ hoa và chữ thường (`Button` khác hẳn `button`), nên khi đóng gói (build) nó không tìm thấy file. Hơn nữa, Vercel là một máy chủ hoàn toàn mới: nó chỉ nhận những file bạn đã `git commit`, tự chạy `npm install` theo `package.json`, chạy lệnh kiểm tra nghiêm ngặt `npm run build`, và chỉ đọc biến môi trường nhập trong mục Settings của Vercel chứ không biết tới file `.env.local` ở máy bạn.
+
+## Ví dụ mẫu
+
+Chạy ứng dụng ở `localhost` giống như **nấu thử món mới trong bếp nhà bạn**: nguyên liệu sẵn quanh bếp, chỉ người nhà nếm được. Muốn bán cho khách, bạn phải thuê **mặt bằng ngoài phố (Hosting)** như Vercel, rồi gửi **công thức nấu (Deploy)** cho đội bếp ở đó. Đội bếp trên Vercel lấy công thức từ GitHub, mua nguyên liệu theo `package.json`, nấu chín và kiểm định chất lượng (bước **Build**), rồi đón khách tại địa chỉ công khai như `ten-du-an.vercel.app`.
+
+Vì máy chủ Vercel tách biệt hoàn toàn với máy bạn, có hai lỗi rất phổ biến khi AI viết code:
+1. **Dùng ổ cứng máy chủ để lưu file lâu dài:** Máy chủ Vercel hoạt động theo mô hình hàm ngắn hạn (serverless), ổ đĩa chỉ là tạm thời nên ghi file xong sẽ mất hoặc báo lỗi.
+2. **Đẩy code lên mạng mà chưa chạy thử `npm run build` ở máy:** Lúc chạy `npm run dev`, Next.js bỏ qua nhiều lỗi kiểu dữ liệu TypeScript để xem nhanh giao diện, nhưng lúc chạy `npm run build` trên Vercel, có bất kỳ lỗi nào là quá trình dừng lại ngay.
+
+Cách làm SAI trong API route khi chạy trên Vercel (lưu file thẳng vào ổ đĩa máy chủ):
+
+```ts
+// SAI: Máy chủ Vercel không giữ lại file ghi trên ổ đĩa lúc đang chạy
+import fs from 'fs/promises'
+
+export async function POST(req: Request) {
+  const data = await req.json()
+  await fs.writeFile('./orders.json', JSON.stringify(data))
+  return Response.json({ ok: true })
+}
 ```
 
-Mỗi lần push, Vercel tạo một bản deploy mới. Trên trang dự án ở Vercel, mục Deployments cho biết bản nào đang chạy, build thành công hay lỗi, và có nhật ký build để đọc khi lỗi.
+Quy trình ĐÚNG trên Terminal trước mỗi lần đưa code lên mạng:
 
-## Hay gặp lỗi gì
+```bash
+# Bước 1: Kiểm tra đóng gói và bắt sớm lỗi TypeScript ngay trên máy
+npm run ___
 
-- **Thiếu biến môi trường trên Vercel.** Cách nhận ra: build hoặc trang báo giá trị `undefined`, chỉ trên bản deploy. Kiểm tra Settings → Environment Variables; thêm hay sửa biến xong phải deploy lại mới có tác dụng.
-- **`npm run dev` chạy được nhưng build thì lỗi.** Lúc build, Next.js kiểm tra kỹ hơn, ví dụ dừng lại khi có lỗi kiểu TypeScript mà lúc chạy `dev` vẫn cho qua. Cách nhận ra: nhật ký build trên Vercel đỏ; chạy `npm run build` ở máy sẽ thấy cùng lỗi.
-- **Sai chữ hoa chữ thường trong tên file.** Windows coi `Button.tsx` và `button.tsx` là một, máy chủ Linux của Vercel thì không. Cách nhận ra: lỗi `Module not found` chỉ xảy ra trên Vercel, và tên trong `import` khác tên file đúng một chữ hoa.
-- **Ghi file lên ổ đĩa máy chủ.** Máy chủ của Vercel không giữ lại file ghi lúc chạy. Cách nhận ra: code có `fs.writeFile` để lưu dữ liệu hay ảnh tải lên; cần dùng database hoặc dịch vụ lưu file.
+# Bước 2: Kiểm tra các file thay đổi (đảm bảo đã lưu package.json nếu có cài gói mới)
+git status
+git diff
 
-## Tự kiểm tra
+# Bước 3: Lưu bản ghi và đẩy lên GitHub để Vercel tự động cập nhật
+git add .
+git commit -m "Thêm tính năng thanh toán"
+git push
+```
 
-### Bản đang chạy trên mạng của bạn ứng với commit nào?
+## Tìm trong project của bạn
 
-Mở dự án trên Vercel, mục Deployments: bản có nhãn Production ghi mã commit và lời ghi chú. So với `git log --oneline` trên máy để biết bản trên mạng có mới nhất không.
+Hãy kiểm tra quy trình đưa ứng dụng lên mạng của dự án theo các bước sau:
 
-### Bạn vừa thêm `RESEND_API_KEY` vào `.env.local` và tính năng gửi email chạy tốt ở máy. Trước khi push, cần làm gì thêm?
+1. **Chạy thử đóng gói trên máy:** Mở Terminal tại thư mục dự án và chạy `npm run build`. Quan sát xem lệnh chạy trót lọt hay dừng lại báo lỗi (`Failed to compile` / `Type error`).
+2. **Kiểm tra cấu hình bỏ qua lỗi:** Mở `next.config.ts` (hoặc `.mjs`, `.js`), tìm xem AI có tự ý chèn `ignoreBuildErrors: true` để giấu lỗi TypeScript không.
+3. **Rà soát thao tác ghi file:** Tìm kiếm toàn dự án (`Ctrl+Shift+F` / `Cmd+Shift+F`) các từ khóa `fs.writeFile`, `fs.appendFile`, `writeFileSync` xem có tính năng nào đang ghi thẳng dữ liệu người dùng vào thư mục dự án không.
+4. **Đối chiếu biến môi trường và bản chạy thật:** Mở `.env.local`, đếm số biến môi trường rồi kiểm tra mục **Settings → Environment Variables** trên Vercel xem đã nhập đủ chưa. Vào mục **Deployments** xem bản `Production` hiện tại có khớp với mã commit mới nhất (`git log -n 1 --oneline`) không.
+5. **Ghi lại kết quả của bạn:**
+   - Lệnh `npm run build` trên máy chạy thành công hay báo lỗi?: `[ Thành công / Báo lỗi tại file: ... ]`
+   - Trong code có chỗ nào dùng `fs.writeFile` lưu dữ liệu người dùng không?: `[ Có / Không - tên file: ... ]`
+   - Các biến trong `.env.local` đã có đủ trên Vercel Environment Variables chưa?: `[ Đã đủ / Còn thiếu biến: ... ]`
 
-Nhập `RESEND_API_KEY` vào Settings → Environment Variables của dự án trên Vercel, và chạy `npm run build` ở máy để chắc chắn build không lỗi.
+## Tự giải thích
+
+### Vì sao có những lúc bạn chạy `npm run dev` trên máy thấy trang web hoạt động bình thường, nhưng khi đẩy lên Vercel (hoặc chạy `npm run build`) thì lại báo lỗi không thể hoàn tất?
+
+Chế độ `npm run dev` chỉ biên dịch từng trang khi bạn mở tới và bỏ qua nhiều bước kiểm tra nghiêm ngặt để hiển thị nhanh. Ngược lại, `npm run build` rà soát toàn bộ dự án, kiểm tra chặt chẽ kiểu dữ liệu TypeScript và tạo sẵn các trang tĩnh; chỉ cần một file có lỗi kiểu dữ liệu hoặc dùng biến không tồn tại, quá trình build sẽ dừng lại.
+
+### Tại sao sau khi bạn vào trang Settings → Environment Variables trên Vercel để thêm hoặc sửa một biến môi trường, trang web đang chạy vẫn chưa nhận ngay giá trị mới mà bạn phải bấm Redeploy?
+
+Mỗi bản triển khai (Deployment) trên Vercel đã được đóng băng cấu hình tại thời điểm nó build xong, đặc biệt các biến `NEXT_PUBLIC_` đã được chép cứng vào file JavaScript. Do đó, sau khi thêm hoặc sửa biến môi trường, bạn phải bấm **Redeploy** để Vercel tạo bản chạy mới nhận cấu hình vừa cập nhật.
+
+### Vì sao trên các nền tảng đám mây như Vercel, bạn không thể lưu ảnh người dùng tải lên hoặc lưu dữ liệu đơn hàng bằng lệnh ghi file `fs.writeFile` vào thư mục dự án?
+
+Trên Vercel, mỗi khi có truy cập, hệ thống bật lên các máy chủ tạm thời (serverless functions) chỉ tồn tại ngắn hạn rồi tự tắt, và thư mục code chỉ cho phép đọc (read-only). Mọi dữ liệu cần giữ lâu dài bắt buộc phải lưu vào Database (như Supabase) hoặc dịch vụ lưu trữ đám mây (như Supabase Storage, AWS S3, Cloudflare R2).
+
+## Kiểm tra không dùng AI
+
+### Tình huống: Bạn vừa nhờ AI tích hợp tính năng gửi hóa đơn qua email bằng thư viện `resend` và biến môi trường `RESEND_API_KEY`. Ở máy bạn mọi thứ chạy hoàn hảo, nhưng sau khi bạn chạy `git add app/api/send-invoice/route.ts`, `git commit` và `git push`, bản cập nhật trên Vercel không chạy được tính năng này. Hãy nêu ít nhất 2 nguyên nhân có thể gây ra sự cố trong cách làm trên và các bước khắc phục.
+
+#### Đáp án
+
+1. **Nguyên nhân 1: Chưa commit `package.json` và `package-lock.json`.**
+   - *Giải thích:* Bạn chỉ `git add` mỗi file `route.ts` mà quên `package.json` và `package-lock.json`, nên Vercel không biết cần cài gói `resend` và báo lỗi `Module not found: Can't resolve 'resend'` lúc build.
+   - *Khắc phục:* Chạy `git add package.json package-lock.json`, commit và push lên GitHub.
+2. **Nguyên nhân 2: Chưa thêm `RESEND_API_KEY` lên Vercel.**
+   - *Giải thích:* Khóa `RESEND_API_KEY` mới chỉ nằm trong `.env.local` ở máy cá nhân (không lên Git). Trên Vercel, `process.env.RESEND_API_KEY` sẽ là `undefined` nên không gửi được email.
+   - *Khắc phục:* Vào Vercel → **Settings → Environment Variables**, thêm `RESEND_API_KEY` rồi bấm **Redeploy**.
+3. **Phòng ngừa:** Luôn chạy `npm run build` và `git status` trên máy trước khi push để phát hiện sớm file còn sót và lỗi đóng gói.
+
+## Lỗi suy luận hay gặp
+
+### "Khi `npm run build` báo lỗi TypeScript đỏ rực, chỉ cần bảo AI bật `typescript: { ignoreBuildErrors: true }` trong `next.config` cho lên mạng nhanh là được"
+
+- **Vì sao sai:** Lỗi TypeScript lúc build chỉ ra những chỗ gọi nhầm tên thuộc tính, truyền thiếu dữ liệu hoặc biến bị `undefined`. Tắt kiểm tra chỉ giúp vượt qua bước build, nhưng khi người dùng thật bấm vào tính năng đó, ứng dụng sẽ sập ngay.
+- **Cách sửa:** Không bật `ignoreBuildErrors: true`. Hãy đọc tên file và số dòng trong nhật ký build để sửa đúng nguyên nhân lệch kiểu dữ liệu.
+
+### "Đã `git push` thành công trên Terminal nghĩa là khách hàng vào trang web đã thấy ngay bản mới nhất"
+
+- **Vì sao sai:** `git push` chỉ mới gửi code lên GitHub. Vercel cần thêm vài phút để tải code, cài thư viện và chạy `npm run build`; nếu bước build lỗi, Vercel sẽ giữ nguyên bản cũ đang chạy.
+- **Cách sửa:** Sau khi `git push`, luôn kiểm tra bảng **Deployments** của Vercel (hoặc dấu tích xanh trên GitHub) để chắc chắn bản mới đã ở trạng thái **Ready / Production**.
+
+### "Chỉ cần sửa tên file từ `Button.tsx` sang `button.tsx` trên Windows rồi commit là trên GitHub và Vercel cũng tự đổi theo"
+
+- **Vì sao sai:** Do Windows không phân biệt hoa thường, mặc định Git trên Windows không nhận ra việc chỉ đổi chữ `B` thành `b`, dẫn đến tên file trên GitHub và Vercel vẫn giữ nguyên và tiếp tục lỗi lúc build.
+- **Cách sửa:** Dùng lệnh `git mv -f Button.tsx button.tsx` trong Terminal rồi commit, đồng thời kiểm tra lại trên GitHub xem tên file đã đổi thật sự chưa.
