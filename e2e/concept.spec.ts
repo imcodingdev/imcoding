@@ -34,7 +34,7 @@ test('đầu trang bài học có pill nhóm và thời lượng', async ({ page
   await expect(page.getByText('Khoảng 30 phút')).toBeVisible()
 })
 
-test('khối code có nút Sao chép, bấm thì báo Đã chép', async ({ page, context, browserName }, info) => {
+test('khối code có nút Sao chép, bấm thì báo Đã chép', async ({ page, context }, info) => {
   test.skip(info.project.name !== 'chromium', 'clipboard chỉ test ở chromium')
   await context.grantPermissions(['clipboard-read', 'clipboard-write'])
   await page.goto('/concepts/secrets')

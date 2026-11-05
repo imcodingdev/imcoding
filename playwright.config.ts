@@ -7,7 +7,7 @@ export default defineConfig({
   use: { baseURL: `http://localhost:${port}` },
   webServer: {
     command: 'npm run build && npm run start',
-    env: { NEXT_PUBLIC_FAKE_BACKEND: '1', PORT: String(port) },
+    env: { NEXT_PUBLIC_FAKE_BACKEND: '1', PORT: String(port), IMCODING_E2E_CONTENT_DIR: 'tests/fixtures/concepts-v2' },
     port,
     // Chỉ tái dùng server có sẵn khi đặt REUSE_SERVER=1; server đó PHẢI là bản fake backend
     // (NEXT_PUBLIC_FAKE_BACKEND=1), không được là server thật trên cùng cổng.
