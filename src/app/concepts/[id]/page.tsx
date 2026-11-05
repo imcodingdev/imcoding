@@ -3,6 +3,8 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { AskAi } from '@/components/AskAi'
 import { Markdown } from '@/components/Markdown'
+import { LessonV2 } from '@/components/LessonV2'
+import { lessonContext, lessonQuiz } from '@/lib/concepts/lesson'
 import { SelfCheck } from '@/components/SelfCheck'
 import { getConcept, loadConcepts } from '@/lib/concepts/load'
 import { GROUP_DOT } from '@/components/statusStyles'
@@ -27,11 +29,12 @@ export default async function ConceptPage({ params }: PageProps<'/concepts/[id]'
   if (!concept) notFound()
   const group = GROUPS.find((g) => g.id === concept.group)
   const all = loadConcepts()
-  const sections = [
+  const quiz = lessonQuiz(concept)
+  const sections = concept.format === 1 ? [
     ['Giải thích đời thường', concept.sections.plain],
     ['Trong code trông như thế nào', concept.sections.inCode],
     ['Hay gặp lỗi gì', concept.sections.pitfalls],
-  ] as const
+  ] as const : []
 
   const refs = all.map(({ id, title, group, prerequisites, priority }) => ({
     id,
@@ -63,7 +66,7 @@ export default async function ConceptPage({ params }: PageProps<'/concepts/[id]'
         <h1 className="font-display text-3xl font-extrabold leading-tight tracking-tight text-ink md:text-4xl">
           {concept.title}
         </h1>
-        <p className="text-base text-ink-muted">Khoảng 30 phút · 3 phần · {concept.quiz.length} câu hỏi</p>
+        <p className="text-base text-ink-muted">Khoảng 30 phút · {concept.format === 1 ? '3 phần' : `${concept.recall.length > 0 ? 7 : 6} bước`} · {quiz.length} câu hỏi</p>
       </header>
       {concept.prerequisites.length > 0 && (
         <section className="rounded-2xl border border-line bg-surface-muted p-4 md:p-5">
@@ -82,6 +85,7 @@ export default async function ConceptPage({ params }: PageProps<'/concepts/[id]'
           </ul>
         </section>
       )}
+      {concept.format === 2 && <LessonV2 concept={concept} />}
       {sections.map(([title, source], idx) => (
         <section key={title} className="space-y-3">
           <h2 className="font-display text-xl font-bold text-ink md:text-2xl">
@@ -93,18 +97,11 @@ export default async function ConceptPage({ params }: PageProps<'/concepts/[id]'
       ))}
       <section className="rounded-2xl border border-line bg-surface p-4 md:p-6">
         <h2 className="mb-3 font-display text-xl font-bold text-ink md:text-2xl">Tự kiểm tra</h2>
-        <SelfCheck conceptId={concept.id} items={concept.quiz} concepts={refs} />
+        <SelfCheck conceptId={concept.id} items={quiz} concepts={refs} />
       </section>
       <section className="rounded-2xl border border-line bg-surface p-4 md:p-6">
         {/* Chỉ truyền nội dung bài cần cho prompt, không truyền quiz */}
-        <AskAi
-          lesson={{
-            title: concept.title,
-            plain: concept.sections.plain,
-            inCode: concept.sections.inCode,
-            pitfalls: concept.sections.pitfalls,
-          }}
-        />
+        <AskAi lesson={lessonContext(concept)} />
       </section>
     </main>
   )
