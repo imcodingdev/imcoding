@@ -8,8 +8,8 @@ const concept = parseConcept('v2-lesson.md', fs.readFileSync('tests/fixtures/con
 
 describe('bài v2 cho SelfCheck và Hỏi AI', () => {
   it('giữ nguyên nội dung Hỏi AI và quiz của v1', () => {
-    const v1 = parseConcept('client-server.md', fs.readFileSync('content/concepts/client-server.md', 'utf8'))
-    if (v1.format !== 1) throw new Error('bài thật vẫn là v1')
+    const v1 = parseConcept('alpha-web.md', fs.readFileSync('tests/fixtures/concepts-valid/alpha-web.md', 'utf8'))
+    if (v1.format !== 1) throw new Error('fixture phải là v1')
     expect(lessonQuiz(v1)).toEqual(v1.quiz)
     expect(lessonContext(v1)).toEqual({ title: v1.title, ...v1.sections })
   })

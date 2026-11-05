@@ -11,6 +11,14 @@ function replaceSection(title: string, content: string) {
 }
 
 describe('hợp đồng v2', () => {
+  it.each([1, 2])('Ví dụ mẫu chấp nhận %i code block và giữ đủ nội dung', count => {
+    const example = ['Giải thích ví dụ.', ...Array.from({ length: count }, (_, i) => `\`\`\`ts\nconst value = ${i}\n\`\`\``)].join('\n\n')
+    expect(parse(replaceSection('Ví dụ mẫu', example))).toHaveProperty('example', example)
+  })
+  it('Ví dụ mẫu từ chối 3 code block', () => {
+    const example = 'Giải thích ví dụ.\n' + '```ts\nconst value = 1\n```\n'.repeat(3)
+    expect(() => parse(replaceSection('Ví dụ mẫu', example))).toThrow(/Ví dụ mẫu/)
+  })
   it('đọc đủ dữ liệu, không để lẫn heading đáp án', () => {
     const c = parse()
     expect(c).toMatchObject({ format: 2, stage: 1, recall: [{ question: 'Biến môi trường được dùng ở đâu?', answer: 'Server đọc cấu hình từ môi trường chạy.' }] })

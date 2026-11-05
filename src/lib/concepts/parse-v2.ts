@@ -65,7 +65,7 @@ export function parseV2(fileName: string, body: string, hasPrerequisites: boolea
 
   const example = get(HEADINGS[2])
   const exampleScan = scan(example)
-  if (!exampleScan.prose || exampleScan.codeBlocks !== 1 || exampleScan.headings.length) fail(HEADINGS[2], 'cần giải thích và một đoạn code mẫu')
+  if (!exampleScan.prose || exampleScan.codeBlocks < 1 || exampleScan.codeBlocks > 2 || exampleScan.headings.length) fail(HEADINGS[2], 'cần giải thích và 1–2 đoạn code mẫu')
   if ((example.match(/___/g) ?? []).length > 1) fail(HEADINGS[2], 'chỉ được có tối đa một chỗ trống ___')
   const findInProject = get(HEADINGS[3])
   if (!/^ {0,3}\d+[.)]\s+\S/m.test(scan(findInProject).prose)) fail(HEADINGS[3], 'cần danh sách có thứ tự')
