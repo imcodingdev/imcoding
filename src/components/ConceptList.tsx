@@ -1,8 +1,9 @@
 import Link from 'next/link'
-import { GROUPS } from '@/lib/concepts/types'
+import { STAGES } from '@/lib/concepts/stages'
+import { learningOrder } from '@/lib/concepts/learningOrder'
 import type { ConceptRef } from '@/lib/progress/next'
 import type { NodeStatus } from '@/lib/progress/status'
-import { GROUP_ACCENT, GROUP_DOT, STATUS_CLASS } from './statusStyles'
+import { GROUP_ACCENT, STATUS_CLASS } from './statusStyles'
 
 const STATUS_LABEL: Record<NodeStatus, string> = {
   neutral: 'Chưa học',
@@ -13,23 +14,31 @@ const STATUS_LABEL: Record<NodeStatus, string> = {
 export function ConceptList({
   concepts,
   statuses,
+  showProgress,
 }: {
   concepts: ConceptRef[]
   statuses: Record<string, NodeStatus>
+  showProgress: boolean
 }) {
   const titleOf = new Map(concepts.map((c) => [c.id, c.title]))
+  const ordered = learningOrder(concepts)
   return (
     <div data-testid="concept-list" className="w-full min-w-0 space-y-8">
-      {GROUPS.map((g, index) => {
-        const items = concepts.filter((c) => c.group === g.id)
+      {STAGES.map((stage) => {
+        const items = ordered.filter((c) => c.stage === stage.id)
         return (
-          <section key={g.id} className="space-y-3">
+          <section key={stage.id} className="space-y-3">
             <div className="flex items-center gap-2.5">
-              <span className={`h-3 w-3 shrink-0 rounded-full ${GROUP_DOT[g.id]}`} aria-hidden="true" />
               <h2 className="font-display text-lg font-bold text-ink md:text-xl">
-                {index + 1}. {g.title}
+                Chặng {stage.id} · {stage.title}
               </h2>
             </div>
+            <p className="text-base text-ink-muted">{stage.description}</p>
+            {showProgress && (
+              <p className="text-sm font-medium text-ink">
+                {items.filter(c => statuses[c.id] === 'understood').length}/{items.length} bài đã hiểu
+              </p>
+            )}
             {items.length === 0 ? (
               <p className="pl-5 text-base text-ink-muted">Sắp có</p>
             ) : (

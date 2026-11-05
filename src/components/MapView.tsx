@@ -80,7 +80,7 @@ export function MapView({ nodes, edges, concepts }: { nodes: MapNode[]; edges: M
         <ConceptMap key={tab} nodes={nodes} edges={edges} statuses={statuses} />
       </div>
       <div className={tab === 'list' ? 'block' : 'hidden md:block'}>
-        <ConceptList concepts={concepts} statuses={statuses} />
+        <ConceptList concepts={concepts} statuses={statuses} showProgress={!!user && progress !== null} />
       </div>
     </div>
   )

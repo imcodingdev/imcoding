@@ -14,9 +14,17 @@ test('bản đồ có 17 node và bấm node chuyển trang', async ({ page }, t
   await expect(page).toHaveURL(/\/concepts\/client-server$/)
 })
 
-test('danh sách có 9 nhóm', async ({ page }) => {
+test('lộ trình có bốn chặng, mô tả và chặng trống', async ({ page }) => {
   await page.goto('/map')
-  await expect(page.locator('[data-testid="concept-list"] h2')).toHaveCount(9)
+  await expect(page.locator('[data-testid="concept-list"] h2')).toHaveText([
+    'Chặng 1 · Trước khi giao AI sửa code',
+    'Chặng 2 · Trước khi nhận tính năng AI viết',
+    'Chặng 3 · Trước khi mở app cho người dùng thật',
+    'Chặng 4 · Khi vận hành',
+  ])
+  await expect(page.getByText('Giữ khóa bí mật, có mốc lưu để quay lại, biết code nào chạy ở đâu.')).toBeVisible()
+  await expect(page.getByTestId('concept-list').getByText('Sắp có')).toBeVisible()
+  await expect(page.getByTestId('concept-list').getByText(/bài đã hiểu/)).toHaveCount(0)
   await expect(page.locator('[data-testid="concept-list"] a[data-status][href="/concepts/client-server"]')).toBeVisible()
 })
 
