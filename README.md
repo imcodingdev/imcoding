@@ -12,13 +12,22 @@ ImCoding is a learning platform for founders and non-developers who build produc
 
 AI tools make it easy to ship an app you don't understand. That gap becomes a problem the first time something breaks, a key leaks, or a change has to be reviewed. ImCoding closes the gap one concept at a time:
 
-1. **Read (10 min):** one concept, explained in plain language with a short example.
-2. **Find it in your code (10 min):** open your own project and locate where the concept actually appears.
-3. **Check yourself (10 min):** a short quiz shows what you understood and what is still unclear.
+Each 30-minute lesson has seven short steps:
+
+1. **Recall:** bring back what you learned in the previous lesson.
+2. **Predict:** try to solve a short incident before seeing the explanation.
+3. **Worked example:** read an annotated code example.
+4. **Find it in your own code:** locate the concept in your project.
+5. **Explain why:** answer in your own words before opening the sample answer.
+6. **Check yourself without AI:** solve a new situation on your own.
+7. **Common reasoning mistakes:** review where your reasoning can go wrong.
+
+Each step is based on learning research: retrieval practice, self-explanation, feedback.
 
 ## Features
 
-- **Knowledge map:** 16 concepts linked by prerequisites, with a suggested next lesson.
+- **Knowledge map:** 16 concepts linked by prerequisites, with a suggested next lesson that prioritizes earlier stages.
+- Four risk-based stages (before letting AI edit code, before accepting AI-written features, before real users, operations) with advisory warnings, never locks.
 - **Progress tracking:** sign in with GitHub, mark each concept as "seen in my code" or "understood".
 - **Ask AI about a lesson:** questions go straight from your browser to Google Gemini with your own API key (BYOK). ImCoding never receives or stores your key or your questions.
 - **Privacy first:** one essential cookie for sign-in, no tracking or analytics, row-level security on every table.
@@ -52,7 +61,9 @@ MIT. See [LICENSE](LICENSE).
 
 ## Tiếng Việt
 
-ImCoding là nền tảng học giúp founder và người mới hiểu những gì AI đã viết trong project của chính mình. Mỗi ngày 30 phút, học từng khái niệm một: đọc bài, tìm khái niệm đó trong code của bạn, rồi tự kiểm tra.
+ImCoding là nền tảng học giúp founder và người mới hiểu những gì AI đã viết trong project của chính mình. Mỗi ngày 30 phút, học từng khái niệm một.
+
+Lộ trình gồm 4 chặng theo rủi ro (trước khi giao AI sửa code, trước khi nhận tính năng AI viết, trước khi mở app cho người dùng thật, khi vận hành), chỉ cảnh báo khuyến nghị và không khóa bài; mỗi bài 30 phút gồm 7 bước: nhắc lại, đoán trước, xem ví dụ có chú thích, tìm trong code của bạn, tự giải thích vì sao, kiểm tra không dùng AI và xem lỗi suy luận thường gặp.
 
 - Trang chạy thật: https://imcoding.dev
 - Liên hệ: hello@imcoding.dev
