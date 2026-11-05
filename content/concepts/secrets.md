@@ -5,6 +5,7 @@ group: auth
 prerequisites: [environment-variables]
 priority: 1
 stage: 1
+format: 2
 signals:
   - "sk-"
   - "API_KEY"
@@ -13,52 +14,109 @@ signals:
   - "NEXT_PUBLIC_"
 ---
 
-## Giải thích đời thường
+## Nhắc lại
 
-Cửa hàng của bạn có những thứ mà ai cầm được là làm được việc nhân danh bạn: **chìa khóa két**, **mã PIN thẻ ngân hàng**, **con dấu công ty**. Bạn không dán mã PIN lên quầy, không gửi ảnh chìa khóa vào nhóm chat, và nếu nghi bị lộ thì đổi khóa ngay chứ không chỉ "giấu kỹ hơn".
+### Khi nào một biến môi trường trong Next.js bị gửi thẳng xuống trình duyệt của người dùng?
 
-Trong phần mềm, **secret (khóa bí mật)** là những chuỗi ký tự có quyền như vậy: API key của OpenAI hay Anthropic (ai có là dùng AI tính tiền vào tài khoản bạn), khóa bí mật của cổng thanh toán, mật khẩu database, chuỗi bí mật dùng để ký phiên đăng nhập.
+Khi tên biến bắt đầu bằng tiền tố `NEXT_PUBLIC_`. Lúc đóng gói ứng dụng, Next.js sẽ chép trực tiếp giá trị biến đó vào code JavaScript gửi xuống trình duyệt.
 
-Ba nguyên tắc: secret **không nằm trong code** (để trong biến môi trường), **không lên Git** (file `.env*` phải bị bỏ qua), và **không xuống trình duyệt** (chỉ dùng trong code máy chủ, không gắn `NEXT_PUBLIC_`). Khi một secret đã lộ, việc đúng là vào trang quản lý của nhà cung cấp, **thu hồi khóa cũ và tạo khóa mới**. Xóa dòng code chứa khóa là chưa đủ, vì lịch sử Git và các bản sao vẫn còn giữ nó.
+### Vì sao sau khi thêm biến môi trường mới vào `.env.local` ở máy cá nhân và đẩy code lên GitHub, ứng dụng trên Vercel vẫn báo thiếu biến?
 
-## Trong code trông như thế nào
+Vì `.env.local` không được đưa lên Git. Bạn phải vào Settings → Environment Variables trên Vercel để nhập thủ công tên và giá trị biến cho máy chủ thật.
 
-Sai: khóa viết thẳng vào code, AI đôi khi làm vậy khi bạn dán khóa vào khung chat.
+## Đoán trước
+
+Tối thứ Sáu, để thử nhanh tính năng tóm tắt văn bản bằng AI, bạn dán thẳng khóa `sk-proj-XXXX...` của OpenAI vào file code, bấm `git commit` và đẩy lên kho chứa (repository) GitHub. Hai phút sau, bạn sực nhớ ra, xóa khóa khỏi code, chuyển sang `.env.local` rồi commit thêm lần nữa với ghi chú `"Fix: xóa API key"`. Sáng hôm sau, bạn nhận được email báo tài khoản OpenAI đã bị tiêu sạch 500 USD hạn mức dù file code hiện tại trên nhánh chính không còn dòng khóa nào. Tại sao kẻ xấu vẫn lấy được khóa của bạn?
+
+### Đáp án
+
+Git lưu lại **toàn bộ lịch sử** mọi lần chỉnh sửa (commit). Khi bạn xóa khóa ở commit thứ hai, khóa chỉ biến mất khỏi file hiện tại nhưng vẫn còn nguyên trong lịch sử của commit đầu tiên. Trên mạng luôn có các chương trình tự động (bot) quét GitHub từng giây để săn lùng chuỗi `sk-...`. Theo báo cáo của GitGuardian năm 2025, có tới **23.770.171 secret mới bị lộ trên GitHub công khai trong năm 2024**; các kho chứa dùng công cụ AI hỗ trợ viết code có tỷ lệ lộ khóa là **6,4%, cao hơn khoảng 40% so với mức chung**. Xóa dòng code là vô tác dụng; cách duy nhất đúng là thu hồi (revoke) khóa cũ ngay lập tức.
+
+## Ví dụ mẫu
+
+Trong cửa hàng truyền thống, những thứ như **chìa khóa két sắt** hay **mã PIN ngân hàng** trao toàn quyền hành động nhân danh bạn. Nếu lỡ làm rơi chìa khóa két ra đường, bạn phải **đổi ổ khóa mới** ngay chứ không chỉ nhặt về cất kỹ hơn.
+
+Trong phần mềm, **Secret (Khóa bí mật)** là những chuỗi ký tự như vậy: API key của OpenAI (ai cầm được sẽ xài AI tính tiền vào thẻ của bạn), khóa bí mật Stripe, hay mật khẩu cơ sở dữ liệu. Ba nguyên tắc sống còn: **không viết cứng vào code**, **không đẩy lên Git**, và **không gửi xuống trình duyệt**.
+
+Cách làm SAI (hay gặp khi dán khóa vào khung chat nhờ AI sửa lỗi):
 
 ```ts
-const openai = new OpenAI({ apiKey: 'sk-proj-AbC123...' }) // ĐỪNG làm thế này
+// SAI NGHIÊM TRỌNG: Viết cứng (hardcode) khóa vào file code
+const openai = new OpenAI({
+  apiKey: 'sk-proj-XXXX-chuoi-gia-minh-hoa-khong-dung-duoc'
+})
 ```
 
-Đúng **cách giữ khóa**: code chỉ đọc tên biến, và chỉ dùng trong code máy chủ (ví dụ `app/api/chat/route.ts`).
+Cách làm ĐÚNG trong file máy chủ `app/api/chat/route.ts`:
 
 ```ts
 import OpenAI from 'openai'
-
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
 
 export async function POST(req: Request) {
-  // CÒN THIẾU: kiểm tra đăng nhập và giới hạn số lần gọi mỗi người
+  // LƯU Ý: Dù khóa đã giấu kín, nếu thiếu bước ___ ở đây,
+  // ai biết đường dẫn /api/chat cũng gọi chùa và tiêu tiền AI của bạn được!
   const { question } = await req.json()
-  const answer = await openai.responses.create({ model: 'gpt-5-mini', input: question })
+  const answer = await openai.responses.create({
+    model: 'gpt-5-mini',
+    input: question
+  })
   return Response.json({ text: answer.output_text })
 }
 ```
 
-Khóa đã an toàn, nhưng endpoint thì chưa: ai biết địa chỉ `/api/chat` cũng gọi được và tiêu tiền AI của bạn, dù không thấy khóa. Phải thêm kiểm tra đăng nhập (bài "Xác thực đăng nhập") và giới hạn số lần gọi trước khi đưa lên mạng.
 
-## Hay gặp lỗi gì
+## Tìm trong project của bạn
 
-- **Khóa nằm trong code.** Cách nhận ra: tìm trong dự án các chuỗi như `sk-`, `sk_live_`, `apiKey: '`, `password: '` mà theo sau là một dãy ký tự dài.
-- **Đã đẩy `.env` lên GitHub rồi xóa đi.** Lịch sử Git vẫn giữ file đó; robot dò khóa trên GitHub tìm ra rất nhanh. Cách nhận ra: `git log --all -- .env.local` có kết quả. Cách xử lý: tạo khóa mới, thu hồi khóa cũ.
-- **Gắn `NEXT_PUBLIC_` cho secret.** Khóa bị chép vào code gửi xuống mọi trình duyệt. Cách nhận ra: tên biến vừa có `NEXT_PUBLIC_` vừa có `KEY`, `SECRET` hay `TOKEN`.
-- **Khóa lọt vào log hoặc ảnh chụp màn hình.** `console.log(process.env)` in toàn bộ khóa ra log của Vercel. Cách nhận ra: có dòng log in cả `process.env` hoặc in cấu hình đầy đủ.
+Hãy rà soát dự án của bạn theo các bước sau:
 
-## Tự kiểm tra
+1. **Quét tìm khóa viết cứng trong code:** Mở tìm kiếm toàn dự án (`Ctrl+Shift+F` / `Cmd+Shift+F`), tìm các chuỗi: `sk-`, `apiKey`, `SECRET`, `PASSWORD`, `Bearer `. Xem có file `.ts`, `.tsx`, `.js` nào chứa chuỗi khóa dài ngoằng không.
+2. **Kiểm tra nguy cơ lộ qua trình duyệt:** Tìm `NEXT_PUBLIC_` xem có biến bí mật nào (khóa thanh toán, khóa AI, khóa quản trị database) bị gắn nhầm tiền tố này không.
+3. **Kiểm tra lịch sử Git:** Mở Terminal và chạy `git log --all --full-history -- ".env*"` để xem trước đây có từng vô tình commit file `.env` hay `.env.local` lên Git không.
+4. **Kiểm tra lệnh in nhật ký (log):** Tìm `console.log(process.env` xem có chỗ nào in toàn bộ biến môi trường ra màn hình hoặc nhật ký máy chủ không.
+5. **Ghi lại kết quả của bạn:**
+   - Có khóa nào đang nằm thẳng trong file code không?: `[ Có / Không - tên file: ... ]`
+   - Lệnh kiểm tra lịch sử Git có trả về bản ghi commit nào không?: `[ Có / Không ]`
+   - Các API route dùng khóa tính tiền đã có bước kiểm tra đăng nhập chưa?: `[ Đã có / Chưa có ]`
 
-### Tìm trong dự án của bạn chuỗi `sk-` và `apiKey`. Có khóa nào viết thẳng trong code không?
+## Tự giải thích
 
-Mọi kết quả nằm ngoài file `.env*` mà chứa một dãy ký tự dài là khóa thật bị lộ trong code. Chuyển nó sang biến môi trường rồi tạo khóa mới.
+### Vì sao khi phát hiện lộ API key trên GitHub hoặc trong nhóm chat, việc xóa dòng code / xóa tin nhắn là chưa đủ mà bắt buộc phải thu hồi (revoke) khóa?
 
-### Bạn lỡ dán API key vào một tin nhắn công khai. Việc đầu tiên cần làm là gì?
+Vì ngay khi khóa xuất hiện trên mạng, các bot quét tự động hoặc người khác đã có thể sao chép nó, đồng thời lịch sử Git và bộ nhớ đệm vẫn lưu bản cũ. Chỉ khi bạn vào trang quản trị của nhà cung cấp (OpenAI, Stripe, Supabase...) bấm **Revoke / Delete** thì chuỗi ký tự cũ mới bị vô hiệu hóa hoàn toàn.
 
-Vào trang quản lý của nhà cung cấp đó, thu hồi (revoke) khóa cũ và tạo khóa mới, rồi cập nhật khóa mới vào `.env.local` và trên Vercel. Xóa tin nhắn là chưa đủ.
+### Giả sử bạn đã cất `OPENAI_API_KEY` rất kỹ trong biến môi trường của máy chủ và không hề lộ khóa. Kẻ xấu vẫn có thể làm bạn tốn tiền OpenAI bằng cách nào?
+
+Kẻ xấu mở tab Network trên trình duyệt để xem trang web gửi yêu cầu đến địa chỉ nào (ví dụ `/api/chat`), rồi viết kịch bản tự động bắn hàng chục nghìn yêu cầu vào đó. Máy chủ của bạn sẽ dùng khóa thật để gọi OpenAI giúp họ. Do đó, API route bắt buộc phải kiểm tra người gọi là ai và giới hạn tần suất gọi.
+
+### Vì sao câu lệnh `console.log(process.env)` dùng để gỡ lỗi lại tiềm ẩn rủi ro làm lộ toàn bộ khóa bí mật?
+
+Vì `process.env` chứa tất cả biến môi trường trên máy chủ, gồm cả mật khẩu database và khóa thanh toán. Khi in ra, các khóa này sẽ nằm dạng văn bản thuần trong hệ thống lưu trữ log hoặc vô tình lọt vào ảnh chụp màn hình khi bạn gửi lỗi lên diễn đàn hỏi đáp.
+
+## Kiểm tra không dùng AI
+
+### Tình huống: Khi ứng dụng lỗi thanh toán, bạn chụp ảnh màn hình Terminal (có dòng `STRIPE_SECRET_KEY=sk_live_XXXX...`) gửi lên diễn đàn công khai để hỏi. Nửa tiếng sau bạn phát hiện và xóa bài đăng. Hãy nêu trình tự các bước phải làm ngay và giải thích lý do.
+
+#### Đáp án
+
+1. **Bước 1 (Quan trọng nhất):** Đăng nhập ngay vào Stripe, vào mục API Keys để **thu hồi (roll / revoke)** khóa `sk_live_XXXX...` cũ và tạo khóa mới. *Lý do:* Nửa tiếng trên diễn đàn công khai là quá đủ để bot hoặc người khác lưu lại ảnh chứa khóa thật; xóa bài đăng không thu hồi được thông tin đã lộ.
+2. **Bước 2:** Cập nhật khóa mới vào `.env.local` ở máy cá nhân và **Environment Variables** trên Vercel, sau đó triển khai lại (redeploy).
+3. **Bước 3:** Mở lịch sử giao dịch (Logs / Events) trên Stripe kiểm tra xem nửa tiếng qua có phát sinh giao dịch hay hoàn tiền bất thường nào từ khóa cũ không.
+4. **Bước 4:** Xóa dòng `console.log` đã in khóa bí mật ra Terminal để tránh lặp lại sự cố.
+
+## Lỗi suy luận hay gặp
+
+### "Kho chứa (repo) GitHub của tôi để chế độ riêng tư (Private) nên viết thẳng khóa vào code cũng không sao"
+
+- **Vì sao sai:** Repo riêng tư vẫn có thể lộ khi mời thêm người, cài công cụ bên thứ ba, tải về nhiều máy, hoặc chuyển nhầm sang công khai. Ngoài ra, khi copy code dán vào khung chat AI để hỏi lỗi, khóa cũng bị gửi đi.
+- **Cách sửa:** Dù dự án riêng tư hay thử nghiệm, khóa bí mật luôn phải nằm trong biến môi trường, không bao giờ nằm trong file code.
+
+### "Đã xóa file `.env` rồi commit đè lên là khóa trên GitHub đã được dọn sạch"
+
+- **Vì sao sai:** Mọi commit trước đó đều được Git lưu vĩnh viễn trong thư mục lịch sử `.git`. Bất kỳ ai xem lịch sử commit (Commits history) đều mở lại được nội dung file `.env` lúc chưa xóa.
+- **Cách sửa:** Coi mọi khóa từng chạm vào Git là **đã bị lộ hoàn toàn**. Hãy thu hồi và tạo khóa mới ngay thay vì chỉ xóa file trong Git.
+
+### "Chỉ cần không lộ API key ra trình duyệt là không ai xài chùa tiền AI của mình được"
+
+- **Vì sao sai:** Giấu API key ở máy chủ chỉ ngăn người ngoài lấy cắp chìa khóa, nhưng các đường dẫn `/api/...` của bạn vẫn mở tự do nếu thiếu bước kiểm tra ở cửa.
+- **Cách sửa:** Với mọi API route gọi dịch vụ tốn phí (AI, SMS, email), luôn kiểm tra xác thực đăng nhập và giới hạn số lần gọi (rate limiting).

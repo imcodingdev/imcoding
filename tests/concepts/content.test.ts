@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest'
+import fs from 'node:fs'
+import matter from 'gray-matter'
 import { loadConcepts } from '@/lib/concepts/load'
+import { parseConcept } from '@/lib/concepts/parse'
 
 const IDS = [
   'client-server',
@@ -20,15 +23,29 @@ const IDS = [
   'data-flow',
 ]
 
+const files = fs.readdirSync('content/concepts').filter(name => name.endsWith('.md')).map(name => {
+  const raw = fs.readFileSync(`content/concepts/${name}`, 'utf8')
+  return { name, raw, ...matter(raw) }
+})
+
 function v1Concepts() {
-  return loadConcepts().map(c => {
+  return files.filter(file => (file.data.format ?? 1) === 1).map(file => {
+    const c = parseConcept(file.name, file.raw)
     expect(c.format, c.id).toBe(1)
-    if (c.format !== 1) throw new Error('Bài thật phải giữ v1')
+    if (c.format !== 1) throw new Error('Expected v1')
     return c
   })
 }
 
 describe('nội dung 16 khái niệm ưu tiên', () => {
+  it.each(files)('$name tuân thủ parser theo format của bài', ({ name, raw }) => {
+    expect(() => parseConcept(name, raw)).not.toThrow()
+  })
+  it.each(files.filter(file => file.data.format === 2))('$name v2 dài 900–1.700 âm tiết, tính cả code', ({ content }) => {
+    const words = content.split(/\s+/).filter(Boolean).length
+    expect(words).toBeGreaterThanOrEqual(900)
+    expect(words).toBeLessThanOrEqual(1700)
+  })
   it('loadConcepts() đọc được thư mục content/concepts không lỗi', () => {
     expect(() => loadConcepts()).not.toThrow()
   })
