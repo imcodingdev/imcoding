@@ -1,17 +1,15 @@
 import { expect, test } from '@playwright/test'
 
-test('trang khái niệm v1 (json)', async ({ page }) => {
+test('trang khái niệm json hiển thị dạng v2', async ({ page }) => {
   await page.goto('/concepts/json')
   await expect(page.getByRole('heading', { level: 1 })).toContainText('JSON')
-  for (const name of ['Giải thích đời thường', 'Trong code trông như thế nào', 'Hay gặp lỗi gì']) {
+  for (const name of ['Nhắc lại', 'Đoán trước', 'Ví dụ mẫu', 'Tự giải thích', 'Kiểm tra không dùng AI']) {
     await expect(page.getByRole('heading', { name })).toBeVisible()
   }
-  const summaries = page.locator('summary')
-  expect(await summaries.count()).toBeGreaterThanOrEqual(2)
   const first = page.locator('details').first()
-  await summaries.first().click()
+  await expect(first).not.toHaveAttribute('open', '')
+  await page.locator('summary').first().click()
   await expect(first).toHaveAttribute('open', '')
-  await expect(first.locator('div').first()).toBeVisible()
   await expect(page.getByRole('link', { name: '← Bản đồ' })).toHaveAttribute('href', '/map')
 })
 
