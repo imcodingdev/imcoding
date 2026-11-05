@@ -29,6 +29,7 @@ function Questions({ items }: { items: QuizItem[] }) {
   return items.map((item, index) => (
     <div key={index} className="space-y-2">
       <h3 className="font-semibold text-ink">{item.question}</h3>
+      {item.body && <Markdown source={item.body} />}
       <Answer source={item.answer} />
     </div>
   ))

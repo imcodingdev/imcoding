@@ -22,7 +22,7 @@ export const invalidV2: [string, (raw: string) => string, RegExp][] = [
   ['check thừa câu hỏi', s => s.replace('## Lỗi suy luận', '### Câu thứ hai?\n#### Đáp án\nThừa\n\n## Lỗi suy luận'), /Kiểm tra/],
   ['check đáp án rỗng', s => s.replace(/Thu hồi khóa[^\n]+/, ''), /Kiểm tra/],
   ['check câu hỏi rỗng', s => s.replace(/### Đồng đội[^\n]+/, '### '), /Kiểm tra/],
-  ['check có nội dung trước đáp án', s => s.replace('#### Đáp án', 'Nội dung sai vị trí\n#### Đáp án'), /Kiểm tra/],
+  ['check có nội dung trước câu hỏi', s => s.replace('## Kiểm tra không dùng AI', '## Kiểm tra không dùng AI\nNội dung sai vị trí'), /Kiểm tra/],
   ['QA đáp án rỗng', s => s.replace('Server đọc cấu hình từ môi trường chạy.', ''), /Nhắc lại/],
   ['QA câu hỏi rỗng', s => s.replace('### Biến môi trường được dùng ở đâu?', '### '), /Nhắc lại/],
   ['QA có nội dung bị bỏ qua', s => s.replace('## Tự giải thích', '## Tự giải thích\nĐoạn ngoài câu hỏi'), /Tự giải thích/],

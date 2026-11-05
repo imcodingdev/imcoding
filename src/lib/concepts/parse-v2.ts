@@ -73,8 +73,12 @@ export function parseV2(fileName: string, body: string, hasPrerequisites: boolea
   const checkText = get(HEADINGS[5])
   const ch = scan(checkText).headings
   if (ch.length !== 2 || ch[0].level !== 3 || ch[1].level !== 4 || ch[1].title !== 'Đáp án') fail(HEADINGS[5], 'cần đúng một ### tình huống và #### Đáp án')
-  if (checkText.slice(0, ch[0].start).trim() || checkText.slice(ch[0].end, ch[1].start).trim()) fail(HEADINGS[5], 'đáp án phải nằm ngay dưới tình huống')
-  const check = { question: ch[0].title, answer: checkText.slice(ch[1].end).trim() }
+  if (checkText.slice(0, ch[0].start).trim()) fail(HEADINGS[5], 'có nội dung trước câu hỏi')
+  const check = {
+    question: ch[0].title,
+    body: checkText.slice(ch[0].end, ch[1].start).trim(),
+    answer: checkText.slice(ch[1].end).trim(),
+  }
   if (!check.question || !check.answer) fail(HEADINGS[5], 'có câu hỏi hoặc đáp án rỗng')
 
   return {

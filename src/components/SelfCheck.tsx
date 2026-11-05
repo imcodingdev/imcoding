@@ -61,14 +61,22 @@ export function SelfCheck({
     <div className="space-y-4">
       <div className="space-y-2">
         {items.map((item, i) => (
-          <details key={i} className="rounded-xl border border-line bg-surface-muted px-3" onToggle={(e) => onToggle(i, e.currentTarget.open)}>
-            <summary className={`flex min-h-[44px] cursor-pointer items-center rounded-lg font-medium ${FOCUS}`}>
-              {item.question}
-            </summary>
-            <div className="pb-3">
-              <Markdown source={item.answer} />
-            </div>
-          </details>
+          <div key={i} className="space-y-2">
+            {item.body && (
+              <>
+                <h3 className="font-semibold text-ink">{item.question}</h3>
+                <Markdown source={item.body} />
+              </>
+            )}
+            <details className="rounded-xl border border-line bg-surface-muted px-3" onToggle={(e) => onToggle(i, e.currentTarget.open)}>
+              <summary className={`flex min-h-[44px] cursor-pointer items-center rounded-lg font-medium ${FOCUS}`}>
+                {item.body ? 'Đáp án' : item.question}
+              </summary>
+              <div className="pb-3">
+                <Markdown source={item.answer} />
+              </div>
+            </details>
+          </div>
         ))}
       </div>
       {!loading && !user && (

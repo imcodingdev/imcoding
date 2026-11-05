@@ -25,6 +25,7 @@ export const GROUPS: readonly { id: ConceptGroup; title: string }[] = [
 
 export interface QuizItem {
   question: string
+  body?: string
   answer: string
 }
 

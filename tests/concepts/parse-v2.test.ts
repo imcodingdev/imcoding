@@ -11,6 +11,16 @@ function replaceSection(title: string, content: string) {
 }
 
 describe('hợp đồng v2', () => {
+  it.each(['Mô tả **rủi ro** mới.', '```ts\nconst exposed = true\n```', 'Đọc đoạn code này:\n\n```md\n## Trong code\n### Tình huống\n#### Đáp án\n```'])('giữ thân tình huống kiểm tra: %s', body => {
+    const c = parse(replaceSection('Kiểm tra không dùng AI', `### Xử lý thế nào?\n\n${body}\n\n#### Đáp án\nThu hồi khóa.`))
+    expect(c).toHaveProperty('check', { question: 'Xử lý thế nào?', body, answer: 'Thu hồi khóa.' })
+  })
+  it('kiểm tra không có thân vẫn hợp lệ', () => {
+    expect(parse(replaceSection('Kiểm tra không dùng AI', '### Xử lý thế nào?\n#### Đáp án\nThu hồi khóa.'))).toHaveProperty('check', { question: 'Xử lý thế nào?', body: '', answer: 'Thu hồi khóa.' })
+  })
+  it.each(['', 'Mô tả tình huống.\n```ts\nconst exposed = true\n```'])('thiếu heading đáp án vẫn lỗi với thân %s', body => {
+    expect(() => parse(replaceSection('Kiểm tra không dùng AI', `### Xử lý thế nào?\n${body}`))).toThrow(/Kiểm tra.*#### Đáp án/)
+  })
   it.each([1, 2])('Ví dụ mẫu chấp nhận %i code block và giữ đủ nội dung', count => {
     const example = ['Giải thích ví dụ.', ...Array.from({ length: count }, (_, i) => `\`\`\`ts\nconst value = ${i}\n\`\`\``)].join('\n\n')
     expect(parse(replaceSection('Ví dụ mẫu', example))).toHaveProperty('example', example)

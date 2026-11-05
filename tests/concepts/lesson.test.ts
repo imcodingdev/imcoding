@@ -4,7 +4,8 @@ import { parseConcept } from '../../src/lib/concepts/parse'
 import { lessonContext, lessonQuiz } from '../../src/lib/concepts/lesson'
 import { buildSystemPrompt } from '../../src/lib/ai/prompt'
 
-const concept = parseConcept('v2-lesson.md', fs.readFileSync('tests/fixtures/concepts-v2/v2-lesson.md', 'utf8'))
+const body = 'Tình huống riêng bước sáu.\n\n```ts\nconst independentCheck = true\n```'
+const concept = parseConcept('v2-lesson.md', fs.readFileSync('tests/fixtures/concepts-v2/v2-lesson.md', 'utf8').replace('#### Đáp án', `${body}\n\n#### Đáp án`))
 
 describe('bài v2 cho SelfCheck và Hỏi AI', () => {
   it('giữ nguyên nội dung Hỏi AI và quiz của v1', () => {
@@ -14,6 +15,7 @@ describe('bài v2 cho SelfCheck và Hỏi AI', () => {
     expect(lessonContext(v1)).toEqual({ title: v1.title, ...v1.sections })
   })
   it('dùng câu hỏi bước 5 và 6 để tự kiểm tra', () => {
+    expect(lessonQuiz(concept).at(-1)).toHaveProperty('body', body)
     expect(lessonQuiz(concept).map(q => q.question)).toEqual([
       'Vì sao không đưa khóa vào phản hồi?',
       'Bỏ tiền tố công khai thì sao?',
@@ -28,5 +30,7 @@ describe('bài v2 cho SelfCheck và Hỏi AI', () => {
     expect(prompt).toContain(concept.misconceptions[0].correction)
     expect(prompt).not.toContain(concept.check.question)
     expect(prompt).not.toContain(concept.check.answer)
+    expect(prompt).not.toContain('Tình huống riêng bước sáu.')
+    expect(prompt).not.toContain('independentCheck')
   })
 })
