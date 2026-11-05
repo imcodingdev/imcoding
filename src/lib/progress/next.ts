@@ -1,4 +1,5 @@
 import type { ConceptGroup } from '@/lib/concepts/types'
+import type { Stage } from '@/lib/concepts/stages'
 import type { ProgressMap } from './status'
 
 export interface ConceptRef {
@@ -7,6 +8,7 @@ export interface ConceptRef {
   group: ConceptGroup
   prerequisites: string[]
   priority: 1 | 2
+  stage: Stage
 }
 
 /** Gợi ý bài nên học tiếp. `progress === null` nghĩa là chưa đăng nhập. */
@@ -18,6 +20,6 @@ export function nextConcept(concepts: ConceptRef[], progress: ProgressMap | null
   const remaining = concepts.filter((c) => !done(c.id))
   if (remaining.length === 0) return null
   const ready = remaining.filter((c) => c.prerequisites.every(done))
-  if (ready.length > 0) return ready.find((c) => c.priority === 1) ?? ready[0]
+  if (ready.length > 0) return ready.sort((a, b) => a.stage - b.stage || a.priority - b.priority)[0]
   return remaining[0]
 }

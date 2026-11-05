@@ -36,12 +36,13 @@ export default async function ConceptPage({ params }: PageProps<'/concepts/[id]'
     ['Hay gặp lỗi gì', concept.sections.pitfalls],
   ] as const : []
 
-  const refs = all.map(({ id, title, group, prerequisites, priority }) => ({
+  const refs = all.map(({ id, title, group, prerequisites, priority, stage }) => ({
     id,
     title,
     group,
     prerequisites,
     priority,
+    stage,
   }))
 
   return (

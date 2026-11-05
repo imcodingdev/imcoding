@@ -1,17 +1,27 @@
 import { describe, it, expect } from 'vitest'
 import { nextConcept, type ConceptRef } from '@/lib/progress/next'
 
-const c = (id: string, prerequisites: string[] = [], priority: 1 | 2 = 1): ConceptRef => ({
+const c = (id: string, prerequisites: string[] = [], priority: 1 | 2 = 1, stage: 1 | 2 | 3 | 4 = 1): ConceptRef => ({
   id,
   title: id,
   group: 'web',
   prerequisites,
   priority,
+  stage,
 })
 
 const list = [c('a'), c('b', ['a']), c('c', ['a']), c('d', ['b', 'c'])]
 
 describe('nextConcept', () => {
+  it('ưu tiên chặng thấp trước priority và không sửa thứ tự đầu vào', () => {
+    const items = [c('later', [], 1, 2), c('early', [], 2, 1)]
+    expect(nextConcept(items, {})?.id).toBe('early')
+    expect(items.map(x => x.id)).toEqual(['later', 'early'])
+    expect(nextConcept(items, null)?.id).toBe('later')
+  })
+  it('chặng thấp chưa đủ prerequisite không được ưu tiên', () => {
+    expect(nextConcept([c('blocked', ['missing']), c('ready', [], 2, 2)], {})?.id).toBe('ready')
+  })
   it('chưa đăng nhập: bài đầu tiên không có prerequisite', () => {
     expect(nextConcept([c('x', ['y']), c('y'), c('z')], null)?.id).toBe('y')
   })

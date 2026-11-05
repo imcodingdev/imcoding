@@ -5,12 +5,13 @@ import { loadConcepts } from '@/lib/concepts/load'
 export const metadata: Metadata = { title: 'Cài đặt AI – ImCoding' }
 
 export default function SettingsPage() {
-  const concepts = loadConcepts().map(({ id, title, group, prerequisites, priority }) => ({
+  const concepts = loadConcepts().map(({ id, title, group, prerequisites, priority, stage }) => ({
     id,
     title,
     group,
     prerequisites,
     priority,
+    stage,
   }))
   const titles = Object.fromEntries(concepts.map((c) => [c.id, c.title]))
   return (
