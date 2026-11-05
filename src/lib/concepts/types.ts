@@ -1,3 +1,5 @@
+import type { Stage } from './stages'
+
 export type ConceptGroup =
   | 'web'
   | 'frontend'
@@ -33,7 +35,7 @@ interface ConceptBase {
   prerequisites: string[]
   priority: 1 | 2
   signals: string[]
-  stage: 1 | 2 | 3 | 4
+  stage: Stage
 }
 
 export interface ConceptV1 extends ConceptBase {
