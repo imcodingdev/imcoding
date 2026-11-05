@@ -1,8 +1,8 @@
 import { expect, test } from '@playwright/test'
 
-test('trang khái niệm client-server', async ({ page }) => {
-  await page.goto('/concepts/client-server')
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('Client–Server')
+test('trang khái niệm v1 (json)', async ({ page }) => {
+  await page.goto('/concepts/json')
+  await expect(page.getByRole('heading', { level: 1 })).toContainText('JSON')
   for (const name of ['Giải thích đời thường', 'Trong code trông như thế nào', 'Hay gặp lỗi gì']) {
     await expect(page.getByRole('heading', { name })).toBeVisible()
   }
@@ -60,4 +60,12 @@ test('không cuộn ngang với khối code dài', async ({ page }) => {
   await page.goto('/concepts/package-dependencies')
   const w = await page.evaluate(() => ({ s: document.documentElement.scrollWidth, i: window.innerWidth }))
   expect(w.s).toBeLessThanOrEqual(w.i)
+})
+
+test('bài thật client-server hiển thị dạng v2', async ({ page }) => {
+  await page.goto('/concepts/client-server')
+  for (const name of ['Đoán trước', 'Ví dụ mẫu', 'Tìm trong project của bạn', 'Tự giải thích', 'Kiểm tra không dùng AI', 'Lỗi suy luận hay gặp']) {
+    await expect(page.getByRole('heading', { name })).toBeVisible()
+  }
+  await expect(page.getByText('Làm phần này khi không dùng AI')).toBeVisible()
 })
