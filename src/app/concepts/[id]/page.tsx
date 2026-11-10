@@ -4,7 +4,7 @@ import { notFound } from 'next/navigation'
 import { AskAi } from '@/components/AskAi'
 import { Markdown } from '@/components/Markdown'
 import { LessonV2 } from '@/components/LessonV2'
-import { lessonContext, lessonQuiz } from '@/lib/concepts/lesson'
+import { lessonContext, lessonQuiz, lessonStepCount } from '@/lib/concepts/lesson'
 import { SelfCheck } from '@/components/SelfCheck'
 import { RiskGateNotice } from '@/components/RiskGateNotice'
 import { getConcept, loadConcepts } from '@/lib/concepts/load'
@@ -68,7 +68,7 @@ export default async function ConceptPage({ params }: PageProps<'/concepts/[id]'
         <h1 className="font-display text-3xl font-extrabold leading-tight tracking-tight text-ink md:text-4xl">
           {concept.title}
         </h1>
-        <p className="text-base text-ink-muted">Khoảng 30 phút · {concept.format === 1 ? '3 phần' : `${concept.recall.length > 0 ? 7 : 6} bước`} · {quiz.length} câu hỏi</p>
+        <p className="text-base text-ink-muted">Khoảng 30 phút · {concept.format === 1 ? '3 phần' : `${lessonStepCount(concept)} bước`} · {quiz.length} câu hỏi</p>
       </header>
       <RiskGateNotice concepts={refs} stage={concept.stage} />
       {concept.prerequisites.length > 0 && (

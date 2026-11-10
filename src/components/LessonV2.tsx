@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react'
 import type { ConceptV2, QuizItem } from '@/lib/concepts/types'
 import { Markdown } from './Markdown'
+import { LessonQuiz } from './LessonQuiz'
+import { LessonExercise } from './LessonExercise'
 
 function Step({ number, title, minutes, children }: {
   number: number; title: string; minutes: number; children: ReactNode
@@ -36,23 +38,25 @@ function Questions({ items }: { items: QuizItem[] }) {
 }
 
 export function LessonV2({ concept }: { concept: ConceptV2 }) {
+  let step = 0
   return (
     <>
       {concept.recall.length > 0 && (
-        <Step number={1} title="Nhắc lại" minutes={3}><Questions items={concept.recall} /></Step>
+        <Step number={++step} title="Nhắc lại" minutes={3}><Questions items={concept.recall} /></Step>
       )}
-      <Step number={2} title="Đoán trước" minutes={2}>
+      <Step number={++step} title="Đoán trước" minutes={2}>
         <Markdown source={concept.predict.scenario} />
         <Answer source={concept.predict.answer} />
       </Step>
-      <Step number={3} title="Ví dụ mẫu" minutes={5}><Markdown source={concept.example} /></Step>
-      <Step number={4} title="Tìm trong project của bạn" minutes={7}><Markdown source={concept.findInProject} /></Step>
-      <Step number={5} title="Tự giải thích" minutes={4}><Questions items={concept.explain} /></Step>
-      <Step number={6} title="Kiểm tra không dùng AI" minutes={5}>
+      <Step number={++step} title="Ví dụ mẫu" minutes={5}><Markdown source={concept.example} /></Step>
+      <Step number={++step} title="Tìm trong project của bạn" minutes={7}><Markdown source={concept.findInProject} /></Step>
+      <Step number={++step} title="Tự giải thích" minutes={4}><Questions items={concept.explain} /></Step>
+      {concept.quiz && <Step number={++step} title="Trắc nghiệm" minutes={3}><LessonQuiz key={concept.id} items={concept.quiz} /></Step>}
+      <Step number={++step} title="Kiểm tra không dùng AI" minutes={5}>
         <p className="font-semibold text-accent">Làm phần này khi không dùng AI</p>
         <Questions items={[concept.check]} />
       </Step>
-      <Step number={7} title="Lỗi suy luận hay gặp" minutes={3}>
+      <Step number={++step} title="Lỗi suy luận hay gặp" minutes={3}>
         {concept.misconceptions.map((item, index) => (
           <div key={index} className="space-y-2">
             <h3 className="font-semibold text-ink">{item.wrong}</h3>
@@ -60,6 +64,7 @@ export function LessonV2({ concept }: { concept: ConceptV2 }) {
           </div>
         ))}
       </Step>
+      {concept.exercise && <Step number={++step} title="Bài tập thực hành" minutes={15}><LessonExercise key={concept.id} exercise={concept.exercise} /></Step>}
     </>
   )
 }
