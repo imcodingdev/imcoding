@@ -20,7 +20,7 @@ test('tiến độ trong header chỉ hiện khi đã đăng nhập', async ({ p
   await expect(page.locator('header').getByRole('button', { name: 'Đăng nhập bằng GitHub' })).toBeVisible()
   await expect(page.locator('header').getByText('đã hiểu')).toHaveCount(0)
   await page.locator('header').getByRole('button', { name: 'Đăng nhập bằng GitHub' }).click()
-  await expect(page.locator('header').getByText('0/17 đã hiểu')).toBeVisible()
+  await expect(page.locator('header').getByText('0/46 đã hiểu')).toBeVisible()
 })
 
 test('mobile: không cuộn ngang và vùng chạm header đủ lớn', async ({ page, isMobile }) => {
