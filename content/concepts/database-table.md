@@ -22,7 +22,7 @@ Vì code máy chủ chạy trên máy tính của nhà cung cấp đám mây (nh
 
 ### Làm sao phân biệt nhanh một file trong Next.js App Router đang chạy ở trình duyệt hay chạy trên máy chủ?
 
-Mặc định các file trong thư mục `app/` (`page.tsx`, `layout.tsx`, `route.ts`) chạy trên máy chủ. Nếu đầu file có dòng `'use client'` thì component đó được gửi xuống chạy trên trình duyệt.
+`route.ts` xử lý yêu cầu ở máy chủ. `page.tsx` và `layout.tsx` mặc định là Server Component; `'use client'` tạo ranh giới client cho module đó và các module nó import. Vì vậy file không có chỉ thị vẫn có thể thuộc cây client; Client Component cũng có thể được dựng HTML ban đầu trên server.
 
 ## Đoán trước
 
@@ -73,13 +73,15 @@ model Order {
 1. **Xác định công cụ database:**
    - Tìm `prisma/schema.prisma`: Nếu có, dự án dùng Prisma quản lý bảng (mỗi khối `model TênBảng { ... }` là một bảng).
    - Tìm `supabase/migrations/` hoặc `supabase.from(`: Nếu có, dự án đang đọc/ghi bảng trên Supabase.
-2. **Kiểm tra chuỗi kết nối:** Mở `.env` hoặc `.env.local`, tìm biến `DATABASE_URL` hoặc `NEXT_PUBLIC_SUPABASE_URL` để biết ứng dụng đang nối tới đâu (tuyệt đối không lộ mật khẩu trong `DATABASE_URL`).
+2. **Tìm nơi cấu hình kết nối:** Tìm tên `DATABASE_URL`, `NEXT_PUBLIC_SUPABASE_URL`, `createClient` hoặc `PrismaClient` trong code như `lib/prisma.ts`, `utils/supabase/`, `src/lib/`. Chỉ ghi tên biến, không mở `.env*`, không chép URL có mật khẩu. Chưa biết môi trường đích thì ghi chưa xác minh, không kết nối thử.
 3. **Truy tìm dữ liệu lưu tạm:** Tìm trong thư mục `app/` các từ khóa `localStorage.setItem`, `sessionStorage`, hoặc biến mảng khai báo ngoài hàm như `let items = [`, `const mockData = [`.
 4. **Kiểm tra kiểu dữ liệu tiền tệ và liên kết bảng:** Xem các cột giá tiền (`price`, `total`, `amount`) đang dùng `Int` / `Decimal` hay bị dùng `Float`. Xem các bảng liên quan (`User` và `Post`, `Customer` và `Order`) đã nối với nhau bằng cột `...Id` chưa.
 5. **Ghi lại kết quả:**
    - Dự án đang có những bảng nào?: `[ Liệt kê tên bảng: ... ]`
    - Có tính năng nào đang lưu tạm vào biến mảng hoặc `localStorage` không?: `[ Có / Không - tên file: ... ]`
    - Cột nối giữa hai bảng chính tên là gì?: `[ Tên cột khóa ngoại: ... ]`
+
+Trong `supabase/migrations/*.sql`, tìm `CREATE TABLE`, `PRIMARY KEY`, `REFERENCES`, `NOT NULL`, `UNIQUE`, `ENABLE ROW LEVEL SECURITY` và `CREATE POLICY`; với Prisma tìm `@id`, `@unique`, `@relation`. Ổn là ràng buộc khớp nghiệp vụ và có chính sách truy cập phù hợp cho bảng Supabase được mở qua API. Có vấn đề là tin cột tên `user_id` tự tạo quyền riêng tư, hoặc cho phép dữ liệu thiếu ở cột nghiệp vụ bắt buộc. Migration là bằng chứng thiết kế, không chứng minh đã áp dụng lên môi trường đang chạy.
 
 ## Tự giải thích
 
@@ -89,11 +91,64 @@ Vì `schema.prisma` mới chỉ là **bản vẽ thiết kế** trong code, còn
 
 ### Tại sao trong bảng `Order` (Đơn hàng), người ta chỉ lưu cột `customerId` chứ không lưu luôn `customerName` và `customerPhone` vào từng đơn?
 
-Vì nếu một khách mua 50 đơn rồi đổi số điện thoại hoặc sửa tên, việc chỉ lưu `customerId` giúp bạn chỉ cần cập nhật 1 dòng trong bảng `Customer` là mọi đơn hàng đều tra ra thông tin mới nhất. Nếu chép lặp tên và số điện thoại vào từng đơn, dữ liệu sẽ lệch nhau giữa đơn cũ và đơn mới.
+Nếu muốn tra thông tin hiện tại của khách, chỉ lưu `customerId` giúp cập nhật một dòng trong `Customer` là các đơn đều tra được thông tin mới. Tuy nhiên, hóa đơn hay địa chỉ giao hàng tại thời điểm mua thường cần lưu bản chụp lịch sử riêng. Lưu bản chụp có chủ đích không phải lỗi; cần phân biệt thông tin hiện tại với thông tin của giao dịch cũ.
 
 ### Vì sao khi lưu số tiền (như giá sản phẩm, số dư ví), ta nên dùng kiểu số nguyên `Int` (hoặc `Decimal`) thay vì số thực dấu phẩy động `Float`?
 
 Trong máy tính, kiểu `Float` biểu diễn số thập phân theo hệ nhị phân nên hay bị sai số lẻ (ví dụ `0.1 + 0.2` thành `0.30000000000000004`). Khi cộng hàng nghìn giao dịch, sai số này tích tụ làm lệch sổ sách. Với tiền VNĐ, dùng số nguyên `Int` (như `58000`) là chính xác tuyệt đối; với ngoại tệ có xu/cent, ta đổi ra đơn vị nhỏ nhất dạng `Int` hoặc dùng kiểu `Decimal`.
+
+## Trắc nghiệm
+
+### AI tạo cột bắt buộc nhưng thao tác thêm bản ghi lại bỏ trống tên. Thông báo này có nghĩa gì?
+
+```text
+null value in column "name" violates not-null constraint
+```
+
+- [ ] Database đã mất toàn bộ bảng và cần tạo lại
+- [x] Bản ghi thiếu giá trị ở cột không cho phép null; cần rà đầu vào và quy tắc nghiệp vụ
+- [ ] Chỉ đổi màu thông báo ở giao diện là lưu được
+
+**Giải thích:** Ràng buộc đang chặn dữ liệu thiếu. Không nên tự bỏ `NOT NULL` để hết lỗi nếu nghiệp vụ vẫn yêu cầu tên; cũng không cần tạo lại bảng.
+
+### Với thiết kế sau, hai bản ghi dùng cùng mã SKU sẽ ra sao?
+
+```sql
+CREATE TABLE products (
+  id uuid PRIMARY KEY,
+  sku text UNIQUE NOT NULL
+);
+```
+
+- [x] Database từ chối bản ghi vi phạm UNIQUE dù id khác nhau
+- [ ] Được lưu vì chỉ id mới có thể cấm trùng
+- [ ] Bản ghi cũ tự bị thay thế bằng bản ghi mới
+
+**Giải thích:** `UNIQUE` tạo quy tắc không trùng cho SKU, độc lập với khóa chính. Lệnh thêm thông thường không tự trở thành thao tác thay thế bản ghi cũ.
+
+### Supabase trả danh sách rỗng cho tài khoản thử, nhưng quản trị viên thấy có dòng. AI kết luận bảng rỗng và đề nghị nạp lại. Nên kiểm tra gì?
+
+```ts
+supabase.from('notes').select('id, title')
+```
+
+- [ ] Nạp lại ngay vì select không thể bị phân quyền lọc
+- [ ] Đổi sang khóa quản trị trên trình duyệt để luôn thấy đủ dòng
+- [x] Kiểm tra lỗi trả về, phiên đăng nhập, bộ lọc và chính sách RLS trước khi kết luận
+
+**Giải thích:** RLS là quy tắc giới hạn các dòng tài khoản được truy cập. Kết quả rỗng có thể do quyền, không phải mất dữ liệu; đưa khóa quản trị xuống trình duyệt làm mất an toàn.
+
+### AI chỉ nhìn truy vấn dưới đây rồi báo bảng có đúng mười sản phẩm. Kết luận đó có đủ căn cứ không?
+
+```ts
+supabase.from('products').select('id').limit(10)
+```
+
+- [ ] Có, limit cho biết tổng số dòng đang lưu
+- [x] Không, đây chỉ là giới hạn số dòng trả về, chưa phải tổng số dòng
+- [ ] Có, Supabase tự xóa những dòng vượt quá limit
+
+**Giải thích:** Giới hạn truy vấn không đếm và không xóa dữ liệu. Muốn biết tổng cần phép đếm phù hợp, đồng thời hiểu quyền truy cập của tài khoản đang dùng.
 
 ## Kiểm tra không dùng AI
 
@@ -104,9 +159,9 @@ Trong máy tính, kiểu `Float` biểu diễn số thập phân theo hệ nhị
 1. **Hành động ngay lập tức:** Bấm **No (`n` hoặc `Ctrl+C`)** để hủy lệnh ngay. Nếu bấm Yes, toàn bộ 500 khách hàng thật sẽ bị xóa trắng.
 2. **Nguyên nhân:** Bạn đang trỏ nhầm `DATABASE_URL` của database thật ở máy cá nhân và chạy `npx prisma migrate dev` (hoặc `db push --force-reset`).
 3. **Quy trình sửa đúng:**
-   - Bước 1: Đổi `DATABASE_URL` trong `.env.local` ở máy cá nhân về database thử nghiệm (local hoặc nhánh dev riêng).
+   - Bước 1: Xác minh cấu hình kết nối mà Prisma CLI thực sự dùng trỏ tới database thử riêng; không mặc định CLI tự đọc `.env.local` giống Next.js. Không chạy tiếp nếu chưa chắc môi trường đích.
    - Bước 2: Chạy `npx prisma migrate dev --name add_birth_date` trên database thử nghiệm để sinh file SQL trong `prisma/migrations/`.
-   - Bước 3: Kiểm tra file SQL vừa tạo chỉ chứa `ALTER TABLE ... ADD COLUMN` (không có `DROP`), rồi commit lên Git và dùng `npx prisma migrate deploy` để áp dụng lên database thật mà không mất dữ liệu.
+   - Bước 3: Với thay đổi này, kiểm tra SQL chỉ thêm cột nullable dự kiến, thử migration trên database thử, chuẩn bị bản sao lưu và kế hoạch phục hồi trước khi triển khai có phê duyệt. `npx prisma migrate deploy` áp dụng migration có sẵn; nó không tự bảo đảm SQL bên trong không gây mất dữ liệu.
 
 ## Lỗi suy luận hay gặp
 
@@ -124,3 +179,24 @@ Trong máy tính, kiểu `Float` biểu diễn số thập phân theo hệ nhị
 
 - **Vì sao sai:** Nếu gộp chung một bảng, khi khách mua 10 món hàng bạn phải lặp lại tên, email, mật khẩu 10 lần; còn sản phẩm chưa ai mua thì không biết lưu vào đâu nếu chưa có đơn hàng.
 - **Cách sửa:** Tách mỗi loại đối tượng (Khách hàng, Sản phẩm, Đơn hàng) thành một bảng riêng có `id` riêng và liên kết bằng cột khóa ngoại (`customerId`, `productId`).
+
+## Bài tập thực hành
+
+Đọc cấu trúc một bảng trong project và dựng dữ liệu giả trên giấy hoặc ghi chú để kiểm tra ràng buộc. Không chạy SQL, migration hoặc mở dữ liệu khách hàng.
+
+### Việc cần làm
+
+1. Mở một migration SQL hoặc `prisma/schema.prisma`, chọn bảng nghiệp vụ đơn giản. Ghi file và tên bảng; nếu không có định nghĩa trong repo, ghi thiếu bằng chứng thay vì nối database thật.
+2. Chọn cột khóa chính, một cột bắt buộc, và cột UNIQUE hoặc khóa ngoại nếu có. Ghi ý nghĩa từng ràng buộc từ code, không đoán theo tên cột.
+3. Viết hai bản ghi giả trong ghi chú: một đáp ứng các ràng buộc vừa đọc, một cố ý thiếu cột bắt buộc hoặc trùng giá trị UNIQUE. Không nhập chúng vào database.
+4. Giải thích bản ghi nào bị từ chối và bởi ràng buộc nào. Nếu có RLS, ghi riêng chính sách đang thấy; không coi khóa ngoại là cơ chế phân quyền.
+
+### Kết quả đúng
+
+Có bảng cột → kiểu → ràng buộc, hai ví dụ giả và dự đoán có căn cứ. Kết quả chỉ xác nhận hiểu thiết kế trong repo, không chứng minh migration hoặc quyền đã đúng trên database đang chạy.
+
+### Nhờ AI rà lại
+
+```text
+Chỉ báo cáo, không tự sửa, không kết nối database hoặc chạy lệnh. Dựa vào định nghĩa bảng đã che bí mật và hai bản ghi giả tôi cung cấp, kiểm tra dự đoán về ràng buộc. Tách cấu trúc dữ liệu khỏi quyền RLS, nêu phần chưa đủ bằng chứng; không tự mở thêm file.
+```
