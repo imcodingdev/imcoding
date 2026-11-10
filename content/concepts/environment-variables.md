@@ -17,7 +17,7 @@ signals:
 
 ### Làm sao phân biệt nhanh một file trong Next.js App Router chạy trên máy chủ (server) hay trình duyệt (client)?
 
-Kiểm tra dòng đầu tiên: nếu có `'use client'` thì code chạy trên trình duyệt của người dùng; nếu không có (hoặc là file `route.ts` trong `app/api/`), mặc định nó chạy trên máy chủ.
+`page.tsx` và `layout.tsx` mặc định là Server Component; `'use client'` đặt ranh giới client, còn `route.ts` trong `app/api/` chạy trên máy chủ. Với file tiện ích, phải lần theo import: không có `'use client'` chưa chứng minh nó chỉ chạy ở server, vì client có thể import nó.
 
 ### Vì sao không được đặt logic kiểm tra quyền hoặc thông tin nhạy cảm ở code chạy trên trình duyệt?
 
@@ -75,6 +75,8 @@ Mở công cụ tìm kiếm toàn dự án (`Ctrl+Shift+F` hoặc `Cmd+Shift+F`)
    - Các biến có tiền tố `NEXT_PUBLIC_`: `[ ... ]` (Có biến nào chứa chữ `SECRET`, `KEY`, `PASSWORD` không?: `[ Có / Không ]`)
    - Biến có trong code nhưng chưa có tên mẫu trong `.env.example`: `[ ... ]`
 
+Trong `app/api/**/route.ts`, `lib/` hoặc `src/lib/`, ghi mỗi tên `process.env.TEN_BIEN` cùng nơi dùng và phía chạy. Ổn: bí mật chỉ được đọc ở server; biến công khai chỉ chứa thông tin được phép phát hành. Có vấn đề: đọc tên động như `process.env[name]` ở client rồi mong Next.js tự nhúng giá trị. Chữ `KEY` chỉ là dấu hiệu cần phân loại: khóa Supabase publishable/anon khác khóa secret/service_role. Khi rà cấu hình Vercel, phân biệt Development, Preview, Production; chỉ ghi tên và phạm vi, không sao chép giá trị hay sửa môi trường thật.
+
 ## Tự giải thích
 
 ### Vì sao trong `.gitignore` cần dòng `.env*`, nhưng lại nên thêm `!.env.example` ngay bên dưới?
@@ -88,6 +90,45 @@ Trên trình duyệt, biến đó sẽ có giá trị `undefined` chứ Next.js 
 ### Vì sao khi sửa giá trị biến `NEXT_PUBLIC_...` trong Settings của Vercel, trang web đang chạy vẫn hiện giá trị cũ?
 
 Vì biến `NEXT_PUBLIC_` được chép cứng giá trị vào file JavaScript ngay lúc đóng gói (build). Sau khi sửa trong Settings, bạn phải bấm **Redeploy** trên Vercel để đóng gói lại thì giá trị mới mới được cập nhật.
+
+## Trắc nghiệm
+
+### AI dùng tên biến động ở trình duyệt. Có thể dựa vào cách này để đọc biến công khai không?
+
+```ts
+const name = 'NEXT_PUBLIC_SITE_NAME'
+const title = process.env[name]
+```
+
+- [ ] Có, mọi tên bắt đầu NEXT_PUBLIC_ đều được tìm lúc chạy
+- [x] Không; nên dùng truy cập tĩnh `process.env.NEXT_PUBLIC_SITE_NAME`
+- [ ] Chuyển biến sang SECRET_SITE_NAME là đọc được
+
+**Giải thích:** Next.js nhúng các tham chiếu tĩnh vào bundle khi build, không cung cấp toàn bộ môi trường cho trình duyệt tra theo tên động.
+
+### Vercel ghi biến chỉ dành cho Production, bản Preview báo thiếu. AI muốn dùng luôn database thật để sửa. Bạn chọn gì?
+
+- [ ] Dùng cùng database thật cho mọi preview cho nhanh
+- [ ] Commit cấu hình Production vào mã nguồn
+- [x] Cấu hình riêng Preview với tài nguyên thử, rồi tạo deployment mới
+
+**Giải thích:** Phạm vi môi trường quyết định deployment nào nhận biến. Preview cần tài nguyên thử để không tác động dữ liệu thật, không phải sao chép bí mật vào Git.
+
+### Code đọc PAYMENT_API_KEY nhưng danh sách cấu hình chỉ có PAYMENTS_API_KEY. AI nghi dịch vụ thanh toán bị hỏng. Kiểm tra đầu tiên là gì?
+
+- [x] Đối chiếu chính xác tên biến giữa nơi đọc và cấu hình
+- [ ] Đổi mọi biến sang NEXT_PUBLIC_ để debug
+- [ ] Tạo thêm giao dịch thật để thử
+
+**Giải thích:** Hai tên là hai biến khác nhau. Sai tên có thể gây thiếu cấu hình trước cả khi gọi nhà cung cấp; không cần thử giao dịch thật.
+
+### AI nói cứ có chữ KEY là không được xuất hiện ở client. Nhận định nào đúng với Supabase?
+
+- [ ] Mọi khóa Supabase đều cho quyền quản trị
+- [x] Publishable/anon dùng được ở client khi cấu hình quyền và RLS đúng; secret/service_role phải giữ ở server
+- [ ] Khóa nào cũng công khai được nếu repo riêng tư
+
+**Giải thích:** Phải phân loại quyền của khóa, không suy từ tên chung. Khóa công khai không thay thế chính sách RLS bảo vệ từng hàng dữ liệu.
 
 ## Kiểm tra không dùng AI
 
@@ -117,3 +158,24 @@ Vì biến `NEXT_PUBLIC_` được chép cứng giá trị vào file JavaScript 
 
 - **Vì sao sai:** Next.js cố tình trả về `undefined` trên trình duyệt cho các biến thường để bảo vệ cấu hình máy chủ. Thêm `NEXT_PUBLIC_` chỉ để hết lỗi `undefined` sẽ làm lộ dữ liệu mật.
 - **Cách sửa:** Khi biến trả về `undefined` trong file `'use client'`, nếu đó là thông tin nhạy cảm, phải chuyển đoạn xử lý về file chạy trên máy chủ (như `route.ts`), rồi giao diện chỉ gọi kết quả về.
+
+## Bài tập thực hành
+
+Lập bản đồ tên biến và nơi sử dụng mà không đọc giá trị bí mật hay thay cấu hình đang chạy.
+
+### Việc cần làm
+
+1. Tìm `process.env.` trong mã nguồn của project, bỏ qua `.env*`, thư mục build và dependency.
+2. Chọn ba tên biến hoặc tất cả nếu có ít hơn; ghi file sử dụng và mục đích dựa trên code.
+3. Phân loại “công khai / chỉ server / chưa rõ”; lần theo import để kiểm tra phía chạy, không chỉ dựa vào tên file.
+4. Với biến chưa rõ, ghi câu hỏi cụ thể cần xác minh về quyền hoặc môi trường. Không sửa Vercel, không đưa giá trị vào chat.
+
+### Kết quả đúng
+
+Bảng có tên biến, file sử dụng, phía chạy và lý do phân loại. Bất kỳ biến bí mật nào có tiền tố công khai được đánh dấu cần xử lý; trường hợp thiếu bằng chứng được ghi rõ, không kết luận an toàn chỉ từ tên.
+
+### Nhờ AI rà lại
+
+```text
+Chỉ báo cáo, không tự sửa. Rà bảng tên biến với các file mã nguồn tôi chỉ định, không đọc .env hoặc cấu hình từ xa. Kiểm tra phía chạy, truy cập tên động và phân loại khóa công khai/bí mật. Nêu nơi chưa đủ bằng chứng; không in giá trị.
+```
