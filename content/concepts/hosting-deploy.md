@@ -73,14 +73,16 @@ git push
 
 Hãy kiểm tra quy trình đưa ứng dụng lên mạng của dự án theo các bước sau:
 
-1. **Chạy thử đóng gói trên máy:** Mở Terminal tại thư mục dự án và chạy `npm run build`. Quan sát xem lệnh chạy trót lọt hay dừng lại báo lỗi (`Failed to compile` / `Type error`).
+1. **Xác định bước đóng gói:** Đọc `scripts.build` trong `package.json` và log build đã có. Ghi lỗi đầu tiên kèm file, dòng, giai đoạn (`install`, `build` hay lúc chạy). Chỉ chạy `npm run build` khi đã biết script và cấu hình không gọi dịch vụ hoặc dữ liệu thật; build có thể thực thi code lấy dữ liệu, không phải chỉ kiểm tra chữ trong file.
 2. **Kiểm tra cấu hình bỏ qua lỗi:** Mở `next.config.ts` (hoặc `.mjs`, `.js`), tìm xem AI có tự ý chèn `ignoreBuildErrors: true` để giấu lỗi TypeScript không.
 3. **Rà soát thao tác ghi file:** Tìm kiếm toàn dự án (`Ctrl+Shift+F` / `Cmd+Shift+F`) các từ khóa `fs.writeFile`, `fs.appendFile`, `writeFileSync` xem có tính năng nào đang ghi thẳng dữ liệu người dùng vào thư mục dự án không.
-4. **Đối chiếu biến môi trường và bản chạy thật:** Mở `.env.local`, đếm số biến môi trường rồi kiểm tra mục **Settings → Environment Variables** trên Vercel xem đã nhập đủ chưa. Vào mục **Deployments** xem bản `Production` hiện tại có khớp với mã commit mới nhất (`git log -n 1 --oneline`) không.
+4. **Đối chiếu cấu hình bằng tên, không đọc bí mật:** Tìm `process.env.` trong code, ghi tên biến và phía sử dụng, không mở `.env*`. Nếu có bản ghi triển khai đã che bí mật, đối chiếu mã commit, phạm vi Preview/Production và môi trường dữ liệu. Không có bằng chứng thì ghi chưa xác minh; đếm đủ số biến không chứng minh đúng tên, giá trị hay phạm vi.
 5. **Ghi lại kết quả của bạn:**
    - Lệnh `npm run build` trên máy chạy thành công hay báo lỗi?: `[ Thành công / Báo lỗi tại file: ... ]`
    - Trong code có chỗ nào dùng `fs.writeFile` lưu dữ liệu người dùng không?: `[ Có / Không - tên file: ... ]`
-   - Các biến trong `.env.local` đã có đủ trên Vercel Environment Variables chưa?: `[ Đã đủ / Còn thiếu biến: ... ]`
+   - Tên biến và phạm vi môi trường đã có bằng chứng đối chiếu chưa?: `[ Đã đối chiếu / Chưa xác minh / Thiếu tên biến: ... ]`
+
+Tìm `output`, `ignoreBuildErrors` trong `next.config.*`, `buildCommand`, `outputDirectory` trong `vercel.json` nếu có; không có file này vẫn có thể dùng cấu hình Vercel mặc định. Với nhiều ứng dụng trong một repo, kiểm tra Root Directory từ bản cấu hình triển khai đã che bí mật. Ổn là build đúng thư mục và commit dự kiến, kiểm tra kiểu vẫn bật; có vấn đề là log build ứng dụng khác hoặc Preview nối dữ liệu production. Chỉ ghi tên môi trường, không chép chuỗi kết nối.
 
 ## Tự giải thích
 
@@ -95,6 +97,56 @@ Mỗi bản triển khai (Deployment) trên Vercel đã được đóng băng c�
 ### Vì sao trên các nền tảng đám mây như Vercel, bạn không thể lưu ảnh người dùng tải lên hoặc lưu dữ liệu đơn hàng bằng lệnh ghi file `fs.writeFile` vào thư mục dự án?
 
 Trên Vercel, mỗi khi có truy cập, hệ thống bật lên các máy chủ tạm thời (serverless functions) chỉ tồn tại ngắn hạn rồi tự tắt, và thư mục code chỉ cho phép đọc (read-only). Mọi dữ liệu cần giữ lâu dài bắt buộc phải lưu vào Database (như Supabase) hoặc dịch vụ lưu trữ đám mây (như Supabase Storage, AWS S3, Cloudflare R2).
+
+## Trắc nghiệm
+
+### AI bảo cứ thử tạo đơn trên Preview vì không phải Production. Cấu hình đã che cho thấy gì?
+
+```text
+Deployment: Preview
+Database đích: production
+```
+
+- [ ] Preview tự cô lập mọi database nên cứ thử
+- [x] Preview vẫn có thể ghi dữ liệu thật; cần môi trường dữ liệu thử riêng trước khi thử tạo đơn
+- [ ] Chỉ mở bằng cửa sổ ẩn danh là dữ liệu thành dữ liệu thử
+
+**Giải thích:** Preview cô lập bản triển khai code, không tự thay database hoặc dịch vụ trong cấu hình. Trình duyệt ẩn danh cũng không đổi môi trường mà server kết nối.
+
+### Vercel báo Ready nhưng chức năng đọc danh sách trả lỗi khi mở trang. AI kết luận không thể có lỗi server. Bạn cần xem gì?
+
+```text
+Build: thành công
+GET /api/catalog: 500
+```
+
+- [x] Log lúc request chạy để tìm lỗi runtime của đúng deployment
+- [ ] Chỉ xem lại dấu Ready vì nó chứng minh mọi chức năng đã được thử
+- [ ] Tắt TypeScript để API không còn trả 500
+
+**Giải thích:** Build thành công chưa kiểm chứng mọi đường chạy khi có yêu cầu thật. Cần đọc log runtime đã che bí mật; tắt kiểm tra kiểu không giải thích hoặc chữa lỗi API.
+
+### AI đề nghị rollback bản deploy và nói cấu trúc database cũng tự quay về. Nhận định nào đúng?
+
+- [ ] Rollback code luôn tự đảo toàn bộ migration
+- [ ] Vercel tự xóa bảng mới để khớp code cũ
+- [x] Database là hệ thống riêng; cần kiểm tra code cũ có tương thích cấu trúc hiện tại không
+
+**Giải thích:** Đổi bản code phục vụ người dùng không tự hoàn tác thay đổi database. Kế hoạch rollback phải xét tương thích và dữ liệu, không được giả định có thao tác khôi phục tự động.
+
+### Repo có hai ứng dụng. Log cho thấy Vercel đang build ứng dụng khác với trang cần sửa. Cần đối chiếu gì trước?
+
+```text
+Repo: apps/shop và apps/admin
+Root Directory hiện tại: apps/admin
+Trang muốn triển khai: shop
+```
+
+- [ ] Chép mọi component shop sang admin để build tìm thấy
+- [x] Root Directory và lệnh build phải khớp ứng dụng shop theo cấu trúc repo
+- [ ] Chỉ đổi tên miền thì Vercel tự chọn lại thư mục
+
+**Giải thích:** Thư mục gốc triển khai quyết định ứng dụng và cấu hình được build. Tên miền không chọn lại nguồn code; cần xác minh cấu hình trước khi đề xuất thay đổi.
 
 ## Kiểm tra không dùng AI
 
@@ -126,3 +178,24 @@ Trên Vercel, mỗi khi có truy cập, hệ thống bật lên các máy chủ 
 
 - **Vì sao sai:** Do Windows không phân biệt hoa thường, mặc định Git trên Windows không nhận ra việc chỉ đổi chữ `B` thành `b`, dẫn đến tên file trên GitHub và Vercel vẫn giữ nguyên và tiếp tục lỗi lúc build.
 - **Cách sửa:** Dùng lệnh `git mv -f Button.tsx button.tsx` trong Terminal rồi commit, đồng thời kiểm tra lại trên GitHub xem tên file đã đổi thật sự chưa.
+
+## Bài tập thực hành
+
+Lập phiếu sẵn sàng triển khai từ code và log có sẵn của project. Bài này không build, push, deploy hay thay cấu hình dịch vụ.
+
+### Việc cần làm
+
+1. Đọc `scripts.build` trong `package.json`, `next.config.*` và `vercel.json` nếu có. Ghi lệnh build, cấu hình bỏ qua kiểm tra kiểu và điểm chưa rõ; không chạy script.
+2. Chạy lệnh chỉ đọc `git log -n 1 --oneline` trong repo để ghi mã commit local. Nếu có log triển khai đã che bí mật, đối chiếu commit và ứng dụng được build; không có thì ghi chưa xác minh.
+3. Tìm tên biến dùng trong code và lập bảng tên biến → server/client → môi trường cần dùng. Không mở `.env*`, không ghi giá trị; đánh dấu chưa xác minh môi trường dữ liệu của Preview nếu thiếu bằng chứng.
+4. Đọc log build/runtime đã che nếu có, phân loại sự cố theo giai đoạn và file. Lập danh sách điều đã kiểm tra và điều còn thiếu, không lấy Ready làm bằng chứng mọi chức năng hoạt động.
+
+### Kết quả đúng
+
+Phiếu có lệnh build, commit, tên biến, bằng chứng log và các điểm chưa xác minh. Bạn biết cần thông tin gì trước khi triển khai, không kết luận Preview an toàn chỉ từ nhãn Preview, và chưa gây thay đổi lên hệ thống đang chạy.
+
+### Nhờ AI rà lại
+
+```text
+Chỉ báo cáo, không tự sửa, không chạy build, push, deploy hoặc gọi dịch vụ. Từ phiếu và log đã che bí mật tôi gửi, kiểm tra ứng dụng/commit, giai đoạn lỗi, phạm vi môi trường và bằng chứng còn thiếu. Không tự mở file hoặc yêu cầu giá trị biến môi trường.
+```
