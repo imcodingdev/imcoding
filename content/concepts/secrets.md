@@ -79,6 +79,8 @@ Hãy rà soát dự án của bạn theo các bước sau:
    - Lệnh kiểm tra lịch sử Git có trả về bản ghi commit nào không?: `[ Có / Không ]`
    - Các API route dùng khóa tính tiền đã có bước kiểm tra đăng nhập chưa?: `[ Đã có / Chưa có ]`
 
+Trong `app/api/**/route.ts`, `src/lib/` và file khởi tạo SDK, ổn là `apiKey: process.env.TEN_BIEN` ở server, không trả khóa trong JSON. Có vấn đề là chuỗi khóa viết cứng, `NEXT_PUBLIC_` gắn bí mật, hoặc log/response chứa giá trị khóa. Tìm thêm `Response.json`, `Authorization` và `service_role`; chỉ ghi tên file và loại nguy cơ, không sao chép chuỗi nghi là khóa thật. Lịch sử `.env*` không có kết quả cũng chưa chứng minh chưa từng lộ khóa trong file code khác.
+
 ## Tự giải thích
 
 ### Vì sao khi phát hiện lộ API key trên GitHub hoặc trong nhóm chat, việc xóa dòng code / xóa tin nhắn là chưa đủ mà bắt buộc phải thu hồi (revoke) khóa?
@@ -92,6 +94,48 @@ Kẻ xấu mở tab Network trên trình duyệt để xem trang web gửi yêu 
 ### Vì sao câu lệnh `console.log(process.env)` dùng để gỡ lỗi lại tiềm ẩn rủi ro làm lộ toàn bộ khóa bí mật?
 
 Vì `process.env` chứa tất cả biến môi trường trên máy chủ, gồm cả mật khẩu database và khóa thanh toán. Khi in ra, các khóa này sẽ nằm dạng văn bản thuần trong hệ thống lưu trữ log hoặc vô tình lọt vào ảnh chụp màn hình khi bạn gửi lỗi lên diễn đàn hỏi đáp.
+
+## Trắc nghiệm
+
+### AI thêm phản hồi debug vào route máy chủ. Khóa có còn kín không?
+
+```ts
+return Response.json({ debugKey: process.env.OPENAI_API_KEY })
+```
+
+- [ ] Có, vì biến không có tiền tố NEXT_PUBLIC_
+- [x] Không, giá trị bị gửi cho người gọi trong phản hồi
+- [ ] Có, vì JSON không phải JavaScript bundle
+
+**Giải thích:** Không có tiền tố công khai chỉ ngăn cơ chế nhúng tự động. Tự đưa giá trị vào response vẫn làm lộ khóa, dù mã đọc nó chạy ở server.
+
+### Cursor yêu cầu dán nguyên header Authorization để tìm lỗi. Bạn nên cung cấp gì?
+
+- [x] Tên header, mã lỗi và mô tả đã che token
+- [ ] Token thật vì chat riêng tư luôn an toàn
+- [ ] URL có token thay cho header để dễ đọc
+
+**Giải thích:** AI có thể rà cấu trúc và lỗi bằng thông tin đã che. Đổi nơi đặt token không loại bỏ bí mật khỏi dữ liệu gửi đi.
+
+### AI dùng khóa quản trị cho tác vụ chỉ cần đọc danh mục công khai. Cần rà điều gì?
+
+- [ ] Chỉ độ dài khóa; khóa dài luôn an toàn hơn
+- [ ] Chỉ tên biến có chứa chữ SECRET không
+- [x] Quyền tối thiểu cần thiết và khả năng dùng khóa có quyền hẹp hơn
+
+**Giải thích:** Quyền rộng làm tăng hậu quả khi bị lộ hoặc dùng sai. Tên biến và độ dài không chứng minh tác vụ cần quyền quản trị.
+
+### AI đề xuất đưa khóa vào URL như sau để tránh viết trong body. Đánh giá nào đúng?
+
+```text
+/api/demo?key=KHOA_GIA_KHONG_SU_DUNG_DUOC
+```
+
+- [ ] URL an toàn vì HTTPS che khỏi mọi nơi lưu log
+- [x] Khóa thật không nên đặt vào URL vì URL có thể được lưu trong log hoặc lịch sử
+- [ ] Đổi tên tham số thành id sẽ giấu được khóa
+
+**Giải thích:** HTTPS bảo vệ đường truyền, không ngăn hệ thống đầu cuối lưu URL. Đổi tên tham số không biến bí mật thành dữ liệu công khai.
 
 ## Kiểm tra không dùng AI
 
@@ -120,3 +164,24 @@ Vì `process.env` chứa tất cả biến môi trường trên máy chủ, gồ
 
 - **Vì sao sai:** Giấu API key ở máy chủ chỉ ngăn người ngoài lấy cắp chìa khóa, nhưng các đường dẫn `/api/...` của bạn vẫn mở tự do nếu thiếu bước kiểm tra ở cửa.
 - **Cách sửa:** Với mọi API route gọi dịch vụ tốn phí (AI, SMS, email), luôn kiểm tra xác thực đăng nhập và giới hạn số lần gọi (rate limiting).
+
+## Bài tập thực hành
+
+Rà một luồng sử dụng khóa trong mã nguồn project và tạo bản mô tả đã che thông tin nhạy cảm. Không cần tạo hay thu hồi khóa thật.
+
+### Việc cần làm
+
+1. Chọn file khởi tạo SDK ở máy chủ, tìm `apiKey` hoặc tên biến có `SECRET`; không mở `.env*`.
+2. Theo dõi từ tên biến đến lời gọi SDK, log và `Response.json`. Nếu gặp giá trị nghi là khóa thật, không chép, không chụp ảnh hoặc gửi cho AI.
+3. Ghi đường đi bằng tên biến và tên file. Trong ghi chú dùng duy nhất chuỗi giả `KHOA_GIA_KHONG_SU_DUNG_DUOC` thay mọi giá trị nhạy cảm.
+4. Đánh dấu nơi cần rà thêm và tự kiểm tra ghi chú không có token, mật khẩu, URL chứa khóa hay dữ liệu khách hàng. Không gọi dịch vụ để thử khóa.
+
+### Kết quả đúng
+
+Có sơ đồ nguồn cấu hình → SDK → phản hồi/log và kết luận có bằng chứng. Ghi chú chỉ chứa tên biến, file và chuỗi giả; không kết luận toàn bộ project an toàn chỉ vì đã rà một luồng.
+
+### Nhờ AI rà lại
+
+```text
+Chỉ báo cáo, không tự sửa, không chạy lệnh hoặc gọi dịch vụ. Rà sơ đồ đã che bí mật tôi cung cấp: khóa có thể ra response, URL hoặc log ở đâu? Chỉ dùng dữ liệu đã che trong tin nhắn, không tự mở thêm file. Nêu giới hạn của kết luận.
+```
