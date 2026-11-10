@@ -75,6 +75,8 @@ Khi chạy `npm run dev`, máy tính của bạn đóng cả hai vai (máy khác
    - **Một dữ liệu đang gửi qua `fetch(`:** `____________________`
    - **Dữ liệu đó có chứa giá tiền, quyền admin hay thông tin nhạy cảm do trình duyệt tự quyết định không?** `Có / Không`
 
+Ổn: `fetch` gửi dữ liệu đầu vào, còn `app/api/orders/route.ts` (hoặc `src/app/api/orders/route.ts`) kiểm tra lại trước khi xử lý. Có vấn đề: máy chủ tin ngay `role`, `userId` hay giá do trình duyệt gửi. Tìm thêm `request.json`, `role` và `userId` ở nơi nhận yêu cầu; chỉ thấy kiểm tra trên giao diện chưa đủ kết luận an toàn.
+
 ## Tự giải thích
 
 ### Vì sao không nên để trình duyệt tính sẵn tổng tiền đơn hàng rồi gửi lên máy chủ?
@@ -88,6 +90,45 @@ Bạn sẽ thấy nó ở cửa sổ terminal đang chạy `npm run dev` (hoặc
 ### Điều gì xảy ra nếu AI viết code lưu hóa đơn khách hàng vào một file `.json` trên ổ cứng thay vì lưu vào cơ sở dữ liệu?
 
 Khi chạy thử ở `localhost:3000`, mọi thứ có vẻ ổn vì máy cá nhân giữ nguyên file đó. Nhưng trên dịch vụ máy chủ như Vercel, các hàm máy chủ chỉ bật lên xử lý tạm thời rồi tắt, không giữ lại file ghi thêm trên ổ cứng, khiến dữ liệu khách hàng biến mất sau một thời gian ngắn.
+
+## Trắc nghiệm
+
+### AI lưu vai trò như sau. Máy chủ nên dựa vào đâu để cấp quyền?
+
+```js
+localStorage.setItem('role', 'admin')
+fetch('/api/reports', { headers: { 'X-Role': 'admin' } })
+```
+
+- [ ] Tin `X-Role` vì được ứng dụng tự gửi
+- [x] Xác minh phiên và quyền trên máy chủ
+- [ ] Tin localStorage vì chỉ máy người dùng đọc được
+
+**Giải thích:** Người dùng sửa được cả localStorage lẫn header. Header do giao diện gửi không phải bằng chứng quyền quản trị.
+
+### Cursor nói “hai phía đều ở localhost nên fetch không đi qua mạng”. Bạn kiểm tra thế nào?
+
+- [x] Mở Network để xem yêu cầu HTTP giữa trình duyệt và máy chủ local
+- [ ] Không cần kiểm tra vì localhost chỉ có một tiến trình
+- [ ] Chỉ tìm yêu cầu sau khi triển khai lên Vercel
+
+**Giải thích:** Hai phía vẫn giao tiếp qua HTTP dù cùng máy. Localhost không biến trình duyệt và máy chủ thành một chương trình.
+
+### Trang có bộ lọc danh sách mẫu đã tải sẵn. AI muốn gửi mỗi lần gõ lên máy chủ. Phương án hợp lý là gì?
+
+- [ ] Mọi thao tác lọc bắt buộc ở máy chủ
+- [ ] Đưa cả mật khẩu database vào bộ lọc để nhanh hơn
+- [x] Có thể lọc tại trình duyệt nếu chỉ dùng dữ liệu công khai đã tải
+
+**Giải thích:** Lọc để hiển thị không nhất thiết cần máy chủ. Điều này không cho phép chuyển bí mật hoặc quyết định quyền truy cập sang trình duyệt.
+
+### Network cho thấy API trả danh sách mẫu, nhưng màn hình vẫn trống. AI kết luận database đã mất. Bằng chứng hiện có nói gì?
+
+- [ ] Chắc chắn database đã bị xóa
+- [x] Cần kiểm tra bước nhận và hiển thị dữ liệu ở giao diện
+- [ ] API trả dữ liệu thì giao diện chắc chắn đúng
+
+**Giải thích:** Có phản hồi chứa danh sách cho thấy dữ liệu đã đến trình duyệt ở yêu cầu đó. Nó chưa chứng minh code hiển thị đọc đúng trường, cũng không chứng minh database bị mất.
 
 ## Kiểm tra không dùng AI
 
@@ -115,3 +156,24 @@ Khi chạy thử ở `localhost:3000`, mọi thứ có vẻ ổn vì máy cá nh
 
 - **Vì sao sai:** Next.js mặc định chặn các biến môi trường thông thường sang trình duyệt; đọc biến không có tiền tố `NEXT_PUBLIC_` trong component trình duyệt chỉ nhận được `undefined` (gây lỗi code chứ không lộ khóa). Khóa chỉ lộ khi gắn tiền tố `NEXT_PUBLIC_` hoặc viết cứng vào code.
 - **Cách sửa:** Tuyệt đối không gắn `NEXT_PUBLIC_` cho khóa bí mật và chỉ đọc chúng ở code máy chủ.
+
+## Bài tập thực hành
+
+Vẽ đường đi của một lần tải danh sách mẫu từ giao diện đến máy chủ trong project của bạn.
+
+### Việc cần làm
+
+1. Chọn bản local dùng dữ liệu giả, không kết nối database thật; nếu chưa có, chỉ lần theo mã nguồn, không chạy ứng dụng.
+2. Tìm một `fetch(` đọc danh sách và ghi tên file cùng đường dẫn được gọi, không ghi cookie hay token.
+3. Tìm `route.ts` tương ứng trong `app/api` hoặc `src/app/api`; ghi dữ liệu đầu vào và trường kết quả trả lại.
+4. Nếu có bản local an toàn, mở Network, tải danh sách một lần và đối chiếu đường dẫn với code. Không thử gửi lệnh mua hay xóa.
+
+### Kết quả đúng
+
+Có sơ đồ gồm file giao diện → đường dẫn → file xử lý → kết quả, nêu rõ phía chạy của mỗi phần. Nếu không tìm được route vì dùng API ngoài hoặc Server Action, ghi đúng giới hạn đó, không tự đoán tên file.
+
+### Nhờ AI rà lại
+
+```text
+Rà sơ đồ và các file tôi đã chỉ định. Chỉ báo cáo, không tự sửa hay chạy request. Chỉ rõ phần chạy ở trình duyệt, phần ở máy chủ và chỗ chưa có bằng chứng. Không đọc file môi trường hoặc đưa khóa, cookie vào báo cáo.
+```
