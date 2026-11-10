@@ -79,12 +79,14 @@ Hãy mở dự án của bạn và rà soát ba lớp theo các bước sau:
 
 1. **Nhận diện ba lớp trong một file `.tsx`:** Mở một file giao diện bất kỳ trong `app/` hoặc `components/`. Tìm một thẻ `<button>` hoặc `<input>`, chỉ ra đâu là thẻ khung (HTML), đâu là chuỗi trang trí `className="..."` (CSS), và đâu là hàm sự kiện `onClick` / `onChange` (JS).
 2. **Kiểm tra lỗi mất màu do ghép chuỗi Tailwind:** Bấm `Ctrl+Shift+F` (hoặc `Cmd+Shift+F`), tìm chuỗi `` className={` `` xem AI có viết kiểu ghép biến như `` `bg-${...}` `` hay `` `text-${...}` `` không.
-3. **Kiểm tra sự kiện JS thiếu `'use client'`:** Tìm từ khóa `onClick=` hoặc `onSubmit=` trong toàn dự án. Mở từng file kết quả và kiểm tra xem dòng đầu tiên của file đó (hoặc file cha trực tiếp) đã có `'use client'` chưa.
+3. **Kiểm tra ranh giới tương tác:** Tìm `onClick=` hoặc `onSubmit=` trong các file `.tsx`. Xem file đó có `'use client'` hoặc được import qua chuỗi module thuộc ranh giới client không. Quan hệ import mới quyết định; chỉ nhìn component cha trên màn hình chưa đủ.
 4. **Kiểm tra lỗi chép HTML thuần vào React:** Tìm chuỗi `class="` (không có chữ `Name`) hoặc `for="` trong các file `.tsx` xem AI có chép nhầm cú pháp HTML thuần vào JSX không.
 5. **Ghi lại kết quả của bạn:**
    - File `.tsx` bạn vừa mở có đủ cả 3 lớp HTML, CSS, JS không?: `[ Tên file: ... ]`
    - Có chỗ nào ghép biến vào giữa tên class Tailwind không?: `[ Có / Không - tên file: ... ]`
    - Có file nào dùng `onClick` mà thiếu `'use client'` hoặc dùng nhầm `class=` không?: `[ Có / Không ]`
+
+Trong `app/globals.css` (hoặc `src/app/globals.css`), tìm selector của phần tử đang lỗi; dùng Elements → Styles/Computed để đối chiếu CSS thực sự áp dụng. Ổn: thẻ có ý nghĩa đúng, class đầy đủ, hàm sự kiện có mặt ở phía client. Có vấn đề: dùng `<div onClick>` làm nút nhưng thiếu hỗ trợ bàn phím, nút bị `disabled`, hoặc CSS khác ghi đè. Ghi tên file, thẻ, class và hành vi quan sát; đừng kết luận mọi nút không bấm được đều do thiếu JavaScript.
 
 ## Tự giải thích
 
@@ -99,6 +101,48 @@ Lỗi nằm ở lớp **CSS** (trong thuộc tính `className` hoặc file `glob
 ### Vì sao chép nguyên một đoạn code mẫu HTML trên mạng (có chữ `class="..."`) dán vào file `.tsx` của Next.js thì trình duyệt lại báo cảnh báo lỗi?
 
 Vì file `.tsx` dùng cú pháp JSX của React (viết HTML bên trong JavaScript). Trong ngôn ngữ JavaScript, từ `class` và `for` đã được dành riêng cho mục đích khác, nên React bắt buộc đổi tên thuộc tính HTML `class` thành `className` và `for` thành `htmlFor`.
+
+## Trắc nghiệm
+
+### AI tạo nút mẫu như sau. Vì sao người dùng không bấm được dù đã có onClick?
+
+```tsx
+<button disabled onClick={showPreview}>Xem thử</button>
+```
+
+- [ ] CSS thiếu màu nền nên trình duyệt không chạy JS
+- [x] Thuộc tính disabled vô hiệu hóa nút
+- [ ] Cứ có onClick thì disabled sẽ bị bỏ qua
+
+**Giải thích:** Nút disabled không nhận thao tác bấm thông thường. Sự tồn tại của hàm xử lý không vượt qua trạng thái vô hiệu hóa của HTML.
+
+### AI dùng div có onClick làm nút mở phần hướng dẫn. Chuột dùng được, phím Tab không tới được. Nên ưu tiên gì?
+
+- [x] Dùng button đúng ngữ nghĩa và kiểm tra bàn phím
+- [ ] Thêm màu nổi bật vào div là đủ
+- [ ] Chặn Tab để người dùng chỉ dùng chuột
+
+**Giải thích:** Button có hành vi bàn phím sẵn của trình duyệt. Màu sắc không tự tạo khả năng nhận focus hay kích hoạt bằng phím.
+
+### Trong DevTools, bạn đổi màu nút rồi tải lại, màu cũ trở lại. AI kết luận Git mất code. Điều gì thực sự xảy ra?
+
+- [ ] DevTools đã commit rồi Git tự hoàn tác
+- [ ] Trình duyệt tự sửa file globals.css trên máy chủ
+- [x] Chỉnh sửa tạm trong DevTools thường không lưu vào mã nguồn
+
+**Giải thích:** Thử CSS tại trình duyệt không mặc nhiên sửa file project. Muốn lưu thiết kế cần sửa mã nguồn có kiểm soát, không quy lỗi cho Git.
+
+### AI thêm nút mở hướng dẫn bên trong form nhưng bỏ type. Bấm nút lại gửi form. Cần rà điểm nào?
+
+```tsx
+<form><button onClick={showHelp}>Hướng dẫn</button></form>
+```
+
+- [ ] Đổi màu nút để trình duyệt phân biệt chức năng
+- [x] Dùng `type="button"` cho nút không có nhiệm vụ submit
+- [ ] Thêm onClick luôn tự ngăn submit nên lỗi chắc ở server
+
+**Giải thích:** Button trong form mặc định có thể submit. Hàm onClick không tự hủy hành vi mặc định; loại nút cần phản ánh đúng mục đích.
 
 ## Kiểm tra không dùng AI
 
@@ -126,3 +170,25 @@ Vì file `.tsx` dùng cú pháp JSX của React (viết HTML bên trong JavaScri
 
 - **Vì sao sai:** Thói quen ghép chuỗi của JavaScript xung đột với cơ chế quét văn bản tĩnh của Tailwind CSS, làm ứng dụng bị mất màu ngẫu nhiên khi lên môi trường thật.
 - **Cách sửa:** Luôn viết trọn vẹn từng tên class Tailwind trong câu điều kiện hoặc lập một bảng ánh xạ (object) chứa sẵn các chuỗi tên class đầy đủ.
+
+## Bài tập thực hành
+
+Quan sát ba lớp HTML, CSS, JavaScript của một nút chỉ mở/đóng hướng dẫn trên bản thử của project.
+
+### Việc cần làm
+
+1. Chọn bản local dùng dữ liệu giả và một nút không gửi yêu cầu thay đổi dữ liệu. Nếu chưa có bản thử an toàn, chỉ rà mã nguồn và ghi phần chưa thể kiểm chứng.
+2. Trong Elements, ghi loại thẻ và thuộc tính `type`/`disabled`; đối chiếu với file `.tsx` tương ứng.
+3. Trong Styles, tạm bỏ chọn một thuộc tính màu hoặc khoảng đệm rồi bật lại; quan sát thay đổi. Không sửa hay lưu file nguồn.
+4. Dùng Tab rồi Enter để thử nút mở hướng dẫn; ghi phản hồi và đối chiếu hàm sự kiện. Không thử nút mua, gửi biểu mẫu thật hoặc xóa.
+5. Tải lại trang để bỏ chỉnh sửa tạm; ghi mỗi lớp một bằng chứng và điểm cần rà thêm.
+
+### Kết quả đúng
+
+Có tên thẻ, nguồn CSS và hàm tương tác cụ thể. Chỉnh CSS chỉ đổi hình thức, tải lại trở về trạng thái ban đầu; ghi rõ nút có dùng được bằng bàn phím không, hoặc chưa kiểm chứng do thiếu bản thử.
+
+### Nhờ AI rà lại
+
+```text
+Chỉ báo cáo, không tự sửa. Đối chiếu ghi chú HTML/CSS/JS với component tôi chọn, giải thích type, disabled và hành vi bàn phím. Không chạy ứng dụng hay thao tác biểu mẫu. Tách điều đã quan sát khỏi giả thuyết cần kiểm tra.
+```
