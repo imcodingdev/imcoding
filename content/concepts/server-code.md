@@ -73,12 +73,14 @@ Mở dự án và rà soát khu hậu cần theo 4 bước:
 
 1. Tìm trong `app/` các file `page.tsx` **không** có `'use client'` ở đầu, xem file nào có `async function` hoặc gọi cơ sở dữ liệu (`db.`, `prisma.`, `supabase.`).
 2. Tìm toàn dự án từ khóa `'use server'` để liệt kê các hàm máy chủ đang mở cửa cho trình duyệt gọi.
-3. Tìm file khởi tạo cơ sở dữ liệu (`lib/db.ts`, `lib/supabase.ts`) xem có `import 'server-only'` chưa.
+3. Tìm file khởi tạo cơ sở dữ liệu (`lib/db.ts`, `lib/supabase/server.ts`, có thể nằm dưới `src/`) xem phần dùng thông tin bí mật có `import 'server-only'` chưa. Client Supabase dành cho trình duyệt dùng khóa publishable/anon và RLS là trường hợp khác, không tự động thêm `server-only` vào mọi file Supabase.
 4. Ghi lại kết quả:
    - **Một file `page.tsx` chạy trên máy chủ (Server Component):** `____________________`
    - **Một hàm hoặc file có `'use server'`:** `____________________`
    - **Hàm `'use server'` đó có kiểm tra người gọi đã đăng nhập chưa:** `Có / Không`
    - **File kết nối database trong `lib/` đã có `import 'server-only'` chưa:** `Có / Không`
+
+Ổn: module đọc bí mật có hàng rào `server-only`, giao diện tương tác nằm riêng. Có vấn đề: tìm `import` thấy file có `'use client'` kéo trực tiếp module database nhạy cảm vào. Lần theo các import trung gian nữa; chỉ nhìn tên `lib/` hay thiếu `'use client'` không đủ. Ghi tên file, dòng import và kết luận “đã xác minh / cần xem tiếp”, không ghi giá trị khóa.
 
 ## Tự giải thích
 
@@ -93,6 +95,45 @@ Phải kiểm tra ngay: *"Đầu hàm có xác minh người gửi lệnh là ai
 ### Điều gì xảy ra nếu Server Component lấy toàn bộ thông tin người dùng (`SELECT *`) rồi truyền nguyên đối tượng `user` xuống Component có `'use client'` chỉ để hiện tên?
 
 Dù màn hình chỉ hiện tên, máy chủ vẫn đóng gói **toàn bộ** trường trong `user` (số điện thoại, địa chỉ, ghi chú ẩn, mật khẩu mã hóa) gửi về trình duyệt. Người dùng mở công cụ kiểm tra mạng là thấy hết.
+
+## Trắc nghiệm
+
+### AI đưa đoạn sau vào file tiện ích. Nó có an toàn để import vào Client Component không?
+
+```ts
+import 'server-only'
+export const readConfig = () => process.env.DATABASE_URL
+```
+
+- [ ] Có, vì hàm chưa được gọi thì không ảnh hưởng
+- [x] Không; import vào phía client sẽ bị báo lỗi
+- [ ] Có, Next.js tự chuyển lời gọi hàm thành API
+
+**Giải thích:** `server-only` chặn phụ thuộc này đi vào client. Một hàm tiện ích thông thường không tự trở thành API từ xa.
+
+### Cursor đề nghị thêm use client vào cả trang đọc database để mở hộp thoại. Thiết kế nào giữ ranh giới rõ hơn?
+
+- [x] Giữ trang ở server, tách nút mở hộp thoại thành Client Component
+- [ ] Đổi khóa database sang biến công khai
+- [ ] Đưa truy vấn database vào onClick của nút
+
+**Giải thích:** Nút cần tương tác có thể là component riêng. Nhu cầu mở hộp thoại không đòi chuyển phần kết nối database sang trình duyệt.
+
+### AI đặt tên file là lib/server.ts nhưng không có hàng rào nào. Tên này chứng minh điều gì?
+
+- [ ] Next.js sẽ tự cấm mọi client import file đó
+- [ ] Mọi hàm trong file tự có xác thực
+- [x] Chỉ gợi ý ý định; cần xem import và cơ chế server-only
+
+**Giải thích:** Tên file tiện ích không tạo ranh giới bảo mật. Cần xem nó được dùng ở đâu và có cơ chế ngăn import sai không.
+
+### Trang có Server Component và nút client lồng bên trong. AI nói toàn bộ trang đã thành client. Bạn chọn nhận định nào?
+
+- [ ] Đúng, cứ chứa nút tương tác là toàn bộ cha chuyển sang client
+- [x] Server Component có thể render Client Component mà vẫn giữ phần của mình ở server
+- [ ] Client Component chỉ được đặt ở trang không đọc dữ liệu
+
+**Giải thích:** Render một component con phía client không đồng nghĩa import mã server vào client. Đây là cách phối hợp hai phía, không phải chuyển toàn bộ trang.
 
 ## Kiểm tra không dùng AI
 
@@ -119,3 +160,24 @@ Dù màn hình chỉ hiện tên, máy chủ vẫn đóng gói **toàn bộ** tr
 
 - **Vì sao sai:** Một file tiện ích không ghi `'use client'`, nhưng nếu bị một file `'use client'` khác gọi vào (`import`), Next.js vẫn kéo file đó sang chạy ở trình duyệt.
 - **Cách sửa:** Với các file hậu cần nhạy cảm (chứa logic database, đọc khóa bí mật), hãy thêm `import 'server-only'` ở đầu file để khóa cứng ở máy chủ.
+
+## Bài tập thực hành
+
+Kiểm tra đường import của một module máy chủ trong project mà không chạy truy vấn hay sửa ứng dụng.
+
+### Việc cần làm
+
+1. Chọn một module như `lib/db.ts` hoặc `lib/supabase/server.ts` trong mã nguồn; không mở file môi trường.
+2. Ghi module có đọc `process.env` không và có `import 'server-only'` không; chỉ ghi tên biến.
+3. Tìm các nơi import module đó, lần ngược đến trang hoặc component có `'use client'`. Ghi cả đường import trung gian; nếu chưa lần đủ, đánh dấu chưa xác minh.
+4. Lập bảng tên file → phía chạy → bằng chứng → điểm cần rà. Không thêm hàng rào vào client Supabase công khai chỉ vì thấy chữ database.
+
+### Kết quả đúng
+
+Có ít nhất một đường import được đối chiếu với code, phân biệt phần đã xác minh và phần chưa rõ. Báo cáo chỉ ra liệu module nhạy cảm có thể bị kéo sang client, không cần gọi API hay chạm dữ liệu thật.
+
+### Nhờ AI rà lại
+
+```text
+Chỉ báo cáo, không tự sửa hoặc chạy ứng dụng. Rà đường import trong các file tôi chọn: module nào đọc bí mật, có server-only không, có bị client import trực tiếp hoặc gián tiếp không. Không đọc file môi trường. Nêu bằng chứng theo tên file và dòng code.
+```
