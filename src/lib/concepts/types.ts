@@ -47,6 +47,22 @@ export interface ConceptV1 extends ConceptBase {
   quiz: QuizItem[]
 }
 
+export interface MultipleChoiceQuestion {
+  question: string
+  body: string
+  options: string[]
+  correctIndex: number
+  explanation: string
+}
+
+export interface LessonExercise {
+  goal: string
+  steps: string[]
+  expectedResult: string
+  /** Markdown chứa đúng một fenced code block để dùng lại nút sao chép. */
+  reviewPrompt?: string
+}
+
 export interface ConceptV2 extends ConceptBase {
   format: 2
   recall: QuizItem[]
@@ -56,6 +72,8 @@ export interface ConceptV2 extends ConceptBase {
   explain: QuizItem[]
   check: QuizItem
   misconceptions: { wrong: string; correction: string }[]
+  quiz?: MultipleChoiceQuestion[]
+  exercise?: LessonExercise
 }
 
 export type Concept = ConceptV1 | ConceptV2
