@@ -69,6 +69,8 @@ Hãy mở dự án và kiểm kê các nhà cung cấp phần mềm theo 4 bư�
    - Tên các gói mà bạn chưa hiểu công dụng: `[ ... ]`
    - Dự án đang có mấy file khóa (lockfile) ở thư mục gốc?: `[ 1 / Nhiều hơn 1: ... ]`
 
+Tìm tên gói trong câu `import ... from` ở `app/`, `src/`, rồi đối chiếu `dependencies`/`devDependencies` và mục `node_modules/<tên-gói>` trong `package-lock.json` (đây là tên mục JSON, không phải yêu cầu mở thư mục dependency). Ổn: tên import khớp gói khai báo, lockfile ghi bản đã giải quyết. Có vấn đề: AI chỉ thêm import mà chưa khai báo gói trực tiếp, hoặc diff lockfile đổi hàng loạt gói ngoài yêu cầu. Lượt tải và ngày cập nhật chỉ là tín hiệu, không chứng nhận an toàn; cần đối chiếu tên và nguồn chính thức của tác giả. Không cài thử để kiểm kê.
+
 ## Tự giải thích
 
 ### Vì sao chúng ta phải chặn thư mục `node_modules` không cho lên Git, nhưng lại bắt buộc phải đưa file `package-lock.json` lên Git?
@@ -82,6 +84,44 @@ Vì hai lý do: Thứ nhất, AI hay bịa tên gói không có thật với t�
 ### Chuyện gì xảy ra nếu trong dự án của bạn xuất hiện cùng lúc cả `package-lock.json` và `yarn.lock` (hoặc `pnpm-lock.yaml`)?
 
 Đó là dấu hiệu dự án đang dùng lẫn lộn nhiều công cụ quản lý gói (lúc chạy `npm install`, lúc chạy `yarn add`). Các file khóa này không đồng bộ với nhau, khiến máy cá nhân đọc một file khóa, còn máy chủ Vercel khi đóng gói lại đọc file khóa kia, gây lỗi lệch phiên bản rất khó tìm nguyên nhân.
+
+## Trắc nghiệm
+
+### AI thêm import nhưng package.json không khai báo gói đó. Máy hiện tại vẫn chạy nhờ gói con của thư viện khác. Kết luận nào đúng?
+
+```ts
+import { z } from 'zod'
+```
+
+- [ ] Chạy được ở một máy là đủ, không cần khai báo
+- [x] Cần khai báo phụ thuộc trực tiếp phù hợp vì gói kéo theo có thể thay đổi
+- [ ] Chép file thư viện vào node_modules để cố định
+
+**Giải thích:** Dựa tình cờ vào phụ thuộc gián tiếp khiến bản cài khác có thể thiếu gói. Sửa node_modules không tạo cấu hình cài đặt tái lập.
+
+### Diff của AI đổi tên gói từ @supabase/supabase-js sang supabase-js. Bạn nên làm gì trước khi cài?
+
+- [x] Đối chiếu đúng tên có namespace với tài liệu chính thức
+- [ ] Coi hai tên tương đương vì cùng chứa supabase
+- [ ] Chọn tên ngắn hơn để tránh lỗi đường dẫn
+
+**Giải thích:** Namespace là một phần tên gói, không phải trang trí. Tên gần giống không chứng minh cùng tác giả hay cùng mã nguồn.
+
+### Log cài đặt hiển thị postinstall. AI nói chỉ tải file, không thể chạy mã. Nhận định nào đúng?
+
+- [ ] Đúng, mã chỉ chạy khi mở trang web
+- [ ] Có lockfile thì mọi script đều an toàn
+- [x] Quá trình cài có thể chạy script của gói; cần rà nguồn trước khi cài
+
+**Giải thích:** Script vòng đời như postinstall có thể được thực thi khi cài. Lockfile cố định lựa chọn phiên bản, không chứng nhận mã của phiên bản đó vô hại.
+
+### AI đổi một thư viện giao diện nhưng diff lockfile thay cả nhóm gói thanh toán. Bước tiếp theo hợp lý là gì?
+
+- [ ] Chấp nhận vì lockfile do máy sinh nên không cần xem
+- [x] Yêu cầu giải thích chuỗi phụ thuộc và phạm vi thay đổi trước khi duyệt
+- [ ] Xóa lockfile để diff ngắn lại
+
+**Giải thích:** Thay đổi gián tiếp có thể hợp lệ nhưng cần bằng chứng. Xóa lockfile chỉ che thông tin và làm mất khả năng đối chiếu phiên bản.
 
 ## Kiểm tra không dùng AI
 
@@ -111,3 +151,24 @@ Vì hai lý do: Thứ nhất, AI hay bịa tên gói không có thật với t�
 
 - **Vì sao sai:** `node_modules` không được lưu lên Git. Mọi chỉnh sửa trong đó sẽ mất sạch khi cài thêm gói mới, và máy chủ Vercel cũng chỉ tải lại `node_modules` gốc từ mạng chứ không có phần bạn sửa.
 - **Cách sửa:** Không bao giờ sửa file trong `node_modules`. Nếu gói có lỗi, hãy nâng cấp phiên bản trong `package.json` hoặc đổi sang gói khác.
+
+## Bài tập thực hành
+
+Đối chiếu một thư viện project đang dùng từ dòng import đến phiên bản đã khóa, chỉ bằng các file có sẵn.
+
+### Việc cần làm
+
+1. Chọn một import gói ngoài trong mã nguồn, bỏ qua đường dẫn tương đối và alias như `@/lib`.
+2. Tìm tên gói trong `package.json`, ghi mục khai báo và khoảng phiên bản; không chạy install hoặc cập nhật gói.
+3. Mở lockfile mà project đang dùng, tìm bản giải quyết của gói. Với npm lockfile mới, xem mục `packages` rồi `node_modules/<tên-gói>`; các định dạng khác có cách ghi riêng.
+4. Ghi bảng tên import → tên gói → khoảng phiên bản → phiên bản khóa. Nếu có nhiều bản hoặc không tìm thấy, ghi rõ thay vì sửa file khóa.
+
+### Kết quả đúng
+
+Có bảng đối chiếu một gói thực tế hoặc bằng chứng thiếu khai báo. Phân biệt được khoảng cho phép trong package.json và bản cụ thể trong lockfile; không thay package, lockfile hay node_modules.
+
+### Nhờ AI rà lại
+
+```text
+Chỉ báo cáo, không tự sửa, không cài gói hay gọi mạng. Rà bảng với package.json, lockfile và file import tôi chọn. Chỉ ra khai báo trực tiếp, bản khóa và điểm chưa khớp; không suy ra độ an toàn chỉ từ tên gói hoặc lockfile.
+```
