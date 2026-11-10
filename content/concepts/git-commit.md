@@ -66,6 +66,8 @@ Báo cáo GitGuardian 2025 ghi nhận 23.770.171 secret (khóa bí mật) mới 
    - **Nội dung dòng trên cùng của `git log --oneline`:** `____________________`
    - **Lần commit gần nhất cách đây bao lâu:** `____________________`
 
+Kiểm tra thêm `git diff --cached --name-only` để xem tên file sắp commit, rồi `git diff --cached -- <file-code-đã-chọn>` để đọc đúng phần đã đưa vào khung chụp. Ổn: chỉ các file thuộc yêu cầu, không có `.env.local`. Có vấn đề: file bí mật xuất hiện trong danh sách, hoặc file có cả thay đổi đã stage và chưa stage. Không mở nội dung file bí mật để chụp ảnh gửi AI; dừng commit và xử lý riêng.
+
 ## Tự giải thích
 
 ### Vì sao phải chạy `git status` và `git diff` trước khi `git commit`, thay vì gõ `git add .` rồi commit luôn?
@@ -79,6 +81,45 @@ Bạn mất khả năng quay lùi từng bước nhỏ. Nếu quay về commit t
 ### Vì sao trong `.gitignore` thường chặn `.env*` nhưng lại thêm dòng `!.env.example`?
 
 Dòng `.env*` chặn mọi file môi trường chứa khóa bí mật thật (`.env`, `.env.local`) khỏi bị lộ khi đẩy code lên mạng. Dấu chấm than trong `!.env.example` nghĩa là "ngoại trừ file mẫu này": `.env.example` chỉ chứa tên biến trống (như `OPENAI_API_KEY=sk-proj-XXXX...`) để nhắc dự án cần biến nào mà không chứa khóa thật, nên cần lưu vào Git.
+
+## Trắc nghiệm
+
+### Sau khi AI sửa giao diện, terminal hiện như sau. Commit tiếp theo chứa gì?
+
+```text
+Changes to be committed: app/page.tsx
+Changes not staged for commit: app/globals.css
+```
+
+- [x] Phần đã stage của `app/page.tsx`
+- [ ] Tất cả thay đổi trong cả hai file
+- [ ] Chỉ file được sửa gần nhất
+
+**Giải thích:** Commit lấy nội dung đã stage. File CSS còn ở phần chưa stage không tự được thêm chỉ vì cùng một yêu cầu của AI.
+
+### Bạn đã git add một file, rồi AI sửa tiếp file đó. Cách xem đúng bản sắp commit là gì?
+
+- [ ] Chỉ mở file hiện tại trong trình soạn thảo
+- [ ] Chỉ chạy `git diff` là đủ
+- [x] Chạy `git diff --cached -- <tên-file>`
+
+**Giải thích:** `--cached` xem phần đã stage so với commit trước. File trên ổ đĩa có thể chứa sửa đổi mới chưa stage, còn `git diff` mặc định xem phần chưa stage.
+
+### AI báo “commit thành công là đồng đội đã có bản mới”. Bạn chọn nhận định nào?
+
+- [ ] Đúng vì Git tự đồng bộ sau mỗi commit
+- [x] Commit lưu mốc tại máy này; chia sẻ qua remote là bước riêng
+- [ ] Muốn lưu mốc local cũng bắt buộc có Internet
+
+**Giải thích:** Commit làm việc cục bộ. Có remote không đồng nghĩa mỗi commit tự được gửi lên đó.
+
+### Trên nhánh thử sạch, bạn muốn đảo tác dụng một commit thử nhưng giữ dấu vết. Chọn cách nào?
+
+- [x] `git revert <mã-commit-thử>` tạo commit đảo thay đổi
+- [ ] Sửa lời nhắn commit là code sẽ quay lại
+- [ ] Xóa file `.git` rồi tạo lại lịch sử
+
+**Giải thích:** Revert ghi thêm mốc đảo thay đổi và giữ lịch sử. Đổi lời nhắn không đổi code; xóa `.git` làm mất lịch sử cục bộ.
 
 ## Kiểm tra không dùng AI
 
@@ -105,3 +146,25 @@ Dòng `.env*` chặn mọi file môi trường chứa khóa bí mật thật (`.
 
 - **Vì sao sai:** `.gitignore` chỉ ngăn các file **chưa từng** được Git theo dõi. Khi `.env` đã nằm trong một `commit` trước đó, lịch sử Git vẫn giữ nguyên khóa bí mật; ai xem lại lịch sử kho mã đều lấy được.
 - **Cách sửa:** Nếu lỡ commit khóa bí mật, phải vào ngay trang quản trị dịch vụ (OpenAI, Supabase, Stripe...) để **hủy khóa cũ và tạo khóa mới**, sau đó mới xóa file khỏi Git.
+
+## Bài tập thực hành
+
+Tạo và đảo một commit chỉ chứa ghi chú giả trên nhánh thử, không đụng mã ứng dụng hay dữ liệu thật.
+
+### Việc cần làm
+
+1. Chạy `git status`; chỉ tiếp tục nếu cây làm việc sạch. Ghi nhánh hiện tại bằng `git branch --show-current`; nếu đang detached HEAD thì dừng để tìm hiểu trước.
+2. Tạo nhánh mới bằng `git switch -c lesson-git-practice`. Nếu tên đã có, chọn tên mới, không ghi đè nhánh cũ.
+3. Tạo file mới `lesson-git-practice.txt` với câu “Ghi chú thử”; nếu file đã có thì chọn tên khác. Chỉ stage file đó, xem `git diff --cached` và commit với lời nhắn “Thêm ghi chú thử”.
+4. Lấy mã commit vừa tạo bằng `git log -1 --oneline`, chạy `git revert --no-edit <mã-vừa-ghi>`. Nếu có xung đột, dừng, không dùng lệnh ép hoặc reset.
+5. Xem `git log -2 --oneline`, `git status`, rồi quay về nhánh ban đầu bằng `git switch <tên-nhánh>`. Giữ nhánh thử để đối chiếu; không push.
+
+### Kết quả đúng
+
+Nhánh thử có hai commit: thêm ghi chú và đảo thay đổi. File thử không còn sau revert, cây làm việc sạch, mã ứng dụng không đổi. Đây là đảo thay đổi đã chủ động tạo cho bài tập, không phải xóa công việc đang làm.
+
+### Nhờ AI rà lại
+
+```text
+Đọc kết quả git status và hai commit thử tôi cung cấp. Chỉ báo cáo, không tự sửa, không chạy lệnh Git. Xác nhận chỉ file ghi chú thử thay đổi và commit đảo giữ lại lịch sử. Không đề xuất reset --hard hoặc push.
+```
