@@ -81,14 +81,16 @@ export async function POST(req: Request) {
 
 Hãy lập bản đồ và kiểm tra toàn bộ các "ô cửa" API trong dự án của bạn:
 
-1. **Liệt kê tất cả API Endpoint:** Mở cây thư mục dự án, tìm vào `app/api/` (hoặc `src/app/api/`). Tìm mọi file `route.ts` hoặc `route.js`. Đường dẫn thư mục từ sau chữ `app` chính là địa chỉ ô cửa (ví dụ `app/api/orders/route.ts` là `/api/orders`).
-2. **Kiểm tra người gác cửa (Xác thực):** Mở từng file `route.ts`, nhìn vào đầu mỗi hàm `GET`, `POST`, `PUT`, `PATCH`, `DELETE`. Xem có dòng kiểm tra người dùng hiện tại (như `supabase.auth.getUser()` hoặc `auth()`) và chặn lại bằng mã `401`/`403` không.
+1. **Liệt kê tất cả API Endpoint:** Mở cây thư mục dự án, tìm vào `app/api/` (hoặc `src/app/api/`). Tìm mọi file `route.ts` hoặc `route.js`, ghi cả URL và phương thức được export. Ví dụ `app/api/orders/route.ts` là `/api/orders`; bỏ nhóm thư mục `(ten-nhom)` khỏi URL và thay `[id]` bằng mã mẫu. Route Handler cũng có thể nằm ngoài thư mục `api`.
+2. **Kiểm tra người gác cửa (Xác thực):** Mở từng file `route.ts`, nhìn vào đầu mỗi hàm `GET`, `POST`, `PUT`, `PATCH`, `DELETE`. Với dữ liệu riêng tư, ổn là xác minh người dùng bằng `supabase.auth.getUser()` hoặc `auth()`, kiểm tra quyền trước truy vấn; có vấn đề là chỉ kiểm tra ở giao diện. Endpoint công khai như danh mục không nhất thiết yêu cầu đăng nhập, nhưng phải giới hạn đúng dữ liệu công khai.
 3. **Kiểm tra dữ liệu trình duyệt gửi lên:** Tìm dòng `await req.json()` trong các hàm `POST`, `PATCH`. Xem có trường nhạy cảm nào như `price`, `total`, `role`, `isAdmin`, `userId` được lấy thẳng từ `req.json()` để lưu vào database không.
 4. **Kiểm tra dữ liệu trả về:** Nhìn vào dòng `NextResponse.json(...)` hoặc `Response.json(...)` ở cuối hàm `GET`. Xem endpoint có đang lấy toàn bộ bảng (`select('*')`) và trả thừa thông tin nhạy cảm của người khác về trình duyệt không.
 5. **Ghi lại kết quả của bạn:**
    - Tổng số file `route.ts` trong dự án: `[ Số lượng: ... ]`
    - Endpoint chưa kiểm tra đăng nhập ở đầu hàm: `[ Có / Không - tên file: ... ]`
    - Endpoint đang tin tưởng `userId`, `price` hoặc `total` lấy từ `await req.json()`: `[ Có / Không - tên file: ... ]`
+
+Tìm thêm `error`, `status:`, `.insert(` và `.update(` trong route vừa chọn. Ổn là lỗi đọc đầu vào và lỗi database có nhánh xử lý, chỉ báo thành công khi thao tác thật sự thành công; có vấn đề là bỏ qua `error` của Supabase rồi luôn trả `201`. Ví dụ mẫu phía trên chỉ minh họa kiểm tra danh tính và tính tiền, còn cần xử lý các lỗi này trước khi dùng thực tế. Chỉ đọc code, không gọi thử endpoint ghi/xóa hoặc dịch vụ tính phí.
 
 ## Tự giải thích
 
@@ -103,6 +105,53 @@ Vì mọi thứ nằm trong `req.json()` đều do phía trình duyệt tự vi�
 ### Khi nào trình duyệt gọi vào địa chỉ `/api/orders` đã tồn tại nhưng lại nhận về lỗi `405 Method Not Allowed`?
 
 Mỗi địa chỉ `/api/orders` có thể mở nhiều ô cửa ứng với các phương thức khác nhau (`GET`, `POST`, `PATCH`, `DELETE`). Lỗi `405` xảy ra khi file `app/api/orders/route.ts` chỉ viết hàm `export async function GET()`, nhưng trình duyệt lại gửi yêu cầu với phương thức `POST` hoặc `DELETE` — tức là gõ đúng địa chỉ nhưng đòi làm thao tác mà ô cửa đó chưa mở hỗ trợ.
+
+## Trắc nghiệm
+
+### AI viết endpoint nhận JSON nhưng không bắt lỗi đọc body. Khi gửi JSON hỏng, cách xử lý nào phù hợp?
+
+```ts
+const body = await req.json()
+```
+
+- [ ] Cứ trả 200 kèm error để giao diện không báo đỏ
+- [x] Bắt lỗi đọc JSON, trả 400 và dừng trước bước lưu
+- [ ] Đổi sang GET để máy chủ tự sửa JSON
+
+**Giải thích:** JSON hỏng là đầu vào không hợp lệ. Đổi phương thức không sửa nội dung; trả thành công khiến bên gọi hiểu sai kết quả thao tác.
+
+### Supabase trả lỗi ghi dữ liệu nhưng AI vẫn viết đoạn sau. Cần rà điều gì trước khi chấp nhận?
+
+```ts
+const { data, error } = await supabase.from('notes').insert(draft).select()
+return Response.json(data, { status: 201 })
+```
+
+- [x] Có nhánh xử lý error trước khi báo tạo thành công hay chưa
+- [ ] Có await là đủ bảo đảm dữ liệu đã được ghi
+- [ ] Chỉ đổi status thành 200 để hết lỗi database
+
+**Giải thích:** `await` đợi thao tác hoàn tất, không khẳng định thành công. Supabase có thể trả lỗi trong trường `error`; thay mã HTTP không làm dữ liệu được lưu.
+
+### Cursor chuyển thao tác gửi email hóa đơn sang GET để mở bằng trình duyệt cho tiện. Bạn nên đánh giá thế nào?
+
+- [ ] GET an toàn vì không có body chứa địa chỉ email
+- [ ] URL khó đoán là đủ ngăn email bị gửi lặp
+- [x] GET nên chỉ đọc; thao tác gửi email cần endpoint phù hợp và kiểm soát quyền, gửi lặp
+
+**Giải thích:** Liên kết có thể bị tải trước hoặc truy cập lại. GET gây tác dụng như gửi email dễ tạo hành động ngoài ý muốn; POST cũng vẫn cần kiểm soát, không tự trở nên an toàn.
+
+### Endpoint tìm kiếm nhận limit từ URL. AI bảo chỉ cần là số nguyên dương. Còn thiếu gì?
+
+```text
+GET /api/catalog?limit=999999999
+```
+
+- [ ] Không thiếu, số nguyên dương luôn là đầu vào an toàn
+- [x] Giới hạn tối đa hợp lý ở máy chủ để tránh truy vấn quá lớn
+- [ ] Chỉ giới hạn số dòng hiển thị trên giao diện
+
+**Giải thích:** Đúng kiểu dữ liệu chưa đủ; phạm vi giá trị cũng phải phù hợp. Ẩn bớt dòng ở giao diện không giảm công việc database đã thực hiện.
 
 ## Kiểm tra không dùng AI
 
@@ -121,7 +170,7 @@ Mỗi địa chỉ `/api/orders` có thể mở nhiều ô cửa ứng với cá
 ### "Đường dẫn `/api/admin/export-users` do mình tự đặt tên bí mật, không có nút nào trên web dẫn tới đó nên người ngoài không thể biết mà gọi"
 
 - **Vì sao sai:** Tên đường dẫn trong code Client sau khi đóng gói gửi xuống trình duyệt vẫn có thể bị dò ra trong tab Sources/Network của F12, hoặc bị các công cụ quét tự động dò trúng. Giấu tên đường dẫn không phải là bảo mật.
-- **Cách sửa:** Coi mọi địa chỉ `/api/...` là công khai. Luôn kiểm tra xác thực đăng nhập và quyền hạn (role) ngay những dòng đầu tiên của mọi hàm trong `route.ts`.
+- **Cách sửa:** Coi địa chỉ `/api/...` là có thể bị biết. Endpoint truy cập dữ liệu riêng hoặc thao tác đặc quyền phải xác minh danh tính và quyền trước xử lý; endpoint công khai chỉ trả dữ liệu được phép công khai.
 
 ### "Đã kiểm tra dữ liệu đầu vào rất kỹ bằng JavaScript ở form trên màn hình rồi thì trong `route.ts` không cần kiểm tra lại nữa"
 
@@ -132,3 +181,24 @@ Mỗi địa chỉ `/api/orders` có thể mở nhiều ô cửa ứng với cá
 
 - **Vì sao sai:** Dù giao diện chỉ hiển thị tên người dùng, nhưng toàn bộ dữ liệu mà `NextResponse.json(data)` trả về đều hiện rõ trong tab Network (F12), làm lộ email, số điện thoại, ghi chú nội bộ của người khác.
 - **Cách sửa:** Chỉ truy vấn và trả về từ API Endpoint đúng những trường dữ liệu mà màn hình đó thực sự được phép xem (ví dụ `.select('id, name, avatar_url')`).
+
+## Bài tập thực hành
+
+Lập một phiếu kiểm tra endpoint từ code project để biết chính xác nó nhận gì và trả gì. Không gửi request, không sửa hoặc chạy thao tác ghi dữ liệu.
+
+### Việc cần làm
+
+1. Chọn một file `route.ts` và một hàm được export trong đó, ghi URL mẫu và phương thức; thay mã đối tượng bằng `MA_GIA_01`.
+2. Ghi đầu vào từ `req.json()` hoặc `searchParams`, điều kiện kiểm tra, nguồn danh tính và quyền cần có. Nếu là danh mục công khai, ghi lý do không cần phiên đăng nhập.
+3. Theo lần gọi database hoặc dịch vụ, tìm nhánh thành công và lỗi. Ghi mã HTTP, tên trường trả về, có xử lý `error` hay không; không sao chép khóa hoặc dữ liệu thật.
+4. Đối chiếu với một nơi gọi endpoint bằng `fetch`, ghi phương thức và cách giao diện xử lý phản hồi. Đánh dấu chỗ chưa khớp, không tự gọi thử để xác nhận.
+
+### Kết quả đúng
+
+Phiếu có file, phương thức + URL, đầu vào, quyền, kết quả và nhánh lỗi. Mỗi kết luận trỏ tới đoạn code cụ thể; thiếu bằng chứng thì ghi chưa xác định, không coi mã HTTP thành công là bằng chứng duy nhất dữ liệu đã được lưu.
+
+### Nhờ AI rà lại
+
+```text
+Chỉ báo cáo, không tự sửa, không chạy lệnh hay gọi endpoint. Rà phiếu endpoint và đoạn code đã che bí mật tôi cung cấp: đầu vào, quyền, nhánh lỗi và mã phản hồi có khớp nhau không? Nêu bằng chứng và điều chưa kiểm chứng; không tự mở thêm file.
+```
