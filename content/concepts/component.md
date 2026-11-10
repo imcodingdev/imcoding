@@ -81,14 +81,14 @@ export default function HomePage({ products }: { products: { id: string; name: s
 
 Kiểm tra cách AI đang tổ chức các thành phần giao diện trong dự án của bạn:
 
-1. **Khám phá kho mẫu kệ (`components/`):** Mở thư mục `components/` ở cây thư mục bên trái. Đọc lướt tên các file `.tsx` xem có những file nào tên gần giống nhau (như `ProductCard.tsx`, `ItemCard.tsx`, `CardProduct.tsx`) đang làm trùng một việc không.
-2. **Kiểm tra một component được dùng ở mấy nơi:** Chọn một tên component bất kỳ (như `Navbar` hoặc `Button`), bấm `Ctrl+Shift+F` / `Cmd+Shift+F` và tìm chuỗi `<TênComponent` (có dấu `<` ở đầu).
+1. **Khám phá kho mẫu kệ (`components/`):** Mở `components/`, `src/components/` hoặc `app/**/_components/`. Đọc tên các file `.tsx` như `ProductCard.tsx`, `ItemCard.tsx`, rồi đối chiếu nhiệm vụ; tên gần giống chưa đủ kết luận trùng. Ổn là dùng chung phần trình bày giống nhau; có vấn đề là copy cùng khung sang nhiều file rồi sửa lệch nhau.
+2. **Kiểm tra một component được dùng ở mấy nơi:** Chọn tên như `Navbar` hoặc `Button`, tìm `<Navbar` hoặc `<Button` bằng `Ctrl+Shift+F` / `Cmd+Shift+F`. Mở dòng `import` để xác nhận cùng file nguồn, kể cả khi được đổi tên hoặc export lại qua `index.ts`. Ghi các props được truyền; ổn là đúng kiểu/ý nghĩa, có vấn đề là truyền chuỗi `"false"` cho cờ boolean hoặc sai tên prop.
 3. **Kiểm tra lỗi thiếu `key` khi lặp danh sách:** Tìm chuỗi `.map(` trong toàn dự án. Nhìn dòng thẻ hoặc component nằm ngay bên trong `.map(` xem đã có thuộc tính `key={...}` (thường là `key={item.id}`) chưa.
-4. **Phát hiện file "khổng lồ" chưa tách component:** Mở các file `page.tsx` trong thư mục `app/`. Xem có file nào dài quá 300 dòng, nhồi nhét cả thanh menu, biểu mẫu, danh sách thẻ trong cùng một chỗ không.
+4. **Tìm phần có thể tách:** Mở `app/**/page.tsx` hoặc `src/app/**/page.tsx`, tìm `<form`, `<nav`, `onClick`. File dài chỉ là dấu hiệu cần đọc thêm, không tự động là lỗi. Ổn là mỗi phần có nhiệm vụ rõ; có vấn đề là cùng logic nút lưu bị copy nhiều nơi và xử lý lỗi khác nhau.
 5. **Ghi lại kết quả:**
    - Có những file nào trong `components/` đang bị trùng lặp chức năng không?: `[ Có / Không - tên file: ... ]`
    - Các vòng lặp `.map(` trong dự án đã có đủ `key={...}` dùng mã định danh riêng chưa?: `[ Đã đủ / Còn thiếu ở file: ... ]`
-   - Có file `page.tsx` nào dài trên 300 dòng cần tách nhỏ không?: `[ Có / Không - tên file: ... ]`
+   - Khối nào đang lặp, hoặc có nhiệm vụ riêng nên tách?: `[ File / khối giao diện / lý do: ... ]`
 
 ## Tự giải thích
 
@@ -103,6 +103,54 @@ Trong JSX, React phân biệt thẻ có sẵn của trình duyệt và component
 ### Chuyện gì xảy ra nếu bạn dùng `products.map(...)` để hiển thị 10 thẻ `<ProductCard />` mà quên truyền `key={p.id}`?
 
 React sẽ báo cảnh báo đỏ trong Console: *"Each child in a list should have a unique key prop"*. Nghiêm trọng hơn, khi xóa bớt 1 sản phẩm ở giữa hoặc đổi thứ tự danh sách, React không phân biệt được thẻ nào ứng với sản phẩm nào nên có thể giữ nhầm trạng thái (ô đánh dấu, số lượng đang nhập) của sản phẩm cũ gắn sang sản phẩm khác.
+
+## Trắc nghiệm
+
+### AI viết nút như sau. Vì sao hàm save có thể chạy ngay khi giao diện được dựng?
+
+```tsx
+<button onClick={save()}>Lưu bản nháp</button>
+```
+
+- [ ] React luôn tự bấm mọi nút Lưu khi mở trang
+- [x] Code gọi save ngay; cần truyền hàm xử lý để chạy khi bấm
+- [ ] Tên nút có chữ Lưu nên trình duyệt tự gửi dữ liệu
+
+**Giải thích:** `save()` thực hiện lời gọi ngay khi tính biểu thức JSX. Với hàm lưu thông thường, `onClick={save}` hoặc hàm bao phù hợp mới giao việc xử lý cho lúc có sự kiện.
+
+### Component đọc inStock như một cờ đúng/sai. Cursor truyền giá trị dưới đây; điều gì cần sửa?
+
+```tsx
+<ProductCard name="Bánh mẫu" inStock="false" />
+```
+
+- [x] Truyền boolean false bằng inStock={false}, đồng thời kiểm tra kiểu prop
+- [ ] Chuỗi "false" luôn được React tự chuyển thành boolean false
+- [ ] Chỉ đổi tên prop thành available để React hiểu đúng
+
+**Giải thích:** `"false"` là chuỗi không rỗng, được coi là đúng nếu dùng trong điều kiện JavaScript. TypeScript khai báo prop boolean sẽ giúp bắt nhầm lẫn này; đổi tên không sửa kiểu dữ liệu.
+
+### AI đặt hai Counter trên trang, mỗi Counter có useState riêng. Bấm tăng ở ô trái, ô phải có bắt buộc tăng theo không?
+
+- [ ] Có, vì cùng tên component nên dùng chung mọi trạng thái
+- [ ] Có, nếu cả hai import từ cùng một file
+- [x] Không, mỗi lần hiển thị có trạng thái riêng; muốn đồng bộ phải thiết kế chia sẻ trạng thái
+
+**Giải thích:** Dùng chung mẫu giao diện không đồng nghĩa dùng chung bộ nhớ trạng thái. Đưa trạng thái lên component cha là một cách chia sẻ khi yêu cầu sản phẩm cần đồng bộ.
+
+### AI tạo khung như sau nhưng chữ hướng dẫn không hiện. Nguyên nhân nào phù hợp nhất?
+
+```tsx
+function Panel() { return <section className="border" /> }
+// Nơi sử dụng:
+<Panel>Hướng dẫn thử nghiệm</Panel>
+```
+
+- [ ] React cấm đặt chữ giữa hai thẻ component
+- [x] Panel chưa nhận và hiển thị children bên trong section
+- [ ] Đổi section thành div sẽ tự hiện chữ
+
+**Giải thích:** Nội dung lồng vào được truyền qua prop `children`; component phải dùng nó để hiển thị. Đổi loại thẻ chứa không thay thế bước này; khai báo kiểu props cũng cần cho phép `children`.
 
 ## Kiểm tra không dùng AI
 
@@ -129,3 +177,24 @@ React sẽ báo cảnh báo đỏ trong Console: *"Each child in a list should h
 
 - **Vì sao sai:** Dùng `key={index}` chỉ làm tắt cảnh báo trên Console chứ không giải quyết gốc rễ: khi xóa phần tử số 0, phần tử số 1 tụt xuống thành số 0, khiến React tưởng nhầm hai phần tử đó là một và hiển thị sai dữ liệu bên trong.
 - **Cách sửa:** Luôn dùng mã định danh gắn liền với bản ghi dữ liệu như `key={item.id}` hoặc `key={item.slug}` thay vì số thứ tự `index`.
+
+## Bài tập thực hành
+
+Tạo bản đồ một component và những nơi dùng nó trong project. Chỉ đọc code và ghi chú để biết chính xác phải giao file nào cho AI khi cần sửa giao diện.
+
+### Việc cần làm
+
+1. Chọn một component trình bày đơn giản như thẻ sản phẩm hoặc khung thông báo. Ghi tên file định nghĩa, các props và giá trị mặc định nếu có.
+2. Tìm tên component ở các file khác, theo dòng import để xác nhận đường dẫn nguồn. Chọn tối đa hai nơi sử dụng; nếu chỉ có một, ghi đúng một nơi, không tạo thêm.
+3. Lập bảng nơi dùng → prop → giá trị hoặc nguồn dữ liệu. Nếu đầu vào là thông tin cá nhân, chỉ ghi tên trường, không chép giá trị.
+4. Dựa trên code, mô tả mỗi nơi sẽ hiện gì với dữ liệu giả, như tên `Món mẫu` và trạng thái hết hàng. Ghi rõ phần dùng chung, phần thay đổi theo prop và điều chưa thể biết chỉ từ code.
+
+### Kết quả đúng
+
+Có bản đồ từ file trang đến đúng file component, bảng props và dự đoán hiển thị có căn cứ. Bạn phân biệt được dùng chung mẫu với dùng chung trạng thái; không cần sửa giao diện thật hoặc bấm nút tạo đơn để kiểm tra.
+
+### Nhờ AI rà lại
+
+```text
+Chỉ báo cáo, không tự sửa, không chạy lệnh hoặc mở thêm file. Từ bản đồ component và trích đoạn đã che dữ liệu tôi gửi, kiểm tra import, kiểu props, children và dự đoán hiển thị. Nêu chỗ có bằng chứng, chỗ còn thiếu; không đề nghị nhân bản component chỉ vì tên màn hình khác nhau.
+```
