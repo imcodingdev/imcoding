@@ -85,6 +85,8 @@ const order = await res.json()
    - Có API nào trả về `{ error: ... }` mà quên ghi `{ status: ... }` không?: `[ Có / Không - tên file: ... ]`
    - Khi mở F12 → tab Network và bấm thử một nút, cột Status hiện số mấy?: `[ Mã trạng thái: ... ]`
 
+Trong Network, chọn đúng yêu cầu Fetch/XHR theo URL và thời điểm thao tác; xem Method, Status, Content-Type và Response cùng nhau. Ổn: trạng thái và nội dung phù hợp hợp đồng API, giao diện xử lý lỗi rõ ràng. Có vấn đề: code gọi `res.json()` nhưng nhận HTML, hoặc mã `204` không có body mà vẫn cố đọc JSON. Với project dùng `src/`, tìm thêm `src/app/api/**/route.ts`. Chỉ ghi đường dẫn không có query nhạy cảm; không xuất HAR hay Copy as cURL gửi AI vì có thể chứa cookie/token.
+
 ## Tự giải thích
 
 ### Vì sao bọc lệnh `fetch()` trong khối `try / catch` mà không viết `if (!res.ok)` thì vẫn không bắt được lỗi `404` hay `500` từ máy chủ?
@@ -98,6 +100,45 @@ Khi không truyền mã trạng thái, Next.js mặc định gắn mã `200 OK` 
 ### Mã trạng thái `401 Unauthorized` và `403 Forbidden` khác nhau như thế nào trong thực tế sử dụng ứng dụng?
 
 `401` nghĩa là **"Máy chủ chưa biết bạn là ai"** (chưa đăng nhập hoặc phiên đăng nhập hết hạn) — giao diện nên chuyển người dùng về trang Đăng nhập. Còn `403` nghĩa là **"Máy chủ biết rõ bạn là ai, nhưng tài khoản của bạn không được phép làm việc này"** (như nhân viên bấm vào trang của Giám đốc) — giao diện phải báo "Bạn không có quyền truy cập" chứ không bắt đăng nhập lại.
+
+## Trắc nghiệm
+
+### Network ghi 204 No Content, AI vẫn gọi res.json() rồi báo lỗi. Cần xử lý gì?
+
+```ts
+const res = await fetch('/api/demo', { method: 'POST' })
+const data = await res.json()
+```
+
+- [ ] Đổi mọi mã 204 thành 500
+- [x] Xử lý thành công không có body, không cố đọc JSON
+- [ ] Thêm try/catch là body sẽ xuất hiện
+
+**Giải thích:** 204 là phản hồi thành công không có nội dung. JSON parser cần dữ liệu hợp lệ; catch không tạo được body còn thiếu.
+
+### AI thấy Unexpected token '<' khi đọc JSON. Network có Content-Type: text/html. Nên kiểm tra gì trước?
+
+- [x] URL cuối cùng và nội dung trả về, có thể là trang đăng nhập hoặc trang lỗi
+- [ ] Đổi tên mọi trường JSON của database
+- [ ] Kết luận dữ liệu người dùng đã bị xóa
+
+**Giải thích:** Dấu `<` thường đến từ HTML đang bị đọc như JSON. Cần xem phản hồi và redirect trước khi suy đoán lỗi dữ liệu.
+
+### Log ghi 429 Too Many Requests. AI đề xuất lặp ngay liên tục cho đến khi thành công. Bạn chọn gì?
+
+- [ ] Gửi nhanh hơn để vượt hàng chờ
+- [ ] Xem 429 như 200 và báo thành công
+- [x] Dừng lặp dồn dập, thông báo giới hạn và chờ theo Retry-After nếu có
+
+**Giải thích:** 429 cho biết giới hạn tần suất. Gọi dồn thêm làm tình hình xấu hơn; thử lại còn phải phù hợp tính chất thao tác, nhất là thao tác tính tiền.
+
+### Network hiện (failed), không có HTTP status; Console báo Failed to fetch. Nhận định nào hợp lý?
+
+- [ ] Máy chủ chắc chắn đã trả 500
+- [x] Chưa có phản hồi HTTP đọc được; cần kiểm tra mạng, URL hoặc chặn CORS
+- [ ] Không có status nghĩa là thành công không body
+
+**Giải thích:** Không nhận được phản hồi khác với nhận phản hồi lỗi HTTP. CORS hoặc sự cố mạng có thể ngăn trình duyệt đọc phản hồi; chưa đủ bằng chứng kết luận server trả 500.
 
 ## Kiểm tra không dùng AI
 
@@ -127,3 +168,25 @@ Khi không truyền mã trạng thái, Next.js mặc định gắn mã `200 OK` 
 
 - **Vì sao sai:** Mỗi cặp Request–Response trong HTTP hoàn toàn độc lập; máy chủ không tự nhớ cuộc gọi trước là của ai nếu cuộc gọi sau không mang theo bằng chứng nhận diện.
 - **Cách sửa:** Đảm bảo cơ chế xác thực (như cookie phiên đăng nhập hoặc header `Authorization`) được gửi kèm trong mỗi yêu cầu cần quyền hạn.
+
+## Bài tập thực hành
+
+Đọc một cặp request–response lấy danh sách mẫu trên bản local của project, không gửi thao tác thay đổi dữ liệu.
+
+### Việc cần làm
+
+1. Chọn bản thử dùng dữ liệu giả và màn hình chỉ đọc; nếu chưa có môi trường an toàn, dừng phần chạy và ghi điều kiện cần chuẩn bị.
+2. Mở DevTools → Network, chọn Fetch/XHR rồi tải danh sách mẫu một lần. Không dùng Replay, Edit and Resend hoặc gọi API thanh toán.
+3. Chọn đúng request, ghi Method, đường dẫn không có query nhạy cảm, Status và Content-Type. Không ghi Authorization, Cookie hoặc xuất HAR.
+4. Xem Response/Preview, ghi tên trường của dữ liệu giả hoặc ghi “không có body”. Đối chiếu với `fetch` và route trong mã nguồn.
+5. Ghi giao diện xử lý phản hồi thế nào, kèm điểm chưa khớp nếu có; không sửa server để tạo lỗi trên dữ liệu thật.
+
+### Kết quả đúng
+
+Có bản ghi một cặp yêu cầu–phản hồi với phương thức, trạng thái, loại nội dung và cách giao diện xử lý. Phân biệt request với response, không suy kết quả chỉ từ màu trong Network; bản ghi không chứa thông tin phiên đăng nhập.
+
+### Nhờ AI rà lại
+
+```text
+Chỉ báo cáo, không tự sửa hoặc gửi request. Rà bản ghi Network đã che thông tin và đoạn fetch/route tôi cung cấp: status, Content-Type, body có khớp cách đọc và hiển thị không? Không yêu cầu HAR, cookie, token hay dữ liệu khách hàng. Nêu rõ bằng chứng còn thiếu.
+```
