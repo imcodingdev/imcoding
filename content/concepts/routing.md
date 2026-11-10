@@ -30,7 +30,7 @@ Bạn vừa nhờ AI làm trang chi tiết đơn hàng để khách xem theo đ�
 
 ### Đáp án
 
-Trong các phiên bản Next.js App Router hiện tại (từ Next.js 15 trở đi), thông tin đường dẫn động `params` được truyền vào trang dưới dạng bất đồng bộ (**Promise**), tức là phải chờ giải nén bằng từ khóa `await params` thì mới lấy được giá trị `id`. Do dữ liệu huấn luyện của AI có nhiều code từ thời Next.js cũ, AI rất hay viết thẳng `params.id` mà quên `await`. Kết quả là `params.id` trả về `undefined`, khiến câu lệnh tìm đơn hàng trong database bị hỏng dù đường dẫn URL hoàn toàn đúng.
+Từ Next.js 15, `params` trong App Router chuyển sang dạng bất đồng bộ (**Promise**). Server Component cần đọc bằng `await params`; Client Component có thể dùng `use(params)` của React. AI hay lấy ví dụ cũ đọc thẳng `params.id`: Next.js 15 từng hỗ trợ chuyển tiếp, còn Next.js 16 không hỗ trợ truy cập đồng bộ này. Vì vậy tùy phiên bản, bạn có thể gặp cảnh báo, lỗi hoặc giá trị không dùng được; không phải phiên bản nào cũng chỉ hiện `undefined`. Cần kiểm tra cách đọc tham số trước khi kết luận database mất đơn.
 
 ## Ví dụ mẫu
 
@@ -45,7 +45,7 @@ Cách làm SAI (nhầm giữa kiểu định tuyến cũ và mới, quên `await
 import { useRouter } from 'next/router'
 
 export default function OrderPage({ params }: { params: { id: string } }) {
-  // SAI: Đọc thẳng params.id mà không await sẽ ra undefined trên Next.js mới
+  // SAI: Đọc params đồng bộ, không tương thích App Router hiện tại
   return (
     <main>
       <h1>Đơn hàng #{params.id}</h1>
@@ -80,14 +80,16 @@ export default async function OrderPage({
 
 Hãy lập bản đồ các trang và kiểm tra lỗi định tuyến trong dự án của bạn:
 
-1. **Lập danh sách các trang web hiện có:** Mở thư mục `app/` và tìm tất cả các file có tên chính xác là `page.tsx`. Nhìn đường dẫn thư mục chứa nó để suy ra URL (lưu ý: thư mục bọc trong ngoặc tròn như `(marketing)` chỉ để gom nhóm, không xuất hiện trên URL; thư mục `app/api/.../route.ts` là đường dẫn API máy chủ, không phải trang giao diện).
-2. **Kiểm tra lỗi `params` chưa `await`:** Bấm `Ctrl+Shift+F` / `Cmd+Shift+F`, tìm các thư mục có dấu ngoặc vuông `[` hoặc tìm chuỗi `params.` trong thư mục `app/`. Xem có file `page.tsx` nào đọc thẳng `params.id` hay `params.slug` mà thiếu `await params` không.
-3. **Kiểm tra lỗi trộn lẫn bộ định tuyến cũ (`next/router`):** Tìm chuỗi `next/router` trong toàn dự án. Trong dự án dùng thư mục `app/`, mọi chỗ điều hướng phải lấy từ `next/navigation` chứ không bao giờ là `next/router`.
+1. **Lập danh sách trang:** Mở `app/` hoặc `src/app/`, tìm `page.tsx` và `page.js`. Bỏ nhóm `(marketing)` khi suy ra URL; không tính cây `_components` là route. `route.ts` là điểm xử lý HTTP, không phải trang giao diện. Ghi một URL cụ thể dùng mã giả cho mỗi trang động.
+2. **Kiểm tra cách đọc tham số:** Tìm `params.`, `await params`, `use(params)` và `useParams(`. Ổn là mở Promise đúng cách ở Server/Client Component hoặc dùng hook phù hợp; có vấn đề là đọc trực tiếp Promise như đối tượng. Biến `params` đã được giải nén hoặc nhận từ hook thì không cần `await` lần nữa. Tìm riêng `searchParams` để phân biệt phần sau dấu `?` với đoạn đường dẫn.
+3. **Kiểm tra import bộ định tuyến:** Tìm `next/router` ở các component thuộc cây App Router: hook điều hướng tại đó phải dùng `next/navigation`. Nếu repo đồng thời có `pages/`, không đổi hàng loạt import của Pages Router chỉ vì tìm thấy chuỗi này.
 4. **Kiểm tra chuyển trang nội bộ bằng thẻ `<a>`:** Tìm chuỗi `<a href="/` trong các file `.tsx`. Xem có chỗ nào chuyển giữa các trang trong cùng web mà dùng `<a href="...">` thay vì `<Link href="...">` của `next/link` không.
 5. **Ghi lại kết quả của bạn:**
    - Dự án của bạn đang có bao nhiêu file `page.tsx` (trang) và bao nhiêu thư mục động `[...]`?: `[ Số trang: ... / Thư mục động: ... ]`
    - Có file nào dùng `params.` trực tiếp mà thiếu `await` hoặc gọi nhầm `next/router` không?: `[ Có / Không - tên file: ... ]`
    - Có đường dẫn nội bộ nào đang dùng thẻ `<a href="/...">` thay vì `<Link>` không?: `[ Có / Không ]`
+
+Tìm thêm `href=`, `router.push(` và `layout.tsx` ở trang đã chọn. Ổn là liên kết dùng mã thật của bản ghi và layout hiển thị `children`; có vấn đề là URL chứa nguyên `[id]` hoặc layout bỏ mất nội dung trang con. Ghi file và đoạn liên quan; thẻ `<a>` có thể chủ ý dùng cho tải file hoặc tải lại toàn trang, nên không tự coi mọi kết quả tìm kiếm là lỗi.
 
 ## Tự giải thích
 
@@ -101,7 +103,55 @@ Vì trong thư mục `app/` của Next.js, tên file quy định vai trò cố �
 
 ### Khác biệt thực tế giữa việc bấm vào `<a href="/san-pham">` và `<Link href="/san-pham">` khi di chuyển giữa các trang trong cùng ứng dụng Next.js là gì?
 
-Thẻ `<a>` thuần của HTML buộc trình duyệt xóa trắng màn hình, tải lại toàn bộ khung trang web và các file JavaScript từ đầu như mới vào web lần đầu, làm tốc độ chậm và mất trạng thái đang mở. Ngược lại, component `<Link>` của `next/link` chỉ tải nhẹ đúng phần nội dung của trang `/san-pham` và thay thế mượt mà ngay tức thì mà không làm chớp trắng màn hình.
+Thẻ `<a>` thông thường tạo một lần điều hướng tài liệu đầy đủ, có thể làm mất trạng thái chỉ nằm trong bộ nhớ trang; tài nguyên đã cache không nhất thiết phải tải lại. `<Link>` hỗ trợ điều hướng phía client và tải trước khi phù hợp, thường giữ được layout dùng chung. Nó không bảo đảm mọi trạng thái đều được giữ hay trang đích luôn hiện tức thì.
+
+## Trắc nghiệm
+
+### AI đọc params.sort ở trang app/products/[id]/page.tsx. Với URL này, sort nằm ở đâu?
+
+```text
+/products/SP_GIA_01?sort=price
+```
+
+- [ ] Trong params cùng với id vì tất cả đều nằm trên URL
+- [x] Trong searchParams; id mới là tham số của đoạn đường dẫn
+- [ ] Trong tên thư mục price do Next.js tự tạo
+
+**Giải thích:** `[id]` nhận đoạn `SP_GIA_01`; `sort=price` là tham số truy vấn sau dấu hỏi. Server page hiện tại cần giải nén `searchParams` trước khi đọc, không lấy nó từ `params`.
+
+### Trang con không hiện, chỉ có menu. AI vừa sửa layout như dưới đây; cần rà gì trước?
+
+```tsx
+export default function ShopLayout() {
+  return <nav>Menu cửa hàng</nav>
+}
+```
+
+- [x] Layout có nhận và hiển thị children của trang con hay chưa
+- [ ] Phải tạo lại mọi page.tsx vì có nav thì route bị xóa
+- [ ] Chỉ đổi tên thư mục động thành chữ thường
+
+**Giải thích:** Layout bao quanh các trang con nhưng phải đặt `children` vào kết quả render. Thiếu nội dung con không chứng minh route đã biến mất.
+
+### AI tạo liên kết sau cho một sản phẩm có mã SP_GIA_01. Nhận xét nào đúng?
+
+```tsx
+<Link href="/products/[id]">Xem sản phẩm</Link>
+```
+
+- [ ] Next.js tự lấy id từ sản phẩm đang hiển thị
+- [ ] Link tự hỏi database để điền id còn thiếu
+- [x] Phải tạo href chứa mã cụ thể; [id] ở đây chỉ là ký tự trong URL
+
+**Giải thích:** Ngoặc vuông là quy ước tên thư mục, không phải mẫu tự nội suy trong chuỗi `href`. Cần kiểm tra nguồn mã và tạo đường dẫn đúng ở nơi sử dụng Link.
+
+### Có route động hợp lệ nhưng mã sản phẩm không tồn tại. AI bảo tạo thêm thư mục cho mã đó. Nên xử lý thế nào?
+
+- [ ] Tạo một thư mục cho mỗi sản phẩm để tránh thiếu trang
+- [x] Giữ route động và xử lý trường hợp không có dữ liệu, chẳng hạn gọi notFound()
+- [ ] Tắt kiểm tra dữ liệu vì route tồn tại là sản phẩm tồn tại
+
+**Giải thích:** Route quyết định khuôn trang, không bảo đảm bản ghi có trong database. `notFound()` giúp hiển thị trạng thái không tìm thấy thay vì nhân bản file cho từng mã.
 
 ## Kiểm tra không dùng AI
 
@@ -129,4 +179,25 @@ Thẻ `<a>` thuần của HTML buộc trình duyệt xóa trắng màn hình, t�
 ### "Đoạn code điều hướng của AI lấy từ tài liệu Next.js chính chủ nên chắc chắn chạy đúng"
 
 - **Vì sao sai:** Next.js có hai thế hệ định tuyến tồn tại song song là **Pages Router** (thư mục `pages/`, cũ) và **App Router** (thư mục `app/`, mới). AI rất hay viết code trong thư mục `app/` nhưng lại gọi `next/router`, `getServerSideProps` hoặc đọc `params.id` không có `await`.
-- **Cách sửa:** Khi giao việc cho AI hoặc kiểm tra code điều hướng, luôn nhắc rõ dự án đang dùng **Next.js App Router (Next.js 15+)**, chỉ dùng `next/navigation` và phải `await params`.
+- **Cách sửa:** Nêu đúng phiên bản Next.js và App Router khi giao việc cho AI. Hook điều hướng dùng `next/navigation`; Server Component dùng `await params`, Client Component dùng cách đọc phù hợp như `use(params)` hoặc `useParams()`.
+
+## Bài tập thực hành
+
+Lập bản đồ hai địa chỉ trong project và kiểm tra chúng trỏ tới trang nào bằng mã nguồn. Không mở trang production hoặc kích hoạt thao tác thanh toán.
+
+### Việc cần làm
+
+1. Chọn một trang tĩnh và một trang động nếu có, ghi đường dẫn file `page.tsx` hoặc `page.js`. Không tạo route mới nếu project chưa có trang động.
+2. Viết URL dự kiến, bỏ nhóm `(ten-nhom)` và thay tham số động bằng mã `MA_GIA_01`; tách phần đường dẫn khỏi query nếu có.
+3. Tìm một `Link` hoặc `router.push` trỏ đến mỗi trang, đối chiếu URL được tạo. Nếu không có nơi liên kết, ghi trang chỉ truy cập trực tiếp thay vì đoán.
+4. Mở layout bao quanh trang, tìm `children`; với trang động, ghi cách đọc tham số và cách xử lý khi thiếu bản ghi. Chỉ đọc, không gửi mã giả tới dịch vụ thật.
+
+### Kết quả đúng
+
+Bảng file → URL mẫu → nơi điều hướng → layout có bằng chứng từ code. Bạn phân biệt được lỗi tạo URL, lỗi layout và thiếu dữ liệu; chưa chạy thử thì ghi rõ mới xác minh tĩnh.
+
+### Nhờ AI rà lại
+
+```text
+Chỉ báo cáo, không tự sửa hoặc chạy lệnh. Rà bảng route và trích đoạn đã che dữ liệu tôi cung cấp theo Next.js App Router: URL, params/searchParams, href và children có khớp không? Nêu giới hạn do chưa chạy thử, không tự mở file hoặc gọi dịch vụ.
+```
