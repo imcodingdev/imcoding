@@ -4,24 +4,8 @@ import matter from 'gray-matter'
 import { loadConcepts } from '@/lib/concepts/load'
 import { parseConcept } from '@/lib/concepts/parse'
 
-const IDS = [
-  'client-server',
-  'http-request-response',
-  'html-css-js',
-  'component',
-  'routing',
-  'server-code',
-  'environment-variables',
-  'database-table',
-  'api-endpoint',
-  'json',
-  'authentication',
-  'secrets',
-  'package-dependencies',
-  'hosting-deploy',
-  'git-commit',
-  'data-flow',
-]
+import { validateGraph } from '@/lib/concepts/graph'
+import { CURRICULUM, LESSON_IDS } from '../fixtures/curriculum'
 
 const files = fs.readdirSync('content/concepts').filter(name => name.endsWith('.md')).map(name => {
   const raw = fs.readFileSync(`content/concepts/${name}`, 'utf8')
@@ -37,7 +21,7 @@ function v1Concepts() {
   })
 }
 
-describe('nội dung 16 khái niệm ưu tiên', () => {
+describe('nội dung lộ trình 45 bài', () => {
   it.each(files)('$name tuân thủ parser theo format của bài', ({ name, raw }) => {
     expect(() => parseConcept(name, raw)).not.toThrow()
   })
@@ -53,13 +37,15 @@ describe('nội dung 16 khái niệm ưu tiên', () => {
   it('loadConcepts() đọc được thư mục content/concepts không lỗi', () => {
     expect(() => loadConcepts()).not.toThrow()
   })
-  it('đúng 16 khái niệm, tất cả priority 1', () => {
+  it('đúng 45 bài với priority đã chốt cho từng id', () => {
     const list = loadConcepts()
-    expect(list).toHaveLength(16)
-    expect(list.every((c) => c.priority === 1)).toBe(true)
+    expect(list).toHaveLength(45)
+    for (const [id, , priority] of CURRICULUM) {
+      expect(list.find(c => c.id === id)?.priority, id).toBe(priority)
+    }
   })
-  it('tập id đúng 16 id ưu tiên', () => {
-    expect(loadConcepts().map((c) => c.id).sort()).toEqual([...IDS].sort())
+  it('tập id đúng 45 id đã chốt', () => {
+    expect(loadConcepts().map((c) => c.id).sort()).toEqual([...LESSON_IDS].sort())
   })
   it('mỗi mục "Trong code" có khối code', () => {
     for (const c of v1Concepts()) expect(c.sections.inCode, c.id).toContain('```')
@@ -81,12 +67,25 @@ describe('nội dung 16 khái niệm ưu tiên', () => {
       }
     }
   })
-  it('stage của 16 bài đúng bảng BRIEF', () => {
-    const stages = [
-      ['client-server', 'git-commit', 'server-code', 'environment-variables', 'secrets', 'package-dependencies'],
-      ['html-css-js', 'http-request-response', 'json', 'api-endpoint', 'database-table', 'data-flow', 'component', 'routing'],
-      ['authentication', 'hosting-deploy'],
-    ]
-    stages.forEach((ids, i) => ids.forEach(id => expect(loadConcepts().find(c => c.id === id)?.stage, id).toBe(i + 1)))
+  it('stage của từng bài đúng frontmatter đã chốt ở cả bốn chặng', () => {
+    const list = loadConcepts()
+    for (const [id, stage] of CURRICULUM) {
+      expect(list.find(c => c.id === id)?.stage, id).toBe(stage)
+    }
+    expect([1, 2, 3, 4].map(stage => list.filter(c => c.stage === stage).length)).toEqual([6, 24, 11, 4])
+  })
+  it('mọi prerequisite có thật và đồ thị 45 bài không có vòng', () => {
+    const concepts = files.map(({ name, raw }) => parseConcept(name, raw))
+    const ids = new Set(concepts.map(c => c.id))
+    for (const concept of concepts) {
+      for (const prerequisite of concept.prerequisites) {
+        expect(ids.has(prerequisite), concept.id + ' → ' + prerequisite).toBe(true)
+      }
+    }
+    expect(() => validateGraph(concepts)).not.toThrow()
+  })
+  it.each(['ai-cost-limits', 'prompt-injection'])('%s giữ thân bài không quá 2.700 âm tiết', id => {
+    const file = files.find(file => file.data.id === id)!
+    expect(file.content.trim().split(/\s+/).length).toBeLessThanOrEqual(2700)
   })
 })

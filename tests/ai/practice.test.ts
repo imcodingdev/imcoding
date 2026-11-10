@@ -21,12 +21,16 @@ describe('PRACTICE_STEPS', () => {
       expect(lessonContext(concept)).toEqual({ title: concept.title, ...concept.sections })
       expect(lessonQuiz(concept)).toEqual(concept.quiz)
     } else {
-      expect(lessonContext(concept)).toEqual({
-        title: concept.title,
-        plain: concept.predict.scenario,
-        inCode: `${concept.example}\n\n${concept.findInProject}`,
-        pitfalls: concept.misconceptions.map(m => `### ${m.wrong}\n\n${m.correction}`).join('\n\n'),
-      })
+      const ctx = lessonContext(concept)
+      const all = Object.values(ctx).join('\n')
+      expect(ctx.title).toBe(concept.title)
+      expect(ctx.plain).toBe(concept.predict.scenario)
+      expect(ctx.inCode).toContain(concept.example)
+      expect(ctx.inCode).toContain(concept.findInProject)
+      if (concept.exercise) expect(ctx.inCode).toContain(concept.exercise.expectedResult)
+      // Bước kiểm tra độc lập và trắc nghiệm không được lọt vào prompt Hỏi AI
+      expect(all).not.toContain(concept.check.answer)
+      for (const q of concept.quiz ?? []) expect(all).not.toContain(q.explanation)
       expect(lessonQuiz(concept)).toEqual([...concept.explain, concept.check])
     }
   })
