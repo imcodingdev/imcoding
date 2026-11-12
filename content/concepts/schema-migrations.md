@@ -17,13 +17,13 @@ signals:
 
 ## Nhắc lại
 
-### Bảng `orders` có cột `customer_id` là khóa ngoại trỏ sang bảng `customers`. Điều gì xảy ra với các đơn hàng nếu ai đó xóa bảng `customers` hoặc xóa cột `id` của nó?
+### Theo bài Quan hệ dữ liệu, khi xóa một dòng khách hàng mà vẫn còn đơn hàng trỏ tới, `on delete cascade` và `on delete restrict` khác nhau thế nào?
 
-Mối liên kết gãy. Tùy cách khai báo, database sẽ từ chối lệnh xóa, hoặc xóa lan sang cả các đơn hàng liên quan. Vì vậy một thay đổi ở bảng này có thể kéo theo dữ liệu ở bảng khác.
+`cascade` xóa theo các dòng đơn hàng đang tham chiếu khách đó; `restrict` chặn xóa khách khi còn dòng tham chiếu. Đây là quy tắc khi xóa một dòng, không phải lệnh xóa cả bảng hay cột. Chọn quy tắc nào phải theo nghiệp vụ, nhất là với hóa đơn cần giữ lại.
 
-### Git commit lưu lại những gì, và không lưu những gì?
+### Theo bài Git commit, sau khi đã `git add` một file rồi AI sửa tiếp file đó, dùng lệnh nào để xem đúng phần sắp commit?
 
-Git lưu nội dung các file trong thư mục dự án tại từng thời điểm. Nó không lưu dữ liệu đang nằm trong database, vì dữ liệu đó ở trên máy chủ database chứ không phải trong các file của dự án.
+`git diff --cached -- <tên-file>` cho thấy phần đã stage so với commit trước. `git diff` mặc định chỉ hiện phần chưa stage; mở file trên ổ đĩa cũng chưa cho biết chính xác bản sắp commit vì có thể chứa cả sửa đổi mới chưa stage.
 
 ## Đoán trước
 

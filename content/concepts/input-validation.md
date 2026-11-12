@@ -26,11 +26,11 @@ Bất kỳ ai biết địa chỉ đều gọi được, không cần dùng giao
 
 ## Đoán trước
 
-Shop bán cà phê của bạn có giỏ hàng. Ô số lượng trên giao diện đặt `min="1"` nên không gõ được số âm. Khi đặt hàng, trình duyệt gửi danh sách món kèm số lượng, máy chủ tự tra giá trong database rồi nhân lên. Bạn yên tâm vì giá không lấy từ trình duyệt. Cuối tháng đối soát, bạn thấy một đơn gồm 1 máy pha giá 3.000.000đ và `-29` gói cà phê giá 100.000đ, tổng thanh toán 100.000đ. Khách đã nhận máy pha. Giá lấy từ database là đúng, vậy lỗ hổng nằm ở đâu?
+Trên bản thử của ứng dụng đặt lớp học, đối tác dùng một script gọi thẳng `POST /api/bookings`, không mở website hay biểu mẫu. Yêu cầu có phiên đăng nhập hợp lệ nhưng gửi `seats: "hai"` và mã buổi học `BUOI_GIA_KHONG_CO`. API vẫn trả `201` và ghi một bản đặt chỗ sai vào database. Trong `route.ts`, AI chỉ đọc `await req.json()` rồi chuyển dữ liệu cho hàm lưu, với lý do “form đã kiểm tra rồi, JSON đọc được là hợp lệ”. Vì sao cả đăng nhập thành công lẫn đọc được JSON đều chưa đủ để API nhận bản đặt chỗ này?
 
 ### Đáp án
 
-Máy chủ đã không tin **giá** từ trình duyệt nhưng vẫn tin **số lượng**. Thuộc tính `min="1"` chỉ tồn tại trên giao diện. Người gửi mở DevTools sửa yêu cầu, đổi số lượng thành `-29`, và máy chủ nhân giá đúng với một con số vô lý. Mọi giá trị trình duyệt gửi lên đều do người gửi quyết định, nên máy chủ phải kiểm lại từng giá trị trước khi dùng: có đúng kiểu không, có nằm trong khoảng cho phép không, và người gửi có quyền với thứ họ nhắc tới không.
+Script bỏ qua toàn bộ giao diện và gọi trực tiếp API, nên không chạy bất kỳ kiểm tra nào của form. Phiên đăng nhập chỉ xác định người gọi; đọc JSON chỉ xác nhận cú pháp gói dữ liệu. Máy chủ còn phải kiểm `seats` là số nguyên trong khoảng cho phép, buổi học tồn tại và người gọi được đặt buổi đó, trước khi ghi database. Chuỗi `"hai"` phải bị từ chối với mã `400`; mã buổi không tồn tại cần được xử lý bằng phản hồi phù hợp, chẳng hạn `404`, thay vì báo đã tạo thành công.
 
 ## Ví dụ mẫu
 

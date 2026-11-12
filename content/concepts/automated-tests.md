@@ -20,9 +20,9 @@ signals:
 
 Điều kiện ban đầu, thao tác, và kết quả nhìn thấy được, để ai kiểm tra cũng trả lời được "đạt" hay "chưa đạt". Ví dụ: "Đơn dưới 300.000đ thì phí ship là 30.000đ".
 
-### Một hàm (function) nhận gì và trả gì?
+### Theo bài Hàm, khi đọc một hàm AI viết, bạn cần xác định bốn điều gì thay vì chỉ tin tên hàm?
 
-Hàm nhận đầu vào (tham số), xử lý theo các bước đã viết và trả về một đầu ra. Cùng đầu vào thì phải ra cùng đầu ra, nên ta có thể kiểm tra hàm bằng cách đưa đầu vào đã biết và so kết quả.
+Tên hàm, đầu vào, đầu ra của từng nhánh và tác động phụ như ghi database hay gửi email. Tên chỉ là lời hứa; phải đọc phần xử lý để biết hàm thực sự làm gì. Không phải hàm nào cũng luôn trả cùng kết quả với cùng đầu vào, nhất là hàm đọc dữ liệu bên ngoài.
 
 ## Đoán trước
 

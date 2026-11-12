@@ -20,9 +20,9 @@ signals:
 
 Phần chạy trên trình duyệt gọi là **Client** (máy khách, hiển thị giao diện và nhận thao tác bấm), còn phần chạy trên máy chủ gọi là **Server** (xử lý nghiệp vụ ngầm, cất giữ khóa bí mật và kết nối cơ sở dữ liệu).
 
-### Vì sao trong Next.js App Router, một file component mặc định không thể dùng ngay sự kiện bấm nút hay xem thông tin trình duyệt?
+### Theo bài Máy khách – máy chủ, vì sao nút mua hàng chỉ nên gửi mã sản phẩm và số lượng, không gửi tổng tiền để máy chủ tin ngay?
 
-Vì mặc định mọi component trong thư mục `app/` của Next.js là **Server Component** (chạy trên máy chủ). Các thao tác tương tác trực tiếp của người dùng diễn ra ở trình duyệt nên cần đánh dấu `'use client'` ở đầu file để chuyển thành **Client Component**.
+Vì trình duyệt nằm trên máy người dùng, họ có thể sửa tổng tiền trước khi gửi. Máy chủ phải kiểm tra đầu vào, tự tra giá trong database và tính tiền; con số do giao diện gửi không phải bằng chứng giá đúng.
 
 ## Đoán trước
 

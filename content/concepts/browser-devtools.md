@@ -16,9 +16,9 @@ signals:
 
 ## Nhắc lại
 
-### Giao diện bị lệch màu, bấm nút không chạy, mất hẳn một khối nội dung. Mỗi triệu chứng thuộc lớp nào trong ba lớp HTML, CSS, JavaScript?
+### Theo bài HTML, CSS và JavaScript, với một nút bấm, lớp nào tạo khung và nội dung, lớp nào tạo màu sắc, lớp nào xử lý hành động?
 
-Mất khối nội dung là lớp HTML. Lệch màu, sai bố cục là lớp CSS. Bấm không chạy là lớp JavaScript.
+HTML tạo khung và nội dung nút, CSS tạo màu sắc và bố cục, JavaScript xử lý hành động như `onClick`. Đây là vai trò của ba lớp, không phải cách kết luận nguyên nhân chỉ từ triệu chứng: nút không bấm được còn có thể do thuộc tính `disabled` của HTML.
 
 ### Máy chủ trả mã `500` nhưng màn hình vẫn hiện "Thành công". Vì sao chuyện này xảy ra được?
 

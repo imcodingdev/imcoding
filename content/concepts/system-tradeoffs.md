@@ -21,9 +21,9 @@ signals:
 
 Là các luật riêng của việc kinh doanh mà phần mềm phải tuân theo, ví dụ "đơn dưới 200.000 đồng tính phí ship 25.000". AI không tự biết những luật này. Không viết ra thì AI tự đoán, và bạn không có căn cứ để kiểm tra kết quả.
 
-### Khi một tính năng hỏng, vì sao nên xác định dữ liệu dừng ở trạm nào trước khi sửa, và log giúp gì ở bước đó?
+### Theo bài Nhật ký và theo dõi, vì sao log lỗi nên có `requestId` thay vì chỉ ghi “checkout failed”?
 
-Vì một tính năng đi qua nhiều trạm nối tiếp: giao diện, yêu cầu HTTP, API, database, rồi quay lại giao diện. Sửa nhầm trạm chỉ tạo thêm lỗi. Log phía máy chủ cho biết yêu cầu đã tới API chưa và hỏng ở bước nào.
+`requestId` giúp nối phản ánh của người dùng với đúng yêu cầu và dòng log tương ứng. Nhiều dòng “checkout failed” giống nhau chỉ báo có lỗi, không cho biết dòng nào thuộc yêu cầu đang cần kiểm tra. Mã yêu cầu đi kèm thông báo lỗi giúp khoanh vùng sự cố.
 
 ## Đoán trước
 

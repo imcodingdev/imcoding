@@ -18,7 +18,7 @@ signals:
 
 ### Trong ba lớp HTML, CSS, JavaScript, lớp nào quyết định "bấm nút thì chuyện gì xảy ra"?
 
-JavaScript. HTML là khung và nội dung, CSS là phần trang trí, còn JavaScript là lớp hành động. Trong Next.js, file có xử lý bấm nút phải có dòng `'use client'` ở đầu để chạy trên trình duyệt.
+JavaScript. HTML là khung và nội dung, CSS là phần trang trí, còn JavaScript là lớp hành động. Theo bài HTML, CSS và JavaScript, phần xử lý bấm nút phải thuộc ranh giới client: file có `'use client'` hoặc được import qua chuỗi module thuộc ranh giới đó.
 
 ### Biến (variable) là gì, và vì sao kiểu dữ liệu của biến lại quan trọng?
 

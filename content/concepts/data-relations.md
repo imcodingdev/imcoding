@@ -16,9 +16,9 @@ signals:
 
 ## Nhắc lại
 
-### Vì sao trong bảng đơn hàng người ta chỉ lưu mã khách (`customerId`) chứ không chép lại tên và số điện thoại của khách vào từng đơn?
+### Theo bài Bảng dữ liệu, vì sao đơn hàng dùng `customerId` để tra thông tin hiện tại của khách, và khi nào vẫn cần lưu bản chụp thông tin riêng?
 
-Vì thông tin khách chỉ nên nằm ở một nơi là bảng khách hàng. Khách đổi số điện thoại thì sửa một dòng, mọi đơn hàng tra theo mã đều thấy thông tin mới. Chép lặp vào từng đơn thì đơn cũ và đơn mới sẽ lệch nhau.
+Tra theo `customerId` giúp cập nhật thông tin khách ở một nơi là bảng khách hàng. Nhưng hóa đơn hoặc địa chỉ giao hàng tại thời điểm mua có thể cần bản chụp lịch sử riêng. Cần phân biệt thông tin hiện tại với thông tin của giao dịch cũ, không coi mọi bản chụp là dữ liệu chép lặp sai.
 
 ### Dữ liệu lưu trong biến mảng ở code máy chủ khác gì dữ liệu lưu trong bảng của database?
 
