@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import { useProgress, useUser } from '@/components/BackendProvider'
 import { ConceptList } from '@/components/ConceptList'
 import { ConceptMap } from '@/components/ConceptMap'
@@ -16,7 +16,7 @@ const TABS: { id: Tab; label: string }[] = [
   { id: 'map', label: 'Sơ đồ' },
 ]
 
-export function MapView({ nodes, edges, concepts }: { nodes: MapNode[]; edges: MapEdge[]; concepts: ConceptRef[] }) {
+export function MapView({ nodes, edges, concepts, resumeCard }: { nodes: MapNode[]; edges: MapEdge[]; concepts: ConceptRef[]; resumeCard?: ReactNode }) {
   const ids = useMemo(() => concepts.map((c) => c.id), [concepts])
   const { user, loading } = useUser()
   const { progress, error } = useProgress(ids)
@@ -53,6 +53,7 @@ export function MapView({ nodes, edges, concepts }: { nodes: MapNode[]; edges: M
           Đã hiểu {counts.understood} · Đã gặp {counts.seen} · Chưa học {counts.unseen}
         </p>
       )}
+      {resumeCard}
       {!loading && (!user || progress) && <NextUpCard concept={next} total={concepts.length} />}
 
       <div

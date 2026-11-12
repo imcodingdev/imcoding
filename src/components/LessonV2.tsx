@@ -3,12 +3,13 @@ import type { ConceptV2, QuizItem } from '@/lib/concepts/types'
 import { Markdown } from './Markdown'
 import { LessonQuiz } from './LessonQuiz'
 import { LessonExercise } from './LessonExercise'
+import { LessonSteps } from './LessonSteps'
 
 function Step({ number, title, minutes, children }: {
   number: number; title: string; minutes: number; children: ReactNode
 }) {
   return (
-    <section className="space-y-3" aria-labelledby={`step-${number}`}>
+    <section id={`buoc-${number}`} className="scroll-mt-24 space-y-3" aria-labelledby={`step-${number}`}>
       <h2 id={`step-${number}`} className="font-display text-xl font-bold text-ink md:text-2xl">
         <span className="mr-2 font-mono text-base font-medium text-accent">0{number}.</span>
         {title} <span className="text-base font-normal text-ink-muted">· {minutes} phút</span>
@@ -40,7 +41,7 @@ function Questions({ items }: { items: QuizItem[] }) {
 export function LessonV2({ concept }: { concept: ConceptV2 }) {
   let step = 0
   return (
-    <>
+    <LessonSteps key={concept.id} conceptId={concept.id}>
       {concept.recall.length > 0 && (
         <Step number={++step} title="Nhắc lại" minutes={3}><Questions items={concept.recall} /></Step>
       )}
@@ -65,6 +66,6 @@ export function LessonV2({ concept }: { concept: ConceptV2 }) {
         ))}
       </Step>
       {concept.exercise && <Step number={++step} title="Bài tập thực hành" minutes={15}><LessonExercise key={concept.id} exercise={concept.exercise} /></Step>}
-    </>
+    </LessonSteps>
   )
 }

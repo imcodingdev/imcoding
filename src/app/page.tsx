@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { Logo } from "@/components/Logo";
 import { STAGES } from "@/lib/concepts/stages";
+import { loadConcepts } from "@/lib/concepts/load";
+import { lessonStepCount } from "@/lib/concepts/lesson";
+import { ResumeCard } from "@/components/ResumeCard";
 
 const steps = [
   { title: "Nhắc lại, đoán trước, xem ví dụ", minutes: 10, body: "Nhớ lại bài trước, tự đoán cách xử lý một sự cố ngắn, rồi xem ví dụ code có chú thích." },
@@ -13,6 +16,7 @@ const focus =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-canvas";
 
 export default function Home() {
+  const lessons = loadConcepts().map(c => ({ id: c.id, title: c.title, stepCount: c.format === 2 ? lessonStepCount(c) : 0 }));
   return (
     <main className="mx-auto w-full max-w-3xl px-4 py-12 md:px-6 md:py-20">
       <section className="flex flex-col items-start gap-5">
@@ -42,6 +46,7 @@ export default function Home() {
             Xem bản đồ kiến thức
           </Link>
         </div>
+        <ResumeCard lessons={lessons} />
       </section>
 
       <section className="mt-14 md:mt-20" aria-labelledby="learn-heading">
