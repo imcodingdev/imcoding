@@ -10,7 +10,8 @@ const steps = [
   { title: "Nhắc lại, đoán trước, xem ví dụ", minutes: 10, body: "Nhớ lại bài trước, tự đoán cách xử lý một sự cố ngắn, rồi xem ví dụ code có chú thích." },
   { title: "Tìm trong code của bạn", minutes: 7, body: "Mở project của chính bạn và tìm chỗ khái niệm đó xuất hiện thật." },
   { title: "Tự giải thích", minutes: 4, body: "Trả lời câu hỏi “vì sao” bằng lời của mình. Đáp án mẫu chỉ mở khi bạn đã nghĩ xong." },
-  { title: "Kiểm tra không dùng AI", minutes: 9, body: "Giải một tình huống mới mà không hỏi AI, rồi xem những lỗi suy luận hay gặp." },
+  { title: "Trắc nghiệm", minutes: 3, body: "Chọn đáp án, kiểm tra ngay và đọc giải thích để hiểu vì sao đúng hoặc sai." },
+  { title: "Kiểm tra không dùng AI", minutes: 8, body: "Giải một tình huống mới mà không hỏi AI, rồi xem những lỗi suy luận hay gặp." },
 ];
 
 const focus =
@@ -73,6 +74,22 @@ export default function Home() {
             </li>
           ))}
         </ol>
+        <p className="mt-4 text-base leading-relaxed text-ink-muted">
+          Đa số bài có Bài tập thực hành để làm thêm 10–15 phút trên project của bạn, với các bước cụ thể và cách kiểm tra kết quả.
+        </p>
+      </section>
+
+      <section className="mt-14 grid gap-4 md:mt-20 md:grid-cols-2" aria-label="Hỗ trợ khi học">
+        <div className="min-w-0 rounded-2xl border border-line bg-surface p-5">
+          <h2 className="font-display text-xl font-bold text-ink">
+            <Link href="/hoi" className={`inline-flex min-h-[44px] items-center text-accent underline ${focus}`}>Hỏi thực chiến</Link>
+          </h2>
+          <p className="mt-2 leading-relaxed text-ink-muted">Tìm bài theo việc bạn đang làm, không cần AI. Khi cần lời giải thích từ AI, dùng Gemini key của chính bạn.</p>
+        </div>
+        <div className="min-w-0 rounded-2xl border border-line bg-surface p-5">
+          <h2 className="font-display text-xl font-bold text-ink">Học tiếp chỗ đang dở</h2>
+          <p className="mt-2 leading-relaxed text-ink-muted">Thẻ Học tiếp đưa bạn về bước đang học. Điểm dừng lưu theo tài khoản khi đăng nhập, hoặc trên trình duyệt khi chưa đăng nhập.</p>
+        </div>
       </section>
 
       <section className="mt-14 md:mt-20" aria-labelledby="stages-heading">

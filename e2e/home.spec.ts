@@ -10,19 +10,23 @@ test('trang chủ có h1, CTA và link bản đồ', async ({ page }) => {
   await expect(map).toHaveAttribute('href', '/map')
 })
 
-test('trang chủ có 4 thẻ học trong bài 30 phút và nói rõ định vị', async ({ page }) => {
+test('trang chủ giới thiệu bài v2.1 và nói rõ định vị', async ({ page }) => {
   await page.goto('/')
   await expect(page.getByRole('heading', { level: 2, name: 'Mỗi bài 30 phút, học bằng cách tự làm', exact: true })).toBeVisible()
   const cards = page.getByTestId('learn-step')
-  await expect(cards).toHaveCount(4)
-  const titles = ['Nhắc lại, đoán trước, xem ví dụ', 'Tìm trong code của bạn', 'Tự giải thích', 'Kiểm tra không dùng AI']
-  const minutes = [10, 7, 4, 9]
+  await expect(cards).toHaveCount(5)
+  const titles = ['Nhắc lại, đoán trước, xem ví dụ', 'Tìm trong code của bạn', 'Tự giải thích', 'Trắc nghiệm', 'Kiểm tra không dùng AI']
+  const minutes = [10, 7, 4, 3, 8]
   for (let i = 0; i < titles.length; i++) {
     await expect(cards.nth(i).getByRole('heading', { name: titles[i], exact: true })).toBeVisible()
     await expect(cards.nth(i).getByText(String(i + 1), { exact: true })).toBeVisible()
     await expect(cards.nth(i).getByText(`${minutes[i]} phút`, { exact: true })).toBeVisible()
   }
   await expect(page.locator('main').getByText('Nền tảng học cho founder').first()).toBeVisible()
+  await expect(page.getByText('Đa số bài có Bài tập thực hành')).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Học tiếp chỗ đang dở', exact: true })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Hỏi thực chiến', exact: true })).toHaveAttribute('href', '/hoi')
+  await expect(page.getByRole('searchbox')).toBeVisible()
 })
 
 test('trang chủ giới thiệu 4 chặng và liên kết lộ trình', async ({ page }) => {
