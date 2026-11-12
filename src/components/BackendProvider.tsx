@@ -46,6 +46,8 @@ const noBackend = (): Backend => {
     signInWithGitHub: fail,
     signOut: fail,
     loadProgress: fail,
+    loadResume: fail,
+    saveStep: fail,
     markUnderstood: fail,
   }
 }

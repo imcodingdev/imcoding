@@ -1,9 +1,11 @@
 import type { AppUser, Backend } from './types'
+import { validateStep, type ResumePoint } from './types'
 import type { ProgressMap } from '@/lib/progress/status'
 
 const USER_KEY = 'imcoding-fake-user'
 const PROGRESS_KEY = 'imcoding-fake-progress'
 const FAIL_KEY = 'imcoding-fake-fail'
+const STEPS_KEY = 'imcoding-fake-steps'
 
 const FAKE_USER: AppUser = {
   id: 'fake-user',
@@ -27,6 +29,7 @@ export function createFakeBackend(): Backend {
     const raw = localStorage.getItem(PROGRESS_KEY)
     return raw ? (JSON.parse(raw) as ProgressMap) : {}
   }
+  const readSteps = (): Record<string, ResumePoint> => JSON.parse(localStorage.getItem(STEPS_KEY) ?? '{}')
 
   return {
     async getUser() {
@@ -52,6 +55,24 @@ export function createFakeBackend(): Backend {
     async loadProgress() {
       if (failing()) throw new Error('Bản giả: lỗi tải tiến độ')
       return readProgress()
+    },
+    async loadResume() {
+      if (failing()) throw new Error('Bản giả: lỗi tải bước')
+      const progress = readProgress()
+      return Object.values(readSteps())
+        .filter(point => progress[point.conceptId] !== 'understood')
+        .sort((a, b) => Date.parse(b.at) - Date.parse(a.at))[0] ?? null
+    },
+    async saveStep(conceptId, step) {
+      validateStep(step)
+      if (failing()) throw new Error('Bản giả: lỗi lưu bước')
+      const progress = readProgress()
+      if (!progress[conceptId]) {
+        localStorage.setItem(PROGRESS_KEY, JSON.stringify({ ...progress, [conceptId]: 'seen' }))
+      }
+      localStorage.setItem(STEPS_KEY, JSON.stringify({
+        ...readSteps(), [conceptId]: { conceptId, step, at: new Date().toISOString() },
+      }))
     },
     async markUnderstood(conceptId) {
       if (failing()) throw new Error('Bản giả: lỗi lưu tiến độ')

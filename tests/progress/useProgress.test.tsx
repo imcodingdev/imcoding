@@ -31,6 +31,8 @@ async function setup(overrides: Partial<Backend>) {
     signInWithGitHub: async () => {},
     signOut: async () => {},
     loadProgress: async () => ({}),
+    loadResume: async () => null,
+    saveStep: async () => {},
     markUnderstood: async () => {},
     ...overrides,
   }

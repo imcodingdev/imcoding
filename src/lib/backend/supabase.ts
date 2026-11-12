@@ -1,6 +1,7 @@
 import { createBrowserClient } from '@supabase/ssr'
 import type { User } from '@supabase/supabase-js'
 import type { AppUser, Backend } from './types'
+import { validateStep } from './types'
 import type { ProgressMap, ProgressStatus } from '@/lib/progress/status'
 
 const MISSING =
@@ -25,6 +26,8 @@ export function createUnconfiguredBackend(): Backend {
     signInWithGitHub: fail,
     signOut: async () => {},
     loadProgress: fail,
+    loadResume: fail,
+    saveStep: fail,
     markUnderstood: fail,
   }
 }
@@ -79,6 +82,30 @@ export function createSupabaseBackend(): Backend {
         },
         { onConflict: 'user_id,concept_id' },
       )
+      if (error) throw error
+    },
+    async loadResume() {
+      const { data, error } = await client.from('progress')
+        .select('concept_id, last_step, last_step_at')
+        .neq('status', 'understood').not('last_step', 'is', null).not('last_step_at', 'is', null)
+        .order('last_step_at', { ascending: false }).limit(1).maybeSingle()
+      if (error) throw error
+      return data ? { conceptId: data.concept_id, step: data.last_step, at: data.last_step_at } : null
+    },
+    async saveStep(conceptId, step) {
+      validateStep(step)
+      const { data } = await client.auth.getSession()
+      const userId = data.session?.user.id
+      if (!userId) throw new Error('Chưa đăng nhập')
+      const { error: insertError } = await client.from('progress').upsert(
+        { user_id: userId, concept_id: conceptId, status: 'seen' },
+        { onConflict: 'user_id,concept_id', ignoreDuplicates: true },
+      )
+      if (insertError) throw insertError
+      // Không đưa status vào update: kể cả khi người học vừa đánh dấu đã hiểu ở tab khác.
+      const { error } = await client.from('progress')
+        .update({ last_step: step, last_step_at: new Date().toISOString() })
+        .eq('user_id', userId).eq('concept_id', conceptId)
       if (error) throw error
     },
   }

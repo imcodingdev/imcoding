@@ -3,7 +3,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(22);
+select plan(29);
 
 select has_table('public', 'profiles', 'có bảng public.profiles');
 select has_table('public', 'progress', 'có bảng public.progress');
@@ -88,6 +88,31 @@ select throws_ok(
 );
 
 -- 4. A tự nâng plan → không dòng nào thay đổi.
+select is_empty(
+  $$ update public.progress set last_step = 4, last_step_at = now()
+     where user_id = 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb' returning concept_id $$,
+  'A không ghi được bước của B'
+);
+select throws_ok(
+  $$ insert into public.progress (user_id, concept_id, status, last_step)
+     values ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'hack-step', 'seen', 4) $$,
+  '42501', null, 'A không chèn được bước của B'
+);
+select lives_ok(
+  $$ insert into public.progress (concept_id, status) values ('concept-a', 'seen')
+     on conflict (user_id, concept_id) do nothing;
+     update public.progress set last_step = 4, last_step_at = now() where concept_id = 'concept-a' $$,
+  'Lưu bước theo hai lệnh của backend'
+);
+select is((select status from public.progress where concept_id = 'concept-a'),
+  'understood', 'Lưu bước không hạ understood thành seen');
+select is((select last_step from public.progress where concept_id = 'concept-a'),
+  4::smallint, 'Bước mới đã được lưu');
+select throws_ok($$ update public.progress set last_step = 0 where concept_id = 'concept-a' $$,
+  '23514', null, 'Không nhận bước 0');
+select throws_ok($$ update public.progress set last_step = 21 where concept_id = 'concept-a' $$,
+  '23514', null, 'Không nhận bước 21');
+
 select is_empty(
   $$ update public.profiles set plan = 'pro'
      where id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa' returning id $$,
