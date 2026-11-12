@@ -54,7 +54,7 @@ export function SelfCheck({
 
   const signIn = () => {
     setSignInError(null)
-    backend.signInWithGitHub(location.pathname).catch(() => setSignInError('Không đăng nhập được, thử lại sau.'))
+    backend.signInWithGitHub(location.pathname + location.search).catch(() => setSignInError('Không đăng nhập được, thử lại sau.'))
   }
 
   return (

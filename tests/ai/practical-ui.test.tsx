@@ -12,7 +12,7 @@ async function render(query = 'Cần database gì?', apiKey = 'fake-ok') {
   const container = document.createElement('div')
   root = createRoot(container)
   await act(async () => root!.render(createElement(PracticalAnswer, {
-    query, apiKey, client: createFakeAiClient(), lessons: [{ id: 'database', title: 'Cơ sở dữ liệu' }],
+    query, apiKey, client: createFakeAiClient(), lessons: [{ id: 'database-table', title: 'Cơ sở dữ liệu' }],
   })))
   await act(async () => container.querySelector('button')!.click())
   return container
@@ -20,7 +20,7 @@ async function render(query = 'Cần database gì?', apiKey = 'fake-ok') {
 it('stream câu trả lời thành link bài hợp lệ, bỏ id lạ và không lưu câu hỏi', async () => {
   const container = await render()
   const answer = container.querySelector('[data-testid="practical-answer"]')!
-  expect(answer.querySelector('a')?.getAttribute('href')).toBe('/concepts/database')
+  expect(answer.querySelector('a')?.getAttribute('href')).toBe('/concepts/database-table')
   expect(answer.textContent).not.toContain('khong-co-bai-nay')
   expect(answer.querySelectorAll('h2')).toHaveLength(6)
   expect(container.textContent).toContain('Xem bên trong')

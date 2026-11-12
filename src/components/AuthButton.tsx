@@ -14,7 +14,7 @@ export function AuthButton() {
 
   const signIn = () => {
     setError(null)
-    backend.signInWithGitHub(location.pathname).catch(() => setError('Không đăng nhập được, thử lại sau.'))
+    backend.signInWithGitHub(location.pathname + location.search).catch(() => setError('Không đăng nhập được, thử lại sau.'))
   }
   const signOut = () => {
     setError(null)

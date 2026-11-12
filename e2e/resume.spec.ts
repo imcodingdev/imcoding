@@ -6,7 +6,7 @@ test.beforeEach(async ({ context }) => {
 
 test('lưu bước 4, học tiếp ở trang chủ/map và cuộn đúng hash', async ({ page }) => {
   await page.goto('/concepts/v2-lesson')
-  await page.getByRole('button', { name: 'Đăng nhập bằng GitHub' }).click()
+  await page.getByRole('banner').getByRole('button', { name: 'Đăng nhập bằng GitHub' }).click()
   await expect(page.getByRole('button', { name: 'Đăng xuất' })).toBeVisible()
   await page.locator('#buoc-4').evaluate(el => window.scrollTo(0, el.getBoundingClientRect().bottom + window.scrollY - window.innerHeight + 16))
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('imcoding-fake-steps') ?? '{}')['v2-lesson']?.step)).toBe(4)
@@ -26,7 +26,7 @@ test('khách giữ điểm dừng, bài đã hiểu không hiện thẻ', async 
   await page.evaluate(() => localStorage.setItem('imcoding-resume', JSON.stringify({ conceptId: 'v2-lesson', step: 4, at: new Date().toISOString() })))
   await page.reload()
   await expect(page.getByTestId('resume-card')).toContainText('bước 4/9')
-  await page.getByRole('button', { name: 'Đăng nhập bằng GitHub' }).click()
+  await page.getByRole('banner').getByRole('button', { name: 'Đăng nhập bằng GitHub' }).click()
   await page.evaluate(() => {
     localStorage.setItem('imcoding-fake-steps', JSON.stringify({ 'v2-lesson': { conceptId: 'v2-lesson', step: 4, at: new Date().toISOString() } }))
     localStorage.setItem('imcoding-fake-progress', JSON.stringify({ 'v2-lesson': 'understood' }))
