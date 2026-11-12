@@ -4,15 +4,22 @@ import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { useBackend, useUser } from './BackendProvider'
 import { observeSteps } from '@/lib/progress/observeSteps'
 import { readResume, writeResume } from '@/lib/progress/resumeStore'
+import { track } from '@/lib/metrics'
 
 export function LessonSteps({ conceptId, children }: { conceptId: string; children: ReactNode }) {
   const root = useRef<HTMLDivElement>(null)
+  const opened = useRef(false)
+  const reached = useRef(new Set<number>())
   const backend = useBackend()
   const { user, loading } = useUser()
   const userId = user?.id
   const [error, setError] = useState(false)
 
   useEffect(() => {
+    if (!opened.current) {
+      opened.current = true
+      track({ event: 'lesson_open', concept_id: conceptId })
+    }
     // Chạy sau hydrate, kể cả khi nội dung tới sau lần cuộn hash mặc định.
     const target = /^#buoc-\d+$/.test(location.hash) ? root.current?.querySelector(location.hash) : null
     target?.scrollIntoView({ block: 'start' })
@@ -37,6 +44,10 @@ export function LessonSteps({ conceptId, children }: { conceptId: string; childr
             if (alive) setError(true)
           }
         })
+      }, step => {
+        if (reached.current.has(step)) return
+        reached.current.add(step)
+        track({ event: 'step_reached', concept_id: conceptId, step })
       })
     }
     void start()

@@ -34,7 +34,7 @@ Each step is based on learning research: retrieval practice, self-explanation, f
 - **Progress tracking:** sign in with GitHub, mark each concept as "seen in my code" or "understood".
 - **Resume where you left off:** return to your current lesson step, saved to your account when signed in or to your browser otherwise.
 - **Practical Q&A ([/hoi](https://imcoding.dev/hoi)):** search lessons without AI; get AI answers with your own Gemini key.
-- **Ask AI about a lesson:** questions go straight from your browser to Google Gemini with your own API key (BYOK). ImCoding never receives or stores your key or your questions.
+- **Ask AI about a lesson:** questions go straight from your browser to Google Gemini with your own API key (BYOK). Your Gemini key stays in your browser.
 - **Privacy:** see the [privacy policy](https://imcoding.dev/privacy) for data storage and controls.
 
 ![ImCoding home page](docs/images/home.png)

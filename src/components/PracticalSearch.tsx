@@ -2,12 +2,14 @@
 
 import { useState } from 'react'
 import { looksLikeGoogleKey } from '@/lib/ai/redact'
+import { track } from '@/lib/metrics'
 
 export function PracticalSearch({ query = '' }: { query?: string }) {
   const [pasted, setPasted] = useState(false)
   return <form action="/hoi" method="get" className="w-full min-w-0 space-y-3" onSubmit={event => {
     const value = String(new FormData(event.currentTarget).get('q') ?? '')
-    if (looksLikeGoogleKey(value)) { event.preventDefault(); setPasted(true) }
+    if (looksLikeGoogleKey(value)) { event.preventDefault(); setPasted(true); return }
+    if (value.trim()) track({ event: 'practical_search' })
   }}>
     <label htmlFor="practical-query" className="block font-semibold text-ink">Bạn đang muốn làm gì?</label>
     <div className="flex flex-wrap gap-2">

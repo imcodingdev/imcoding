@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { AiSettings } from '@/components/AiSettings'
+import { MetricsSettings } from '@/components/MetricsSettings'
 import { loadConcepts } from '@/lib/concepts/load'
 
 export const metadata: Metadata = { title: 'Cài đặt AI – ImCoding' }
@@ -20,6 +21,7 @@ export default function SettingsPage() {
         Bài thực hành: Gắn API key để hỏi AI
       </h1>
       <AiSettings concepts={concepts} titles={titles} />
+      <MetricsSettings />
     </main>
   )
 }

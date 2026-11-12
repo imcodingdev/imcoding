@@ -4,6 +4,23 @@ import { observeSteps } from '@/lib/progress/observeSteps'
 
 afterEach(() => { vi.useRealTimers(); vi.unstubAllGlobals() })
 
+it('ghi bước đã nhìn thấy độc lập điểm lưu cũ, không ghi trùng hoặc bỏ bước khi debounce', () => {
+  let callback: IntersectionObserverCallback
+  vi.stubGlobal('IntersectionObserver', class {
+    constructor(cb: IntersectionObserverCallback) { callback = cb }
+    observe() {}
+    disconnect() {}
+  })
+  const root = document.createElement('div')
+  root.innerHTML = '<section id="buoc-1"></section><section id="buoc-2"></section>'
+  const reached = vi.fn()
+  const stop = observeSteps(root, 8, vi.fn(), reached)
+  const show = (step: number) => callback([{ target: root.querySelector(`#buoc-${step}`)!, isIntersecting: true, intersectionRatio: 1 } as IntersectionObserverEntry], {} as IntersectionObserver)
+  show(1); show(2); show(1)
+  expect(reached.mock.calls).toEqual([[1], [2]])
+  stop()
+})
+
 it('chỉ lưu bước cao hơn khi hiện ít nhất 50%, gộp 1,5 giây và hủy khi rời bài', async () => {
   vi.useFakeTimers()
   let callback: IntersectionObserverCallback

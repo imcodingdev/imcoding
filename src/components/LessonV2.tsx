@@ -4,6 +4,7 @@ import { Markdown } from './Markdown'
 import { LessonQuiz } from './LessonQuiz'
 import { LessonExercise } from './LessonExercise'
 import { LessonSteps } from './LessonSteps'
+import { CheckAnswer } from './CheckAnswer'
 
 function Step({ number, title, minutes, children }: {
   number: number; title: string; minutes: number; children: ReactNode
@@ -28,12 +29,12 @@ function Answer({ source }: { source: string }) {
   )
 }
 
-function Questions({ items }: { items: QuizItem[] }) {
+function Questions({ items, checkConceptId }: { items: QuizItem[]; checkConceptId?: string }) {
   return items.map((item, index) => (
     <div key={index} className="space-y-2">
       <h3 className="font-semibold text-ink">{item.question}</h3>
       {item.body && <Markdown source={item.body} />}
-      <Answer source={item.answer} />
+      {checkConceptId ? <CheckAnswer conceptId={checkConceptId}><Markdown source={item.answer} /></CheckAnswer> : <Answer source={item.answer} />}
     </div>
   ))
 }
@@ -52,10 +53,10 @@ export function LessonV2({ concept }: { concept: ConceptV2 }) {
       <Step number={++step} title="Ví dụ mẫu" minutes={5}><Markdown source={concept.example} /></Step>
       <Step number={++step} title="Tìm trong project của bạn" minutes={7}><Markdown source={concept.findInProject} /></Step>
       <Step number={++step} title="Tự giải thích" minutes={4}><Questions items={concept.explain} /></Step>
-      {concept.quiz && <Step number={++step} title="Trắc nghiệm" minutes={3}><LessonQuiz key={concept.id} items={concept.quiz} /></Step>}
+      {concept.quiz && <Step number={++step} title="Trắc nghiệm" minutes={3}><LessonQuiz key={concept.id} conceptId={concept.id} items={concept.quiz} /></Step>}
       <Step number={++step} title="Kiểm tra không dùng AI" minutes={5}>
         <p className="font-semibold text-accent">Làm phần này khi không dùng AI</p>
-        <Questions items={[concept.check]} />
+        <Questions items={[concept.check]} checkConceptId={concept.id} />
       </Step>
       <Step number={++step} title="Lỗi suy luận hay gặp" minutes={3}>
         {concept.misconceptions.map((item, index) => (

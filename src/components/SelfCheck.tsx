@@ -6,6 +6,7 @@ import type { QuizItem } from '@/lib/concepts/types'
 import { nextConcept, type ConceptRef } from '@/lib/progress/next'
 import { Markdown } from './Markdown'
 import { NextUpCard } from './NextUpCard'
+import { track } from '@/lib/metrics'
 
 const FOCUS = 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent'
 
@@ -44,6 +45,7 @@ export function SelfCheck({
     setError(null)
     try {
       await markUnderstood(conceptId)
+      track({ event: 'understood', concept_id: conceptId })
       setSaved(true)
     } catch {
       setError('Chưa lưu được, thử lại nhé')

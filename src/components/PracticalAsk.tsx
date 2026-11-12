@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useUser } from './BackendProvider'
+import { track } from '@/lib/metrics'
 import { useGeminiKey } from './useGeminiKey'
 import { Markdown } from './Markdown'
 import { RequestInspector } from './RequestInspector'
@@ -34,6 +35,7 @@ export function PracticalAnswer({ query, lessons, apiKey, client }: {
   const pasted = looksLikeGoogleKey(query)
   const send = async () => {
     if (!query.trim() || pasted || controller.current) return
+    track({ event: 'practical_ai' })
     const ctrl = new AbortController()
     controller.current = ctrl
     setBusy(true); setDone(false); setError(null); setTrace(null); setText('')
