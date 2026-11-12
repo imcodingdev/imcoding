@@ -1,4 +1,4 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 
 const EVENTS = ['lesson_open', 'step_reached', 'quiz_done', 'check_opened', 'understood', 'practical_search', 'practical_ai'] as const
 export type LearningEvent = {
@@ -18,6 +18,7 @@ const VISITOR_KEY = 'imcoding-visitor'
 const OFF_KEY = 'imcoding-metrics-off'
 const WINDOW_KEY = 'imcoding-metrics-window'
 const HOUR = 3_600_000
+let metricsClient: SupabaseClient | null = null
 
 export function privacySignalEnabled(): boolean {
   if (typeof navigator === 'undefined') return true
@@ -83,10 +84,10 @@ async function send(event: LearningEvent): Promise<void> {
     return
   }
   // Client riêng không đọc/lưu phiên Auth, không gửi token tài khoản cùng visitor.
-  const client = createClient(url!, key!, {
+  metricsClient ??= createClient(url!, key!, {
     auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
   })
-  await client.from('learning_events').insert(payload)
+  await metricsClient.from('learning_events').insert(payload)
 }
 
 /** Không chờ trong giao diện; mọi lỗi bị bỏ qua, không ghi nội dung vào log. */
