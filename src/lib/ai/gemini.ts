@@ -14,7 +14,7 @@ const BASE = 'https://generativelanguage.googleapis.com/v1beta'
 
 /** Dựng request + trace đã che key; dùng chung cho client thật và fake */
 export function buildAskRequest(req: AskRequest) {
-  const system = buildSystemPrompt(req.lesson)
+  const system = req.systemPrompt ?? buildSystemPrompt(req.lesson)
   const contents = req.history.slice(-MAX_HISTORY_ENTRIES).map((t) => ({
     role: t.role,
     parts: [{ text: t.text }],

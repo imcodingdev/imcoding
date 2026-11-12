@@ -4,6 +4,9 @@ import remarkGfm from 'remark-gfm'
 import { CodeBlock } from './CodeBlock'
 
 const components: Components = {
+  table({ children }) {
+    return <div className="max-w-full overflow-x-auto"><table className="w-full border-collapse text-left [&_td]:border [&_td]:border-line [&_td]:p-2 [&_th]:border [&_th]:border-line [&_th]:p-2">{children}</table></div>
+  },
   pre({ children }) {
     const child = Children.toArray(children)[0]
     if (isValidElement(child)) {

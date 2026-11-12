@@ -13,6 +13,7 @@ export interface LessonContext {
 export interface AskRequest {
   apiKey: string
   lesson: LessonContext
+  systemPrompt?: string
   history: ChatTurn[]
   signal?: AbortSignal
 }

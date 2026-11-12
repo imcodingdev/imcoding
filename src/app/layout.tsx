@@ -62,6 +62,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
                 >
                   Bản đồ
                 </Link>
+                <Link href="/hoi" className={`inline-flex min-h-[44px] items-center rounded-lg px-2 text-sm font-medium text-ink-muted hover:bg-surface-muted md:text-base ${focusRing}`}>Hỏi</Link>
               </nav>
               <div className="flex items-center gap-0 sm:gap-1 md:gap-4">
                 <HeaderProgress total={ids.length} ids={ids} />

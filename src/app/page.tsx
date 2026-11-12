@@ -4,6 +4,7 @@ import { STAGES } from "@/lib/concepts/stages";
 import { loadConcepts } from "@/lib/concepts/load";
 import { lessonStepCount } from "@/lib/concepts/lesson";
 import { ResumeCard } from "@/components/ResumeCard";
+import { PracticalSearch } from "@/components/PracticalSearch";
 
 const steps = [
   { title: "Nhắc lại, đoán trước, xem ví dụ", minutes: 10, body: "Nhớ lại bài trước, tự đoán cách xử lý một sự cố ngắn, rồi xem ví dụ code có chú thích." },
@@ -47,6 +48,7 @@ export default function Home() {
           </Link>
         </div>
         <ResumeCard lessons={lessons} />
+        <PracticalSearch />
       </section>
 
       <section className="mt-14 md:mt-20" aria-labelledby="learn-heading">
