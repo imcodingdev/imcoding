@@ -17,6 +17,8 @@ signals: ["sk-", ".env"]   # giữ như v1, ít nhất 1
 ---
 ```
 
+Với v2, frontmatter có thể thêm `sources`, là danh sách `{ title, url }`: `title` là chuỗi không rỗng, `url` là URL hợp lệ bắt đầu bằng `https://`. Ví dụ: `sources: [{ title: "Tài liệu gốc", url: "https://example.org/lecture" }]`. Có thể bỏ trường này hoặc dùng `[]`. Trang bài hiển thị dòng nhỏ "Tham khảo:" ở cuối, liên kết mở tab mới với `rel="noopener noreferrer"`; metadata nguồn không được đưa vào context Hỏi AI.
+
 ## Các mục H2 của bài v2 (đúng tên, đúng thứ tự)
 
 | # | Tiêu đề H2 | Bắt buộc | Nội dung | Phút |

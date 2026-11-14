@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { AskAi } from '@/components/AskAi'
 import { Markdown } from '@/components/Markdown'
 import { LessonV2 } from '@/components/LessonV2'
+import { LessonSources } from '@/components/LessonSources'
 import { lessonContext, lessonQuiz, lessonStepCount } from '@/lib/concepts/lesson'
 import { SelfCheck } from '@/components/SelfCheck'
 import { RiskGateNotice } from '@/components/RiskGateNotice'
@@ -106,6 +107,7 @@ export default async function ConceptPage({ params }: PageProps<'/concepts/[id]'
         {/* Chỉ truyền nội dung bài cần cho prompt, không truyền quiz */}
         <AskAi lesson={lessonContext(concept)} />
       </section>
+      {concept.format === 2 && <LessonSources sources={concept.sources} />}
     </main>
   )
 }

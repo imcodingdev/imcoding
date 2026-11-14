@@ -1,7 +1,7 @@
 import matter from 'gray-matter'
 import { parseV2 } from './parse-v2'
 import { ConceptError, GROUPS } from './types'
-import type { Concept, ConceptGroup, QuizItem } from './types'
+import type { Concept, ConceptGroup, LessonSource, QuizItem } from './types'
 
 export { ConceptError }
 
@@ -60,6 +60,23 @@ function stringArray(fileName: string, field: string, v: unknown, minLength: num
   return [...v]
 }
 
+function parseSources(fileName: string, value: unknown): LessonSource[] {
+  const fail = () => new ConceptError(`${fileName}: trường "sources" phải là danh sách { title không rỗng, url HTTPS hợp lệ }`)
+  if (!Array.isArray(value)) throw fail()
+  return value.map(source => {
+    if (!source || typeof source !== 'object' || Array.isArray(source)) throw fail()
+    const { title, url } = source
+    if (typeof title !== 'string' || !title.trim() || typeof url !== 'string' || !url.startsWith('https://')) throw fail()
+    try {
+      const parsed = new URL(url)
+      if (parsed.protocol !== 'https:' || !parsed.hostname) throw fail()
+    } catch {
+      throw fail()
+    }
+    return { title, url }
+  })
+}
+
 export function parseConcept(fileName: string, raw: string): Concept {
   const text = raw.replace(/^\uFEFF/, '').replace(/\r\n?/g, '\n')
   // truyền options để gray-matter không dùng cache theo chuỗi đầu vào
@@ -104,6 +121,7 @@ export function parseConcept(fileName: string, raw: string): Concept {
   if (format === 2) {
     return {
       id, title, group: group as ConceptGroup, prerequisites, priority, signals, stage, format,
+      ...(data.sources === undefined ? {} : { sources: parseSources(fileName, data.sources) }),
       ...parseV2(fileName, parsed.content, prerequisites.length > 0),
     }
   }

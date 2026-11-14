@@ -63,8 +63,14 @@ export interface LessonExercise {
   reviewPrompt?: string
 }
 
+export interface LessonSource {
+  title: string
+  url: string
+}
+
 export interface ConceptV2 extends ConceptBase {
   format: 2
+  sources?: LessonSource[]
   recall: QuizItem[]
   predict: { scenario: string; answer: string }
   example: string
