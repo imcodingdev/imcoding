@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest'
 import { buildMapLayout } from '@/lib/concepts/layout'
 import type { Concept, ConceptGroup } from '@/lib/concepts/types'
+import { loadConcepts } from '@/lib/concepts/load'
+import { LESSON_IDS } from '../fixtures/curriculum'
 
 function c(id: string, group: ConceptGroup, prerequisites: string[] = []): Concept {
   return {
@@ -18,6 +20,27 @@ function c(id: string, group: ConceptGroup, prerequisites: string[] = []): Conce
 }
 
 describe('buildMapLayout', () => {
+  it('bản đồ 50 bài đủ id, cạnh prerequisite và không đè vị trí', () => {
+    const lessons = loadConcepts('content/concepts')
+    const { nodes, edges } = buildMapLayout(lessons)
+    expect(nodes).toHaveLength(50)
+    expect(nodes.map(node => node.id).sort()).toEqual([...LESSON_IDS].sort())
+    expect(new Set(nodes.map(node => `${node.x},${node.y}`)).size).toBe(50)
+    const ids = new Set(nodes.map(node => node.id))
+    for (const edge of edges) {
+      expect(ids.has(edge.from)).toBe(true)
+      expect(ids.has(edge.to)).toBe(true)
+    }
+    for (const lesson of lessons) {
+      expect(edges.filter(edge => edge.to === lesson.id).map(edge => edge.from).sort())
+        .toEqual([...lesson.prerequisites].sort())
+    }
+    for (const left of nodes) {
+      for (const right of nodes) {
+        if (left.id !== right.id) expect(Math.abs(left.x - right.x) >= 190 || Math.abs(left.y - right.y) >= 70).toBe(true)
+      }
+    }
+  })
   const concepts = [
     c('component', 'frontend', ['html-css-js']),
     c('html-css-js', 'web', ['client-server']),

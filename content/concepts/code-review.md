@@ -66,6 +66,8 @@ Dòng bắt đầu bằng `-` là dòng bị xóa, bằng `+` là dòng được
 
 ## Tìm trong project của bạn
 
+Đối chiếu lời báo hoàn thành với [bằng chứng "đã xong" của agent](/concepts/done-evidence) để biết tiêu chí nào đã được chạy kiểm và tiêu chí nào còn thiếu.
+
 Làm các bước này ngay sau lần tới AI báo "đã xong", trước khi commit:
 
 1. **Xem danh sách file.** Chạy `git status` rồi `git diff --stat`. So với phạm vi bạn đã giao. File nằm ngoài phạm vi phải có lý do. Lưu ý: `git diff` không hiện nội dung file mới tạo chưa được Git theo dõi; các file đó nằm ở mục `Untracked files` của `git status`, hãy mở chúng ra đọc trực tiếp.

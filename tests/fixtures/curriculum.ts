@@ -1,6 +1,10 @@
-// Bảng đã đối chiếu frontmatter Lesson 4; không suy ra kỳ vọng từ nội dung đang kiểm tra.
+// Bảng đã đối chiếu Lesson 4 và ROUND-HARNESS-1; không suy ra kỳ vọng từ nội dung đang kiểm tra.
 export const CURRICULUM = [
   ['acceptance-criteria', 2, 1],
+  ['agent-handoff', 2, 2],
+  ['agent-instructions', 2, 1],
+  ['agent-loops', 4, 2],
+  ['agent-scope', 2, 1],
   ['ai-cost-limits', 3, 2],
   ['ai-task-context', 2, 2],
   ['api-endpoint', 2, 1],
@@ -22,6 +26,7 @@ export const CURRICULUM = [
   ['database-table', 2, 1],
   ['debugging', 2, 1],
   ['deployment-environments', 3, 2],
+  ['done-evidence', 2, 1],
   ['environment-variables', 1, 1],
   ['error-handling', 2, 2],
   ['forms-validation', 2, 2],

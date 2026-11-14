@@ -64,6 +64,8 @@ Hai chữ "chuẩn" và "an toàn" ở bản SAI không kiểm tra được. B�
 
 ## Tìm trong project của bạn
 
+Khi đã có tiêu chí, dùng [cách giao một việc một lúc cho agent](/concepts/agent-scope) để theo dõi việc nào đang làm và việc nào đã qua kiểm.
+
 1. **Mở lại yêu cầu gần nhất bạn giao cho AI.** Tìm trong lịch sử chat của Cursor, Claude Code hoặc Lovable. Đếm xem có bao nhiêu câu trả lời được "đạt / chưa đạt". Yêu cầu chỉ có động từ ("thêm", "làm", "sửa") mà không có câu nào tả kết quả là có vấn đề.
 2. **Tìm nơi lưu yêu cầu.** Xem trong `README.md`, thư mục `docs/`, các file như `PLAN.md`, `TODO.md`, `AGENTS.md`. Tìm toàn dự án các từ `tiêu chí`, `acceptance`, `TODO`. Có một nơi cố định lưu tiêu chí là ổn. Tiêu chí chỉ nằm trong đầu bạn hoặc trôi trong chat là có vấn đề, vì tuần sau cả bạn lẫn AI đều không còn nhớ.
 3. **Soát một tính năng liên quan đến tiền hoặc dữ liệu khách.** Tự hỏi: đã có câu nào tả trường hợp nhập sai chưa? Trường hợp bấm hai lần? Trường hợp người chưa đăng nhập? Chỉ có trường hợp bình thường là có vấn đề.

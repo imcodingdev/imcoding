@@ -65,6 +65,8 @@ Sáu dòng đầu mục này trả lời sáu câu hỏi: làm gì, ở đâu, c
 
 ## Tìm trong project của bạn
 
+Để quy định chung không chỉ nằm trong chat, xem cách tổ chức [file hướng dẫn cho agent](/concepts/agent-instructions).
+
 1. **Đo kích thước các lần giao việc gần đây.** Chạy `git log --stat -n 5`. Mỗi commit hiện danh sách file đã đổi và một dòng tổng kết dạng `7 files changed`. Commit chỉ đổi vài file cùng phục vụ một mục đích là ổn. Commit đổi hàng chục file ở nhiều thư mục không liên quan, với lời ghi kiểu "update" hay "fix", là dấu hiệu việc được giao quá to.
 2. **Tìm chữ "tiện thể".** Mở lịch sử chat với AI, tìm các từ `tiện thể`, `luôn`, `và cả`, `đồng thời`. Mỗi lần xuất hiện là một chỗ hai việc bị gộp làm một.
 3. **Kiểm tra file hướng dẫn cố định.** Tìm ở thư mục gốc các file `AGENTS.md`, `CLAUDE.md`, hoặc thư mục `.cursor/rules`. Đây là nơi ghi các quy định áp dụng cho mọi lần giao việc. Có file, nội dung khớp với project hiện tại là ổn. Không có file, hoặc file do AI tự viết mà bạn chưa từng đọc, là có vấn đề.
