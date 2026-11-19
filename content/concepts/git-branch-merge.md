@@ -4,7 +4,7 @@ title: Nhánh Git và hợp nhất
 group: ai-git
 prerequisites: [git-commit, code-review]
 priority: 2
-stage: 4
+stage: 2
 format: 2
 signals:
   - "<<<<<<<"
@@ -13,6 +13,11 @@ signals:
   - "git switch"
   - "git checkout -b"
   - "git branch"
+sources:
+  - title: GitHub Docs — Merge conflicts
+    url: https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/addressing-merge-conflicts/about-merge-conflicts
+  - title: GitHub Docs — Resolve conflicts on GitHub
+    url: https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/addressing-merge-conflicts/resolving-a-merge-conflict-on-github
 ---
 
 ## Nhắc lại
@@ -62,6 +67,10 @@ const SHIPPING_FEE = 25000 // bản của nhánh được hợp nhất vào
 Cách đọc: từ `<<<<<<< HEAD` tới `=======` là bản của nhánh bạn đang đứng. Từ `=======` tới `>>>>>>>` là bản của nhánh đang được đưa vào. Giải quyết xung đột nghĩa là chọn bản đúng (hoặc ghép cả hai), xóa ba dòng đánh dấu, rồi commit. Câu hỏi để chọn không phải "bản nào mới hơn" mà là ___ .
 
 AI giải quyết xung đột rất nhanh, và đó là chỗ nguy hiểm. Nó hay chọn nguyên một phía cho mọi file. Phía bị bỏ có thể chứa đúng dòng sửa phí ship mà bạn vừa làm hôm qua. Không có lỗi đỏ nào hiện ra, bản sửa cũ chỉ lặng lẽ biến mất.
+
+Với xung đột đơn giản do hai bên sửa cùng dòng, GitHub có trình sửa ngay trên PR (Pull Request, đề nghị hợp nhất). Mở PR, chọn **Resolve conflicts**, đọc từng đoạn `<<<<<<<`/`=======`/`>>>>>>>` theo tên nhánh, giữ nội dung đúng hoặc ghép hai phía rồi xóa dấu đánh dấu. Chọn **Mark as resolved** cho từng file, xử lý hết file rồi chọn **Commit merge**. Nếu Resolve conflicts bị vô hiệu hóa, cần Git client hoặc dòng lệnh; không cố giải mọi loại xung đột trên web.
+
+Lưu ý: Commit merge ở trình sửa xung đột đưa **toàn bộ base** (nhánh đích) vào **head** (nhánh đề xuất), chưa phải nhận PR vào base. Kiểm nhánh sẽ nhận commit trước khi xác nhận; head được bảo vệ có thể yêu cầu tạo nhánh mới. Nếu nhờ agent giải, yêu cầu nó nêu nội dung giữ và bỏ ở từng chỗ, rồi tự đọc lại diff trên PR và kiểm hành vi cả hai phía. Hết dấu xung đột chỉ chứng minh đã xử lý dấu, không chứng minh giữ đúng nghiệp vụ.
 
 ## Tìm trong project của bạn
 
@@ -180,7 +189,7 @@ Cách xử lý:
 
 ## Bài tập thực hành
 
-Mục tiêu: tự tạo một xung đột trên file thử, đọc và giải quyết bằng tay, để lần sau gặp xung đột thật bạn không phải phó mặc cho AI. Bài tập chỉ dùng hai nhánh thử và một file ghi chú, không đụng tới `main` hay code của app.
+Mục tiêu: tự tạo một xung đột trên file thử, đọc và giải quyết bằng tay, để lần sau gặp xung đột thật bạn không phải phó mặc cho AI. Chỉ làm trong repo thử riêng, với hai nhánh thử và một file ghi chú; không dùng repo thật, không xóa lịch sử, không force push.
 
 ### Việc cần làm
 

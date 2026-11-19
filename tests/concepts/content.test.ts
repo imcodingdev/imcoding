@@ -21,7 +21,7 @@ function v1Concepts() {
   })
 }
 
-describe('nội dung lộ trình 50 bài', () => {
+describe('nội dung lộ trình 54 bài', () => {
   it.each(files)('$name tuân thủ parser theo format của bài', ({ name, raw }) => {
     expect(() => parseConcept(name, raw)).not.toThrow()
   })
@@ -37,14 +37,14 @@ describe('nội dung lộ trình 50 bài', () => {
   it('loadConcepts() đọc được thư mục content/concepts không lỗi', () => {
     expect(() => loadConcepts()).not.toThrow()
   })
-  it('đúng 50 bài với priority đã chốt cho từng id', () => {
+  it('đúng 54 bài với priority đã chốt cho từng id', () => {
     const list = loadConcepts()
-    expect(list).toHaveLength(50)
+    expect(list).toHaveLength(54)
     for (const [id, , priority] of CURRICULUM) {
       expect(list.find(c => c.id === id)?.priority, id).toBe(priority)
     }
   })
-  it('tập id đúng 50 id đã chốt', () => {
+  it('tập id đúng 54 id đã chốt', () => {
     expect(loadConcepts().map((c) => c.id).sort()).toEqual([...LESSON_IDS].sort())
   })
   it('mỗi mục "Trong code" có khối code', () => {
@@ -72,9 +72,9 @@ describe('nội dung lộ trình 50 bài', () => {
     for (const [id, stage] of CURRICULUM) {
       expect(list.find(c => c.id === id)?.stage, id).toBe(stage)
     }
-    expect([1, 2, 3, 4].map(stage => list.filter(c => c.stage === stage).length)).toEqual([6, 28, 11, 5])
+    expect([1, 2, 3, 4].map(stage => list.filter(c => c.stage === stage).length)).toEqual([6, 31, 13, 4])
   })
-  it('mọi prerequisite có thật và đồ thị 50 bài không có vòng', () => {
+  it('mọi prerequisite có thật và đồ thị 54 bài không có vòng', () => {
     const concepts = files.map(({ name, raw }) => parseConcept(name, raw))
     const ids = new Set(concepts.map(c => c.id))
     for (const concept of concepts) {
@@ -83,6 +83,22 @@ describe('nội dung lộ trình 50 bài', () => {
       }
     }
     expect(() => validateGraph(concepts)).not.toThrow()
+  })
+  it('bài cần học trước không nằm ở chặng sau bài phụ thuộc', () => {
+    const concepts = loadConcepts('content/concepts')
+    const stages = new Map(concepts.map(concept => [concept.id, concept.stage]))
+    for (const concept of concepts) {
+      for (const prerequisite of concept.prerequisites) {
+        expect(stages.get(prerequisite), `${concept.id} cần ${prerequisite}`).toBeLessThanOrEqual(concept.stage)
+      }
+    }
+  })
+  it('nhánh Git giữ bài học trước và CI/CD cần học Pull Request', () => {
+    const concepts = loadConcepts('content/concepts')
+    expect(concepts.find(concept => concept.id === 'git-branch-merge')?.prerequisites)
+      .toEqual(['git-commit', 'code-review'])
+    expect(concepts.find(concept => concept.id === 'ci-cd')?.prerequisites)
+      .toEqual(['automated-tests', 'git-branch-merge', 'deployment-environments', 'pull-request'])
   })
   it.each(['ai-cost-limits', 'prompt-injection'])('%s giữ thân bài không quá 2.700 âm tiết', id => {
     const file = files.find(file => file.data.id === id)!

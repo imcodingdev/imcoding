@@ -2,7 +2,7 @@
 id: ci-cd
 title: Kiểm tra và triển khai tự động (CI/CD)
 group: deploy
-prerequisites: [automated-tests, git-branch-merge, deployment-environments]
+prerequisites: [automated-tests, git-branch-merge, deployment-environments, pull-request]
 priority: 2
 stage: 4
 format: 2
@@ -13,6 +13,15 @@ signals:
   - "npm run build"
   - "continue-on-error"
   - "|| true"
+sources:
+  - title: GitHub Docs — Understanding GitHub Actions
+    url: https://docs.github.com/en/actions/about-github-actions/understanding-github-actions
+  - title: GitHub Docs — Status checks
+    url: https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/collaborating-on-repositories-with-code-quality-features/about-status-checks
+  - title: GitHub Docs — About protected branches
+    url: https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches
+  - title: Vercel Docs — GitHub deployments
+    url: https://vercel.com/docs/git/vercel-for-github
 ---
 
 ## Nhắc lại
@@ -50,7 +59,7 @@ Trên GitHub, các cửa được khai báo trong file **workflow** của GitHub
 ```yaml
 name: CI
 on:
-  pull_request:          # chạy mỗi khi có yêu cầu hợp nhất vào nhánh chính
+  pull_request:          # sự kiện PR; chưa giới hạn nhánh đích
 jobs:
   check:
     runs-on: ubuntu-latest   # một máy chủ sạch, không phải máy của bạn
@@ -63,7 +72,13 @@ jobs:
       - run: npm run build          # cửa 3
 ```
 
-Một bước lỗi thì cả lượt chạy đỏ và các bước sau dừng lại. Trên trang **pull request** (yêu cầu hợp nhất một nhánh vào nhánh chính), bạn thấy dấu tích xanh hoặc dấu chéo đỏ.
+Một bước lỗi thì cả lượt chạy đỏ và các bước sau dừng lại. Trên trang **pull request** (yêu cầu hợp nhất một nhánh vào nhánh đích), bạn thấy dấu tích xanh hoặc dấu chéo đỏ.
+
+Workflow chạy theo sự kiện khai báo ở `on:`, như `pull_request`, `push`, lịch hoặc thao tác thủ công nếu được cấu hình. Có file workflow không nghĩa mọi lần push đều chạy; đọc sự kiện và bộ lọc trước khi tìm kết quả.
+
+**Status checks** gắn kết quả với commit: ✓ cho biết kiểm tương ứng thành công, ✗ báo lỗi; đang chờ chưa phải đã qua. Mở **Checks** trên PR để đọc log và kiểm phiên bản. Job `skipped` có thể báo thành công, nên cần biết test thực sự đã chạy.
+
+Ở nhánh được bảo vệ, **Require status checks before merging** đặt kiểm bắt buộc; phải kết hợp yêu cầu PR/review để ngăn đường push trực tiếp. Kiểm đúng tên job, nguồn kết quả và quyền bypass của admin/agent. Chọn required checks không tự viết test, cũng không chứng minh tính năng đúng.
 
 Khi CI đỏ và bạn bảo AI "sửa cho CI xanh", AI có hai cách: sửa code cho đúng, hoặc sửa cái cửa. Cách thứ hai trông như sau:
 
@@ -186,7 +201,7 @@ Cách xử lý:
 
 ## Bài tập thực hành
 
-Mục tiêu: biết chính xác thay đổi của bạn đang đi qua những cửa nào trước khi tới khách, và tự thấy một cửa chặn lỗi. Làm trên nhánh thử, không merge vào `main`.
+Mục tiêu: tự thấy cửa kiểm chặn lỗi. Chỉ dùng repo thử, nhánh thử và project Vercel thử đã có deployment ban đầu, không nối dữ liệu hay dịch vụ thật. Không merge vào `main`, xóa lịch sử hoặc force push.
 
 ### Việc cần làm
 

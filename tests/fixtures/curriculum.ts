@@ -1,4 +1,4 @@
-// Bảng đã đối chiếu Lesson 4 và ROUND-HARNESS-1; không suy ra kỳ vọng từ nội dung đang kiểm tra.
+// Bảng đã đối chiếu Lesson 4, ROUND-HARNESS-1 và ROUND-GITHUB-1; kỳ vọng độc lập với nội dung.
 export const CURRICULUM = [
   ['acceptance-criteria', 2, 1],
   ['agent-handoff', 2, 2],
@@ -31,9 +31,11 @@ export const CURRICULUM = [
   ['error-handling', 2, 2],
   ['forms-validation', 2, 2],
   ['functions', 2, 2],
-  ['git-branch-merge', 4, 2],
+  ['git-branch-merge', 2, 2],
   ['git-commit', 1, 1],
   ['git-revert', 2, 1],
+  ['github-access', 3, 1],
+  ['github-remote', 2, 1],
   ['hosting-deploy', 3, 1],
   ['html-css-js', 2, 1],
   ['http-request-response', 2, 1],
@@ -41,8 +43,10 @@ export const CURRICULUM = [
   ['json', 2, 1],
   ['logging-monitoring', 4, 2],
   ['package-dependencies', 1, 1],
+  ['preview-deploy', 3, 2],
   ['programming-values', 2, 2],
   ['prompt-injection', 3, 2],
+  ['pull-request', 2, 1],
   ['routing', 2, 1],
   ['schema-migrations', 3, 2],
   ['secrets', 1, 1],
