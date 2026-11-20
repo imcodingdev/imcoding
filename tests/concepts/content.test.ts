@@ -21,7 +21,7 @@ function v1Concepts() {
   })
 }
 
-describe('nội dung lộ trình 54 bài', () => {
+describe('nội dung lộ trình 55 bài', () => {
   it.each(files)('$name tuân thủ parser theo format của bài', ({ name, raw }) => {
     expect(() => parseConcept(name, raw)).not.toThrow()
   })
@@ -37,14 +37,14 @@ describe('nội dung lộ trình 54 bài', () => {
   it('loadConcepts() đọc được thư mục content/concepts không lỗi', () => {
     expect(() => loadConcepts()).not.toThrow()
   })
-  it('đúng 54 bài với priority đã chốt cho từng id', () => {
+  it('đúng 55 bài với priority đã chốt cho từng id', () => {
     const list = loadConcepts()
-    expect(list).toHaveLength(54)
+    expect(list).toHaveLength(55)
     for (const [id, , priority] of CURRICULUM) {
       expect(list.find(c => c.id === id)?.priority, id).toBe(priority)
     }
   })
-  it('tập id đúng 54 id đã chốt', () => {
+  it('tập id đúng 55 id đã chốt', () => {
     expect(loadConcepts().map((c) => c.id).sort()).toEqual([...LESSON_IDS].sort())
   })
   it('mỗi mục "Trong code" có khối code', () => {
@@ -72,9 +72,9 @@ describe('nội dung lộ trình 54 bài', () => {
     for (const [id, stage] of CURRICULUM) {
       expect(list.find(c => c.id === id)?.stage, id).toBe(stage)
     }
-    expect([1, 2, 3, 4].map(stage => list.filter(c => c.stage === stage).length)).toEqual([6, 31, 13, 4])
+    expect([1, 2, 3, 4].map(stage => list.filter(c => c.stage === stage).length)).toEqual([6, 32, 13, 4])
   })
-  it('mọi prerequisite có thật và đồ thị 54 bài không có vòng', () => {
+  it('mọi prerequisite có thật và đồ thị 55 bài không có vòng', () => {
     const concepts = files.map(({ name, raw }) => parseConcept(name, raw))
     const ids = new Set(concepts.map(c => c.id))
     for (const concept of concepts) {

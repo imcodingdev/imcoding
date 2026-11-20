@@ -5,13 +5,13 @@ const openMapView = async (page: import('@playwright/test').Page, testInfo: impo
   if (testInfo.project.name === 'mobile') await page.getByRole('tab', { name: 'Sơ đồ' }).click()
 }
 
-// E2E nạp thêm v2-lesson: 54 bài chính + 1 fixture, không đưa fixture vào lộ trình thật.
-test('bản đồ có 54 bài và 1 fixture, bấm node chuyển trang', async ({ page }, testInfo) => {
+// E2E nạp thêm v2-lesson: 55 bài chính + 1 fixture, không đưa fixture vào lộ trình thật.
+test('bản đồ có 55 bài và 1 fixture, bấm node chuyển trang', async ({ page }, testInfo) => {
   await page.goto('/map')
   await openMapView(page, testInfo)
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Bản đồ kiến thức')
   const nodes = page.locator('[data-testid="concept-node"]')
-  await expect(nodes).toHaveCount(55)
+  await expect(nodes).toHaveCount(56)
   expect((await page.locator('.react-flow__node').evaluateAll(elements => elements.map(element => element.getAttribute('data-id')))).sort())
     .toEqual([...LESSON_IDS, 'v2-lesson'].sort())
   await nodes.filter({ hasText: 'Client–Server' }).first().click()
@@ -49,13 +49,13 @@ test('chưa đăng nhập: mọi node trung tính, có lời mời đăng nhập
   await page.goto('/map')
   await openMapView(page, testInfo)
   const nodes = page.locator('[data-testid="concept-node"]')
-  await expect(nodes).toHaveCount(55)
-  await expect(page.locator('[data-testid="concept-node"][data-status="neutral"]')).toHaveCount(55)
+  await expect(nodes).toHaveCount(56)
+  await expect(page.locator('[data-testid="concept-node"][data-status="neutral"]')).toHaveCount(56)
   await expect(page.getByText('Đăng nhập để thấy tiến độ của bạn')).toBeVisible()
   await expect(page.getByText('Chưa học · Đã gặp trong code · Đã hiểu')).toBeVisible()
 })
 
-test('đã đánh dấu đã hiểu: node tô xanh, 54 node còn lại trung tính', async ({ page }, testInfo) => {
+test('đã đánh dấu đã hiểu: node tô xanh, 55 node còn lại trung tính', async ({ page }, testInfo) => {
   await page.goto('/concepts/client-server')
   await LOGIN(page)
   const summaries = page.locator('details > summary')
@@ -69,7 +69,7 @@ test('đã đánh dấu đã hiểu: node tô xanh, 54 node còn lại trung tí
   await expect(done).toHaveCount(1)
   await expect(done).toContainText('Client–Server')
   await expect(done).toContainText('✓')
-  await expect(page.locator('[data-testid="concept-node"][data-status="neutral"]')).toHaveCount(54)
+  await expect(page.locator('[data-testid="concept-node"][data-status="neutral"]')).toHaveCount(55)
   await expect(page.locator('[data-testid="concept-list"] a[data-status="understood"]')).toHaveCount(1)
   await expect(page.getByText('Đăng nhập để thấy tiến độ của bạn')).toHaveCount(0)
 })
@@ -82,17 +82,17 @@ test('lỗi tải tiến độ: báo lỗi, node trung tính, không crash', asy
   await page.reload()
   await expect(page.getByText('Không tải được tiến độ')).toBeVisible()
   await openMapView(page, testInfo)
-  await expect(page.locator('[data-testid="concept-node"][data-status="neutral"]')).toHaveCount(55)
+  await expect(page.locator('[data-testid="concept-node"][data-status="neutral"]')).toHaveCount(56)
 })
 
-test('mobile: mặc định tab Lộ trình, bấm Sơ đồ thấy 55 node', async ({ page }, testInfo) => {
+test('mobile: mặc định tab Lộ trình, bấm Sơ đồ thấy 56 node', async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== 'mobile')
   await page.goto('/map')
   await expect(page.getByRole('tab', { name: 'Lộ trình' })).toHaveAttribute('aria-selected', 'true')
   await expect(page.locator('[data-testid="concept-list"] a[data-status][href="/concepts/client-server"]')).toBeVisible()
   await page.getByRole('tab', { name: 'Sơ đồ' }).click()
   await expect(page.getByRole('tab', { name: 'Sơ đồ' })).toHaveAttribute('aria-selected', 'true')
-  await expect(page.locator('[data-testid="concept-node"]')).toHaveCount(55)
+  await expect(page.locator('[data-testid="concept-node"]')).toHaveCount(56)
   await expect(page.locator('[data-testid="concept-node"]').first()).toBeVisible()
 })
 
@@ -100,7 +100,7 @@ test('desktop: sơ đồ luôn hiện, không có tab', async ({ page }, testInf
   test.skip(testInfo.project.name === 'mobile')
   await page.goto('/map')
   await expect(page.getByRole('tablist')).toBeHidden()
-  await expect(page.locator('[data-testid="concept-node"]')).toHaveCount(55)
+  await expect(page.locator('[data-testid="concept-node"]')).toHaveCount(56)
   await expect(page.locator('[data-testid="concept-node"]').first()).toBeVisible()
 })
 
