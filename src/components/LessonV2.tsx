@@ -50,7 +50,15 @@ export function LessonV2({ concept }: { concept: ConceptV2 }) {
         <Markdown source={concept.predict.scenario} />
         <Answer source={concept.predict.answer} />
       </Step>
-      <Step number={++step} title="Ví dụ mẫu" minutes={5}><Markdown source={concept.example} /></Step>
+      <Step number={++step} title="Ví dụ mẫu" minutes={5}>
+        <Markdown source={concept.example} />
+        {concept.notYet && (
+          <section aria-labelledby="not-yet-heading" className="space-y-3 rounded-2xl border border-line border-l-4 border-l-accent bg-accent-soft p-5 text-ink">
+            <h3 id="not-yet-heading" className="font-display text-lg font-bold text-accent">Khi nào chưa cần</h3>
+            <Markdown source={concept.notYet} />
+          </section>
+        )}
+      </Step>
       <Step number={++step} title="Tìm trong project của bạn" minutes={7}><Markdown source={concept.findInProject} /></Step>
       <Step number={++step} title="Tự giải thích" minutes={4}><Questions items={concept.explain} /></Step>
       {concept.quiz && <Step number={++step} title="Trắc nghiệm" minutes={3}><LessonQuiz key={concept.id} conceptId={concept.id} items={concept.quiz} /></Step>}

@@ -1,6 +1,7 @@
 import { ConceptError, type ConceptV2, type QuizItem, type MultipleChoiceQuestion, type LessonExercise } from './types'
 
 const HEADINGS = ['Nhắc lại', 'Đoán trước', 'Ví dụ mẫu', 'Tìm trong project của bạn', 'Tự giải thích', 'Kiểm tra không dùng AI', 'Lỗi suy luận hay gặp']
+const NOT_YET = 'Khi nào chưa cần'
 
 /** Chỉ nhận heading ngoài fenced/indented code. Fence đóng phải cùng loại và đủ dài. */
 function scan(markdown: string) {
@@ -36,7 +37,7 @@ function scan(markdown: string) {
   return { headings, codeBlocks, prose: prose.join('\n').trim(), lines, blocks, unclosed: !!fence }
 }
 
-type V2Content = Pick<ConceptV2, 'recall' | 'predict' | 'example' | 'findInProject' | 'explain' | 'check' | 'misconceptions' | 'quiz' | 'exercise'>
+type V2Content = Pick<ConceptV2, 'recall' | 'predict' | 'example' | 'notYet' | 'findInProject' | 'explain' | 'check' | 'misconceptions' | 'quiz' | 'exercise'>
 
 export function parseV2(fileName: string, body: string, hasPrerequisites: boolean): V2Content {
   const fail = (section: string, reason: string): never => {
@@ -44,6 +45,14 @@ export function parseV2(fileName: string, body: string, hasPrerequisites: boolea
   }
   const h2 = scan(body).headings.filter(h => h.level === 2)
   const expected = [...(hasPrerequisites ? HEADINGS : HEADINGS.slice(1))]
+  const notYetIndex = h2.findIndex(h => h.title === NOT_YET)
+  if (notYetIndex !== -1) {
+    if (h2.filter(h => h.title === NOT_YET).length !== 1) fail(NOT_YET, 'bị trùng')
+    if (h2[notYetIndex - 1]?.title !== HEADINGS[2] || h2[notYetIndex + 1]?.title !== HEADINGS[3]) {
+      fail(NOT_YET, 'phải nằm ngay sau Ví dụ mẫu, trước Tìm trong project của bạn')
+    }
+    expected.splice(expected.indexOf(HEADINGS[3]), 0, NOT_YET)
+  }
   if (h2.some(h => h.title === 'Trắc nghiệm')) expected.splice(expected.indexOf('Kiểm tra không dùng AI'), 0, 'Trắc nghiệm')
   if (h2.some(h => h.title === 'Bài tập thực hành')) expected.push('Bài tập thực hành')
   if (!hasPrerequisites && h2.some(h => h.title === HEADINGS[0])) fail(HEADINGS[0], 'không được có khi prerequisites rỗng')
@@ -55,6 +64,16 @@ export function parseV2(fileName: string, body: string, hasPrerequisites: boolea
   const sections = new Map(h2.map((h, i) => [h.title, body.slice(h.end, h2[i + 1]?.start).trim()]))
   for (const [title, content] of sections) if (!content) fail(title, 'đang rỗng')
   const get = (title: string) => sections.get(title) ?? ''
+  const notYet = sections.get(NOT_YET)
+  if (notYet !== undefined) {
+    // Kiểm tra trước khi trim để không mất dấu thụt đầu dòng của code block.
+    const content = body.slice(h2[notYetIndex].end, h2[notYetIndex + 1].start)
+    const parsed = scan(content)
+    if (parsed.headings.length) fail(NOT_YET, 'không được có heading con (###)')
+    if (parsed.codeBlocks || /^(?: {4}| {0,3}\t)[ \t]*\S/m.test(content)) {
+      fail(NOT_YET, 'không được có code block')
+    }
+  }
 
   const qa = (title: string, min: number, max: number): QuizItem[] => {
     const content = get(title)
@@ -158,5 +177,6 @@ export function parseV2(fileName: string, body: string, hasPrerequisites: boolea
     misconceptions: qa(HEADINGS[6], 2, 4).map(q => ({ wrong: q.question, correction: q.answer })),
     ...(quiz ? { quiz } : {}),
     ...(exercise ? { exercise } : {}),
+    ...(notYet !== undefined ? { notYet } : {}),
   }
 }

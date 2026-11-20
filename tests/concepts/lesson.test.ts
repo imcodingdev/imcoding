@@ -3,11 +3,24 @@ import { describe, expect, it } from 'vitest'
 import { parseConcept } from '../../src/lib/concepts/parse'
 import { lessonContext, lessonQuiz } from '../../src/lib/concepts/lesson'
 import { buildSystemPrompt } from '../../src/lib/ai/prompt'
+import { notYetContent } from '../fixtures/not-yet'
 
 const body = 'Tình huống riêng bước sáu.\n\n```ts\nconst independentCheck = true\n```'
 const concept = parseConcept('v2-lesson.md', fs.readFileSync('tests/fixtures/concepts-v2/v2-lesson.md', 'utf8').replace('#### Đáp án', `${body}\n\n#### Đáp án`))
 
 describe('bài v2 cho SelfCheck và Hỏi AI', () => {
+  it('thêm mục chưa cần vào cuối ngữ cảnh AI, giữ nguyên ngữ cảnh cũ và không lộ kiểm tra', () => {
+    if (concept.format !== 2) throw new Error('Cần fixture v2')
+    const original = lessonContext(concept)
+    const value = { ...concept, notYet: notYetContent }
+    const context = lessonContext(value)
+    expect(context).toEqual({ ...original, pitfalls: `${original.pitfalls}\n\n## Khi nào chưa cần\n\n${notYetContent}` })
+    const prompt = buildSystemPrompt(context)
+    expect(prompt.endsWith(notYetContent)).toBe(true)
+    expect(prompt).not.toContain(concept.check.question)
+    expect(prompt).not.toContain(concept.check.answer)
+    expect(prompt).not.toContain(concept.quiz![0].question)
+  })
   it('giữ nguyên nội dung Hỏi AI và quiz của v1', () => {
     const v1 = parseConcept('alpha-web.md', fs.readFileSync('tests/fixtures/concepts-valid/alpha-web.md', 'utf8'))
     if (v1.format !== 1) throw new Error('fixture phải là v1')

@@ -23,6 +23,9 @@ export function lessonContext(concept: Concept): LessonContext {
     title: concept.title,
     plain: concept.predict.scenario,
     inCode: [concept.example, concept.findInProject, practice].filter(Boolean).join('\n\n'),
-    pitfalls: concept.misconceptions.map(m => `### ${m.wrong}\n\n${m.correction}`).join('\n\n'),
+    pitfalls: [
+      concept.misconceptions.map(m => `### ${m.wrong}\n\n${m.correction}`).join('\n\n'),
+      ...(concept.notYet ? [`## Khi nào chưa cần\n\n${concept.notYet}`] : []),
+    ].join('\n\n'),
   }
 }

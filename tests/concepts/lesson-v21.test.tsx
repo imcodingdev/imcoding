@@ -7,6 +7,7 @@ import { parseConcept } from '@/lib/concepts/parse'
 import { lessonContext, lessonStepCount } from '@/lib/concepts/lesson'
 import { LessonV2 } from '@/components/LessonV2'
 import { addLessonSections } from '../fixtures/lesson-additions'
+import { notYetContent } from '../fixtures/not-yet'
 
 ;(globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true
 const raw = fs.readFileSync('tests/fixtures/concepts-v2/v2-lesson.md', 'utf8').replace(/\r\n/g, '\n')
@@ -32,6 +33,32 @@ const click = async (element: HTMLElement) => { await act(async () => element.cl
 const buttons = (name: string) => [...container.querySelectorAll('button')].filter(b => b.textContent === name)
 
 describe('giao diện bài v2.1', () => {
+  it.each([false, true])('mục chưa cần nằm cuối ví dụ, giữ nguyên các bước với Nhắc lại = %s', recall => {
+    for (const quiz of [undefined, concept.quiz]) {
+      for (const exercise of [undefined, concept.exercise]) {
+        const value = { ...concept, recall: recall ? concept.recall : [], quiz, exercise, notYet: notYetContent }
+        render(value)
+        const headings = [...container.querySelectorAll('section[id^="buoc-"] > h2')]
+        const count = 6 + Number(recall) + Number(!!quiz) + Number(!!exercise)
+        expect(headings).toHaveLength(count)
+        expect(lessonStepCount(value)).toBe(count)
+        const example = container.querySelector(`#buoc-${recall ? 3 : 2}`)!
+        const callout = example.lastElementChild!
+        expect(callout.querySelector('h3')?.textContent).toBe('Khi nào chưa cần')
+        expect(callout.querySelectorAll('li')).toHaveLength(2)
+        expect(callout.querySelector('strong')?.textContent).toBe('Tách microservices')
+        expect(container.querySelectorAll('h3#not-yet-heading')).toHaveLength(1)
+        headings.forEach((heading, i) => expect(heading.parentElement?.id).toBe(`buoc-${i + 1}`))
+        act(() => root!.unmount())
+        root = undefined
+        container.remove()
+      }
+    }
+  })
+  it('bài cũ không có khối chưa cần', () => {
+    render()
+    expect(container.textContent).not.toContain('Khi nào chưa cần')
+  })
   it('ẩn kết quả trước khi chấm, chấm sai/đúng, tổng điểm và làm lại', async () => {
     render()
     const questions = container.querySelectorAll('fieldset')

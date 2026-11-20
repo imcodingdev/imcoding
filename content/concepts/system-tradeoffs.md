@@ -22,25 +22,25 @@ signals:
 
 ### Quy tắc nghiệp vụ (business rules) là gì, và vì sao phải viết ra trước khi giao việc cho AI?
 
-Là các luật riêng của việc kinh doanh mà phần mềm phải tuân theo, ví dụ "đơn dưới 200.000 đồng tính phí ship 25.000". AI không tự biết những luật này. Không viết ra thì AI tự đoán, và bạn không có căn cứ để kiểm tra kết quả.
+Là luật kinh doanh phần mềm phải tuân theo, ví dụ "đơn dưới 200.000 đồng tính phí ship 25.000". AI không tự biết; không viết ra thì AI đoán, bạn thiếu căn cứ kiểm tra.
 
 ### Theo bài Nhật ký và theo dõi, vì sao log lỗi nên có `requestId` thay vì chỉ ghi “checkout failed”?
 
-`requestId` giúp nối phản ánh của người dùng với đúng yêu cầu và dòng log tương ứng. Nhiều dòng “checkout failed” giống nhau chỉ báo có lỗi, không cho biết dòng nào thuộc yêu cầu đang cần kiểm tra. Mã yêu cầu đi kèm thông báo lỗi giúp khoanh vùng sự cố.
+`requestId` nối phản ánh của người dùng với đúng yêu cầu và dòng log để khoanh vùng sự cố. Nhiều dòng “checkout failed” giống nhau chỉ báo có lỗi, không chỉ ra yêu cầu cần kiểm tra.
 
 ## Đoán trước
 
-App đặt lịch của bạn có khoảng 40 khách mỗi ngày. Bạn nhờ AI: "Gửi email nhắc khách trước giờ hẹn một ngày". AI làm xong trong một buổi tối và báo đã thêm: một hàng đợi công việc chạy trên Redis, một tiến trình worker chạy riêng, hai thư viện mới, một dịch vụ Redis trả phí theo tháng, và bốn biến môi trường. Mọi thứ chạy tốt. Ba tháng sau, email nhắc lịch ngừng gửi. Không có thông báo lỗi nào trên giao diện. Bạn mở code ra và không biết bắt đầu từ đâu. Vì sao một tính năng nhỏ lại để lại nhiều thứ phải lo đến vậy?
+App đặt lịch có 40 khách mỗi ngày. Bạn nhờ AI: "Gửi email nhắc khách trước giờ hẹn một ngày". Một tối, AI làm xong, thêm hàng đợi trên Redis, tiến trình worker riêng, hai thư viện, dịch vụ Redis trả phí theo tháng và bốn biến môi trường. Ban đầu chạy tốt. Ba tháng sau, email ngừng gửi, giao diện không báo lỗi. Mở code, bạn không biết bắt đầu từ đâu. Vì sao tính năng nhỏ để lại nhiều thứ phải lo?
 
 ### Đáp án
 
-Vì AI giải bài toán "làm sao gửi email đúng giờ cho hệ thống lớn" chứ không phải bài toán của bạn. Với 40 khách mỗi ngày, một tác vụ chạy theo lịch mỗi sáng là đủ. Mỗi thứ thêm vào đều kèm chi phí kéo dài: Redis có hóa đơn và có thể hết hạn gói, worker có thể dừng mà không ai biết, thư viện cần cập nhật, biến môi trường phải khai đúng ở mọi nơi. Viết ra thì nhanh, còn giữ cho chạy thì là việc của bạn hằng tháng. Tính năng hỏng im lặng vì có năm chỗ có thể hỏng và không chỗ nào được giám sát.
+AI giải bài toán gửi email đúng giờ cho hệ thống lớn. Với 40 khách mỗi ngày, tác vụ theo lịch mỗi sáng là đủ. Mỗi thành phần thêm chi phí kéo dài: Redis có hóa đơn, có thể hết hạn; worker có thể dừng âm thầm; thư viện cần cập nhật; biến môi trường phải khai đúng mọi nơi. Viết nhanh, nhưng bạn phải vận hành hằng tháng. Tính năng hỏng im lặng vì có năm chỗ có thể hỏng, không chỗ nào được giám sát.
 
 ## Ví dụ mẫu
 
-Quán cà phê 20 ghế không mua lò nướng công nghiệp để làm mười cái bánh mỗi ngày. Lò chạy tốt, nhưng nó tốn điện, chiếm chỗ, cần bảo dưỡng và cần người biết sửa. Thứ gì mua về cũng thành thứ phải nuôi.
+Quán cà phê 20 ghế làm mười bánh mỗi ngày không cần lò công nghiệp. Lò chạy tốt nhưng tốn điện, chiếm chỗ, cần bảo dưỡng và người sửa. Mua về là phải nuôi.
 
-Trong phần mềm, **trade-off (đánh đổi)** nghĩa là mọi lựa chọn đều có giá. Mỗi thư viện, dịch vụ, bảng, biến môi trường hay lớp code trung gian thêm vào là thêm một thứ phải cập nhật, phải trả tiền, phải bảo mật, phải giám sát, và phải hiểu khi nó hỏng. AI có xu hướng làm phức tạp quá mức (over-engineering): nó thấy nhiều kiến trúc của hệ thống lớn và viết thêm code gần như không tốn công, nên hay đề xuất giải pháp "chuẩn doanh nghiệp" cho bài toán nhỏ. Người trả phí bảo trì là bạn.
+Trong phần mềm, **trade-off (đánh đổi)** nghĩa là mọi lựa chọn đều có giá. Thêm thư viện, dịch vụ, bảng, biến môi trường hay lớp code trung gian là thêm thứ phải cập nhật, trả tiền, bảo mật, giám sát và hiểu khi hỏng. AI dễ làm phức tạp quá mức (over-engineering): học nhiều kiến trúc hệ thống lớn, viết code gần như không tốn công, nên hay đề xuất "chuẩn doanh nghiệp" cho bài toán nhỏ. Bạn trả phí bảo trì.
 
 Phiên bản AI tự chọn, nhìn qua phần `dependencies` của `package.json`:
 
@@ -79,6 +79,14 @@ Phức tạp hơn không phải lúc nào cũng sai. Nó chỉ đáng khi bạn 
 **Tự xây hay dùng dịch vụ sẵn có?** Hiểu bài toán và ngân sách trước khi chọn. Agent có thể đề xuất tự code thanh toán, gửi email hoặc đăng nhập dù đã có dịch vụ phù hợp. Hỏi mỗi phương án đáp ứng quy tắc nào, tốn phí sử dụng và công bảo trì gì, dữ liệu chuyển đi đâu. Chọn thứ vừa nhu cầu lẫn ngân sách, kể cả công vận hành, thay vì chỉ so lượng code viết được.
 
 App có thể lớn dần theo bậc. Bậc đầu, một máy chủ hoặc nền tảng host cộng **CDN** có thể đủ lâu nếu vẫn đáp ứng nhu cầu đã đo; chưa cần tách dịch vụ. CDN là mạng máy chủ phân bố nhiều nơi, giữ bản sao nội dung để phục vụ từ nơi gần người dùng, giảm tải máy chủ gốc. Nó không giải quyết mọi nút thắt. Bậc tiếp theo, khi đo thấy chậm, sửa đúng chỗ nghẽn và tăng tài nguyên nếu cần; chưa cần chia toàn bộ app. Chỉ ở bậc có phần cần vận hành hoặc mở rộng độc lập mới cân nhắc tách phần đó; chưa cần tách mọi phần. Agent đề xuất **microservices**, nhiều dịch vụ nhỏ vận hành riêng, ngay từ đầu là dấu hiệu cần hỏi lại: nhu cầu nào buộc phải tách, bằng chứng ở đâu?
+
+## Khi nào chưa cần
+
+Yêu cầu agent chỉ ra nhu cầu thật trước khi thêm thành phần:
+
+- **Tách microservices** — chưa cần khi một app vẫn đủ; cần khi một phần phải vận hành hoặc mở rộng độc lập.
+- **Thêm hàng đợi/cache riêng** — chưa cần khi tác vụ theo lịch hoặc truy vấn hiện tại đủ; cần khi tải công việc hoặc độ trễ đo được vẫn vượt yêu cầu sau tối ưu.
+- **Tự dựng hạ tầng thay nền tảng host** — chưa cần khi nền tảng đáp ứng nhu cầu, ngân sách; cần khi giới hạn đã đo buộc chuyển và có người chịu trách nhiệm vận hành.
 
 ## Tìm trong project của bạn
 

@@ -74,6 +74,7 @@ export interface ConceptV2 extends ConceptBase {
   recall: QuizItem[]
   predict: { scenario: string; answer: string }
   example: string
+  notYet?: string
   findInProject: string
   explain: QuizItem[]
   check: QuizItem

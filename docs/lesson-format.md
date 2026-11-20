@@ -31,7 +31,7 @@ Với v2, frontmatter có thể thêm `sources`, là danh sách `{ title, url }`
 | 6 | `## Kiểm tra không dùng AI` | Bắt buộc | Đúng 1 `### ` tình huống MỚI (khác ví dụ mẫu), yêu cầu nêu rủi ro/cách xử lý kèm lý do. Giữa `###` và `#### Đáp án` được có đoạn mô tả hoặc code của tình huống; đáp án nằm trong `#### Đáp án`. | 5 |
 | 7 | `## Lỗi suy luận hay gặp` | Bắt buộc | 2–4 mục `###` = một suy nghĩ sai thường gặp; nội dung = vì sao sai và cách sửa. | 3 |
 
-Không mục H2 nào khác. Không mục nào rỗng. Code block được phép trong mọi mục; `##`/`###` bên trong code block không tính.
+Ngoài các mục tùy chọn ở phần bổ sung v2.1/v2.2 dưới đây, không có mục H2 nào khác. Không mục nào rỗng. Code block được phép trừ mục "Khi nào chưa cần"; `##`/`###` bên trong code block không tính.
 
 ## Quy tắc nội dung
 - Độ dài cả bài 900–2.800 âm tiết (đếm theo khoảng trắng, cả code). Không viết sẵn gợi ý/đáp án cho chỗ trống `___` ngay trong bài.
@@ -43,7 +43,7 @@ Không mục H2 nào khác. Không mục nào rỗng. Code block được phép 
 
 ## Bổ sung v2.1: Trắc nghiệm và Bài tập thực hành
 
-Thứ tự đầy đủ các mục H2: Nhắc lại → Đoán trước → Ví dụ mẫu → Tìm trong project của bạn → Tự giải thích → **Trắc nghiệm** → Kiểm tra không dùng AI → Lỗi suy luận hay gặp → **Bài tập thực hành**.
+Thứ tự các mục H2 ở v2.1: Nhắc lại → Đoán trước → Ví dụ mẫu → Tìm trong project của bạn → Tự giải thích → **Trắc nghiệm** → Kiểm tra không dùng AI → Lỗi suy luận hay gặp → **Bài tập thực hành**.
 Parser coi hai mục mới là tùy chọn (bài chưa có vẫn hợp lệ); nếu có thì phải đúng quy tắc dưới đây.
 
 ### `## Trắc nghiệm` (3 phút, chấm tự động trên trình duyệt)
@@ -81,3 +81,25 @@ Chỉ thêm khi khái niệm có một việc cụ thể, an toàn, kiểm chứ
 - Tùy chọn `### Nhờ AI rà lại`: đúng một code block chứa câu lệnh mẫu để người học dán cho công cụ AI của mình, yêu cầu AI **chỉ báo cáo, không tự sửa**.
 
 An toàn: bài tập không được yêu cầu thao tác phá hủy hoặc trên dữ liệu thật (không xóa database, không `reset --hard`, không dán khóa thật vào chat). Dùng khóa thử, nhánh thử, bản preview.
+
+## Bổ sung v2.2: Khi nào chưa cần
+
+`## Khi nào chưa cần` là H2 **tùy chọn**, chỉ thêm vào bài dễ bị agent đề xuất quá mức, dự kiến khoảng 12 bài; không áp dụng cho mọi bài. Nếu có, mục phải nằm **ngay sau `## Ví dụ mẫu`, trước `## Tìm trong project của bạn`** và chỉ xuất hiện một lần.
+
+- Nội dung gồm một đoạn dẫn và danh sách 2–4 gạch đầu dòng. Mỗi dòng nêu một đề xuất agent hay đưa ra, kèm điều kiện chưa cần và điều kiện mới nên làm: `**<đề xuất>** — chưa cần khi …; cần khi …`.
+- Không để rỗng, không có heading con (`###`), không có code block (kể cả code thụt đầu dòng). Sai vị trí, trùng mục hoặc vi phạm các điều này gây `ConceptError` ghi tên file và mục "Khi nào chưa cần".
+- Parser giữ markdown trong `notYet?: string`. Bài không có mục này không có khóa `notYet`, dữ liệu cũ giữ nguyên.
+- Giao diện đặt khối nổi bật ở cuối bước "Ví dụ mẫu", dùng tiêu đề cấp ba; không thêm bước, không đổi số bước học hoặc số liệu `step_reached`.
+- Nội dung được thêm vào cuối ngữ cảnh Hỏi AI khi có. Không đưa câu hỏi/đáp án kiểm tra độc lập hay trắc nghiệm vào ngữ cảnh.
+- Mục này **được tính vào giới hạn thân bài ≤ 2.800 âm tiết**, đếm theo khoảng trắng như các mục khác (tính cả code của bài).
+
+Ví dụ nội dung mục:
+
+```markdown
+## Khi nào chưa cần
+
+Chỉ thêm thành phần khi nhu cầu đã đo vượt khả năng hiện tại.
+
+- **Tách microservices** — chưa cần khi một app vẫn đủ; cần khi một phần phải mở rộng độc lập.
+- **Thêm cache riêng** — chưa cần khi truy vấn đã đủ nhanh; cần khi tối ưu rồi mà đo lại vẫn chậm.
+```

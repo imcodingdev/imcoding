@@ -24,3 +24,14 @@ test('tám lỗi founder dẫn tới bài thật, vùng bấm đủ lớn và v�
   await expect(page).toHaveURL(/\/concepts\/debugging$/)
   await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
 })
+
+test('bài đánh đổi có mục chưa cần trong ví dụ và giữ nguyên chín bước', async ({ page }) => {
+  await page.goto('/concepts/system-tradeoffs')
+  const example = page.locator('section#buoc-3')
+  await expect(example.getByRole('heading', { level: 2 })).toContainText('Ví dụ mẫu')
+  const callout = example.getByRole('region', { name: 'Khi nào chưa cần', exact: true })
+  await expect(callout.getByRole('heading', { level: 3, name: 'Khi nào chưa cần', exact: true })).toBeVisible()
+  await expect(callout.getByRole('listitem')).toHaveCount(3)
+  await expect(page.locator('section[id^="buoc-"] > h2')).toHaveCount(9)
+  await expect(page.locator('#buoc-4 > h2')).toContainText('Tìm trong project của bạn')
+})
