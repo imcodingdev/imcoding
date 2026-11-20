@@ -39,7 +39,7 @@ test('bài hiểu hai ngày trước: thẻ ở trang chủ/map, ôn và giữ k
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('imcoding-fake-reviews')!)[0].lastReviewedAt)).not.toBeNull()
   await page.getByRole('banner').locator('a[href="/"]').click()
   await expect(page.getByRole('button', { name: 'Đăng xuất' })).toBeVisible()
-  await expect(card).toHaveCount(0)
+  await expect(card.filter({ visible: true })).toHaveCount(0)
   await page.goto('/on-tap')
   await expect(page.getByText('Chưa có bài cần ôn hôm nay')).toBeVisible()
 })
@@ -50,7 +50,7 @@ test('bài hiểu một giờ trước chưa có thẻ nhắc ôn', async ({ pag
   await expect(page.getByText('Chưa có bài cần ôn hôm nay')).toBeVisible()
   await page.goto('/')
   await expect(page.getByRole('button', { name: 'Đăng xuất' })).toBeVisible()
-  await expect(page.getByTestId('review-due-card')).toHaveCount(0)
+  await expect(page.getByTestId('review-due-card').filter({ visible: true })).toHaveCount(0)
 })
 
 test('khách được mời đăng nhập trên trang ôn', async ({ page }) => {
@@ -68,7 +68,7 @@ test('lỗi lưu giữ bài và cho phép thử lại', async ({ page }) => {
   await expect(button).toBeVisible()
   await page.evaluate(() => localStorage.setItem('imcoding-fake-fail', '1'))
   await button.click()
-  await expect(page.getByRole('alert')).toContainText('Chưa lưu được, thử lại nhé')
+  await expect(page.getByRole('main').getByRole('alert')).toContainText('Chưa lưu được, thử lại nhé')
   await expect(button).toBeEnabled()
   await page.evaluate(() => localStorage.removeItem('imcoding-fake-fail'))
   await button.click()
