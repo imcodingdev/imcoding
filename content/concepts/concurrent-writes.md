@@ -83,6 +83,13 @@ Khóa dòng chỉ khóa dòng tìm thấy. Nếu đang kiểm “chưa có lư�
 
 **Mức cô lập** quy định một giao dịch nhìn thấy và tương tác với thay đổi của giao dịch khác thế nào. Mức Serializable nhằm cho kết quả như các giao dịch chạy lần lượt, nhưng database có thể từ chối một giao dịch bằng lỗi serialization khi không thể giữ bảo đảm đó. App phải hủy và thử lại toàn bộ transaction từ đầu, đọc lại dữ liệu, không chỉ gửi lại câu ghi cuối. Cần giới hạn thử lại và báo lỗi phù hợp nếu vẫn không thành công.
 
+## Khi nào chưa cần
+
+Chọn cơ chế giữ đúng luật khi ghi, không cộng mọi loại khóa vào mọi thao tác.
+
+- **Thêm khóa dòng cho mọi truy vấn** — chưa cần khi chỉ đọc, không quyết định cấp tài nguyên; cần khi phải giữ dòng tài nguyên đã có trong lúc quyết định và ghi.
+- **Gom mọi thao tác vào transaction lớn** — chưa cần khi các việc không phải cùng thành công; cần khi trừ lượt và tạo bản ghi phải cùng thành công hoặc cùng hủy.
+
 ## Tìm trong project của bạn
 
 Chỉ đọc code và định nghĩa bảng được phép. Không chạy SQL, thay ràng buộc hoặc thử tranh chỗ trên database thật.
@@ -178,3 +185,15 @@ Mục tiêu: quan sát hai người tranh một tài nguyên. Chỉ dùng projec
 ### Kết quả đúng
 
 Chỉ một người có chỗ, người còn lại nhận thông báo đúng. Số bản ghi và số lượt còn lại khớp nhau, không có thay đổi dở dang. Báo cáo nêu cả giới hạn của thử tay và cơ chế database giữ quy tắc.
+
+### Nhờ AI rà lại
+
+```text
+Chỉ báo cáo, không tự sửa, không chạy lệnh ghi/xóa/push, không đọc hay in khóa bí mật. Không mở .env* hoặc gọi dịch vụ.
+Rà code và kết quả thử đã che, không gửi yêu cầu hay chạy SQL.
+1. Hai người tranh một chỗ: cách kiểm: đối chiếu tài nguyên, hai tài khoản giả và thông báo thắng/thua trong bản ghi.
+2. Không cấp dư, không dở dang: cách kiểm: so số lượt và bản ghi trước/sau, không chỉ nhìn số dư.
+3. Cơ chế giữ luật: cách kiểm: chỉ file/dòng ràng buộc, transaction hoặc khóa phù hợp với tài nguyên và nhánh xử lý xung đột.
+4. Ca chen nhau có kiểm soát: cách kiểm: chỉ file/dòng test và output đã cung cấp; thử tay chưa đủ thì ghi rõ giới hạn.
+Báo cáo từng điểm: đạt / chưa đạt / chưa xác minh, kèm bằng chứng và phần còn thiếu.
+```

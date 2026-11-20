@@ -64,6 +64,13 @@ Ba thói quen an toàn:
 - **Không sửa migration đã chạy.** Muốn đổi tiếp thì tạo file mới. Sửa file cũ khiến các database lệch nhau mà không ai biết.
 - **Chạy trên project thử trước,** kiểm tra dữ liệu còn nguyên, rồi mới áp lên project thật sau khi đã sao lưu.
 
+## Khi nào chưa cần
+
+Giữ lịch sử migration và đường lui, chỉ thêm việc khi thay đổi schema đòi hỏi.
+
+- **Tạo migration cho mọi sửa giao diện** — chưa cần khi không đổi schema; cần khi bảng, cột, kiểu hoặc quy tắc dữ liệu thay đổi.
+- **Dọn cột cũ ngay trong lần deploy mới** — chưa cần khi code cũ còn cần cột để quay lui; cần khi code mới chạy ổn, đã chuyển và kiểm dữ liệu, có sao lưu rồi mới xóa bằng migration riêng.
+
 ## Tìm trong project của bạn
 
 1. **Tìm thư mục migration:** Xem dự án có `supabase/migrations/` hoặc `prisma/migrations/` không. Có và chứa nhiều file theo thời gian là ổn. Không có thư mục nào là dấu hiệu schema đang được sửa bằng tay hoặc bằng lệnh không để lại dấu vết.

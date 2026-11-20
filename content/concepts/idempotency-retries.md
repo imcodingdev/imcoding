@@ -76,6 +76,13 @@ Có trường hợp hai Event riêng biệt biểu diễn thông báo trùng v�
 
 Idempotency key cho yêu cầu gửi đi và event ID cho webhook nhận về giải quyết hai đường khác nhau. Có key không tự ngăn webhook cộng quyền hai lần. Khi rà thiết kế, hỏi agent việc ghi dấu đã xử lý và cập nhật nghiệp vụ có thể bị chen ngang hoặc bị ngắt giữa chừng không. Một câu “đã có bảng event” chưa chứng minh toàn bộ luồng an toàn.
 
+## Khi nào chưa cần
+
+Chống trùng theo tác động của thao tác, không thêm cùng một bộ máy cho mọi yêu cầu.
+
+- **Dựng hàng đợi và bảng chống trùng cho mọi lần đọc** — chưa cần khi chỉ đọc, không tạo tác động tiền hay dữ liệu; cần khi thao tác có thể lặp tác động, nhưng phải chứng minh từng thành phần cần thêm.
+- **Cho mọi lỗi tự thử lại nhiều lần** — chưa cần khi lỗi tham số cần sửa đầu vào; cần khi lỗi kết nối có thể thử lại an toàn, có giới hạn và cách đối chiếu trạng thái.
+
 ## Tìm trong project của bạn
 
 Chỉ đọc code và tài liệu được phép; không mở file khóa hoặc gửi yêu cầu thanh toán thật.
@@ -171,3 +178,15 @@ Mục tiêu: kiểm cùng một ý định có tạo tác động lặp không. 
 ### Kết quả đúng
 
 Bảng kết quả phân biệt yêu cầu gửi đi với webhook nhận về. Cùng ý định chỉ tạo một tác động trong ca đã thử; ý định mới vẫn hoạt động. Có dữ liệu cuối làm bằng chứng và ghi rõ phần mô phỏng chưa thay thế kiểm tích hợp ở chế độ test.
+
+### Nhờ AI rà lại
+
+```text
+Chỉ báo cáo, không tự sửa, không chạy lệnh ghi/xóa/push, không đọc hay in khóa bí mật. Không mở .env* hoặc gọi dịch vụ.
+Rà code mô phỏng và kết quả thử đã che, không gọi thanh toán hay phát webhook.
+1. Mất phản hồi: cách kiểm: đối chiếu ID, key giả trước/sau retry và số tác động cuối trong bản ghi.
+2. Ý định mới: cách kiểm: so key mới và kết quả, xác nhận không chặn nhầm lần mua mới.
+3. Webhook lặp: cách kiểm: chỉ file/dòng xử lý event ID và bằng chứng cộng quyền/lượt một lần.
+4. Giới hạn thử: cách kiểm: đối chiếu bảng ca khác tham số, key bị loại bỏ; ghi ca chưa chạy và phần chưa kiểm tích hợp.
+Báo cáo từng điểm: đạt / chưa đạt / chưa xác minh, kèm bằng chứng và phần còn thiếu.
+```
