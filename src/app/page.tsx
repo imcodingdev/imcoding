@@ -4,6 +4,7 @@ import { STAGES } from "@/lib/concepts/stages";
 import { loadConcepts } from "@/lib/concepts/load";
 import { lessonStepCount } from "@/lib/concepts/lesson";
 import { ResumeCard } from "@/components/ResumeCard";
+import { ReviewDueCard } from "@/components/ReviewDueCard";
 import { PracticalSearch } from "@/components/PracticalSearch";
 import { CommonMistakes } from "@/components/CommonMistakes";
 import { COMMON_MISTAKES } from "@/lib/concepts/common-mistakes";
@@ -55,6 +56,7 @@ export default function Home() {
           </Link>
         </div>
         <ResumeCard lessons={lessons} />
+        <ReviewDueCard knownIds={lessons.map(lesson => lesson.id)} />
         <PracticalSearch />
       </section>
 

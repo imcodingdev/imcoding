@@ -7,7 +7,7 @@ import { track } from '@/lib/metrics'
 
 const buttonClass = 'min-h-[44px] rounded-lg border border-line px-4 py-2 font-semibold text-ink hover:bg-surface-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent disabled:cursor-not-allowed disabled:opacity-50'
 
-export function LessonQuiz({ items, conceptId }: { items: MultipleChoiceQuestion[]; conceptId: string }) {
+export function LessonQuiz({ items, conceptId, trackMetrics = true }: { items: MultipleChoiceQuestion[]; conceptId: string; trackMetrics?: boolean }) {
   const id = useId()
   const [selected, setSelected] = useState<Record<number, number>>({})
   const [checked, setChecked] = useState<Record<number, boolean>>({})
@@ -43,7 +43,7 @@ export function LessonQuiz({ items, conceptId }: { items: MultipleChoiceQuestion
             onClick={() => {
               setChecked(previous => ({ ...previous, [index]: true }))
               // Mỗi nút chấm một câu, không cộng lại những câu đã chấm trước đó.
-              track({ event: 'quiz_done', concept_id: conceptId, score: Number(selected[index] === item.correctIndex), total: 1 })
+              if (trackMetrics) track({ event: 'quiz_done', concept_id: conceptId, score: Number(selected[index] === item.correctIndex), total: 1 })
             }}
           >Kiểm tra</button>
           <div role="status" aria-live="polite">
