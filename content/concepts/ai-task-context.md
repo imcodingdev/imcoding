@@ -63,6 +63,8 @@ Cách làm: nêu nguyên nhân và kế hoạch trước, chờ tôi đồng ý
 
 Sáu dòng đầu mục này trả lời sáu câu hỏi: làm gì, ở đâu, cấm gì, bằng chứng nào, thế nào là xong, làm theo trình tự nào. Việc dọn code và nâng thư viện không biến mất. Chúng trở thành hai lần giao việc riêng, mỗi lần có commit riêng.
 
+Trước khi giao code một tính năng lớn, nhờ AI soạn **bản mô tả yêu cầu** ngắn gồm mục tiêu, người dùng, luồng chính, ngoài phạm vi và tiêu chí nghiệm thu. Với tính năng gia hạn gói học, chẳng hạn, bản mô tả phải nói ai được gia hạn, khách đi qua những bước nào và có bao gồm đổi gói không. Yêu cầu AI đánh dấu điều chưa rõ; founder tự đọc, sửa và duyệt bản này trước khi chia thành các việc nhỏ. AI giúp soạn câu chữ, không thay founder quyết định quy tắc, phạm vi hay điều kiện nghiệm thu.
+
 ## Tìm trong project của bạn
 
 Để quy định chung không chỉ nằm trong chat, xem cách tổ chức [file hướng dẫn cho agent](/concepts/agent-instructions).

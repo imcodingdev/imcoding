@@ -6,6 +6,9 @@ prerequisites: []
 priority: 2
 stage: 2
 format: 2
+sources:
+  - title: Mermaid — Sơ đồ trạng thái
+    url: https://mermaid.js.org/syntax/stateDiagram.html
 signals:
   - "discount"
   - "coupon"
@@ -64,6 +67,10 @@ export async function POST(req: Request) {
 ```
 
 Bạn không cần viết được đoạn này. Bạn cần đếm được: tôi có ba quy tắc, code có đủ ba dòng kiểm tra tương ứng không, và chúng có nằm ở file chạy trên máy chủ không.
+
+Khi agent đề xuất “thêm cột vào bảng cũ cho nhanh”, hãy làm rõ nghiệp vụ trước. Ví dụ cột trạng thái mới mô tả đơn thuê hay lần trả thiết bị? Dữ liệu cũ được hiểu thế nào, luồng nào đang dùng bảng, thử ở đâu và quay lại ra sao nếu sai? Trước khi duyệt thay đổi chạm dữ liệu đang chạy, yêu cầu agent trả lời các câu này và trình phương án [thay đổi cấu trúc dữ liệu](/concepts/schema-migrations). Chưa rõ luật thì chưa duyệt sửa bảng.
+
+Với **trạng thái hữu hạn**, liệt kê tập trạng thái và các chuyển hợp lệ. Ví dụ lịch tư vấn: “Chờ xác nhận” sang “Đã xác nhận” hoặc “Đã hủy”; “Đã xác nhận” sang “Hoàn tất” hoặc “Đã hủy”. Theo quy định ví dụ này, “Đã hủy” không quay lại “Đã xác nhận”; muốn đặt lại phải tạo lịch mới. Nhờ AI vẽ bằng Mermaid `stateDiagram-v2`, rồi soát từng mũi tên với quy định và code. Sơ đồ giúp thấy chuyển trạng thái bị thiếu hoặc bị cho phép nhầm; nó không tự chặn thao tác trong app.
 
 ## Tìm trong project của bạn
 

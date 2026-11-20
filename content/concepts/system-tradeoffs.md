@@ -6,6 +6,9 @@ prerequisites: [business-rules, data-flow, logging-monitoring]
 priority: 2
 stage: 4
 format: 2
+sources:
+  - title: MDN — CDN
+    url: https://developer.mozilla.org/en-US/docs/Glossary/CDN
 signals:
   - "dependencies"
   - "package.json"
@@ -72,6 +75,10 @@ Bốn câu nên hỏi AI **trước khi** cho nó viết code:
 4. Ở quy mô nào thì phiên bản đơn giản không còn đủ?
 
 Phức tạp hơn không phải lúc nào cũng sai. Nó chỉ đáng khi bạn chỉ ra được nhu cầu thật đang có, không phải nhu cầu "sau này biết đâu cần".
+
+**Tự xây hay dùng dịch vụ sẵn có?** Hiểu bài toán và ngân sách trước khi chọn. Agent có thể đề xuất tự code thanh toán, gửi email hoặc đăng nhập dù đã có dịch vụ phù hợp. Hỏi mỗi phương án đáp ứng quy tắc nào, tốn phí sử dụng và công bảo trì gì, dữ liệu chuyển đi đâu. Chọn thứ vừa nhu cầu lẫn ngân sách, kể cả công vận hành, thay vì chỉ so lượng code viết được.
+
+App có thể lớn dần theo bậc. Bậc đầu, một máy chủ hoặc nền tảng host cộng **CDN** có thể đủ lâu nếu vẫn đáp ứng nhu cầu đã đo; chưa cần tách dịch vụ. CDN là mạng máy chủ phân bố nhiều nơi, giữ bản sao nội dung để phục vụ từ nơi gần người dùng, giảm tải máy chủ gốc. Nó không giải quyết mọi nút thắt. Bậc tiếp theo, khi đo thấy chậm, sửa đúng chỗ nghẽn và tăng tài nguyên nếu cần; chưa cần chia toàn bộ app. Chỉ ở bậc có phần cần vận hành hoặc mở rộng độc lập mới cân nhắc tách phần đó; chưa cần tách mọi phần. Agent đề xuất **microservices**, nhiều dịch vụ nhỏ vận hành riêng, ngay từ đầu là dấu hiệu cần hỏi lại: nhu cầu nào buộc phải tách, bằng chứng ở đâu?
 
 ## Tìm trong project của bạn
 

@@ -62,6 +62,8 @@ Tính năng: mã giảm giá ở trang /thanh-toan
 
 Hai chữ "chuẩn" và "an toàn" ở bản SAI không kiểm tra được. Bảy dòng ở bản ĐÚNG thì kiểm tra được, và bạn làm việc đó trong năm phút mà không cần đọc code.
 
+Yêu cầu có **3 cấp**: mục tiêu kinh doanh, việc người dùng cần làm, việc hệ thống phải làm. Ví dụ với app thuê phòng họp: mục tiêu là giảm công đổi lịch thủ công; khách cần tự đổi giờ; hệ thống phải kiểm phòng còn trống rồi lưu giờ mới. Yêu cầu tệ: “Làm đổi lịch thật tiện”. Yêu cầu tốt: “Khách chọn giờ còn trống, bấm Lưu thì thấy lịch mới; giờ đã kín bị từ chối và lịch cũ giữ nguyên”. Tiêu chí nghiệm thu nối ba cấp bằng hành vi kiểm được: khách tự đổi thành công phục vụ mục tiêu giảm công; từ chối giờ kín giữ đúng luật. Chạy đúng tiêu chí chưa tự chứng minh mục tiêu kinh doanh đã đạt; vẫn cần quan sát khách dùng thật.
+
 ## Tìm trong project của bạn
 
 Khi đã có tiêu chí, dùng [cách giao một việc một lúc cho agent](/concepts/agent-scope) để theo dõi việc nào đang làm và việc nào đã qua kiểm.
