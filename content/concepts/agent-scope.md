@@ -167,15 +167,3 @@ Mục tiêu: biến một yêu cầu rộng thành danh sách có thể điều 
 ### Kết quả đúng
 
 Danh sách không có nhiều hơn một mục đang làm. Mỗi mục có hành vi, cách kiểm và trạng thái; không còn “gần xong” thiếu giải thích. Bạn nêu được vì sao mục đầu độc lập đủ để nghiệm thu, và chỉ ra những việc agent phải để lại cho lần sau.
-
-### Nhờ AI rà lại
-
-```text
-Chỉ báo cáo, không tự sửa, không chạy lệnh ghi/xóa/push, không đọc hay in khóa bí mật. Không mở .env* hoặc gọi dịch vụ.
-Chỉ rà danh sách nháp và câu giao việc tôi cung cấp, không thực hiện kế hoạch.
-1. Hành vi và mã từng mục: cách kiểm: chỉ dòng mô tả kết quả người dùng quan sát được, đánh dấu mục còn gộp nhiều việc.
-2. Cách kiểm và trạng thái: cách kiểm: đối chiếu từng mã với dữ liệu giả, mong đợi và trạng thái ban đầu.
-3. Phụ thuộc và mục đang làm: cách kiểm: đếm mục đang làm, yêu cầu đúng một; dẫn dòng nêu phần bị chặn và người quyết định.
-4. Phạm vi lần giao đầu: cách kiểm: chỉ điều kiện đạt, bước ghi bằng chứng, commit trước khi chuyển việc và các mục để sau.
-Báo cáo từng điểm: đạt / chưa đạt / chưa xác minh, kèm bằng chứng và phần còn thiếu.
-```

@@ -173,15 +173,3 @@ Mục tiêu: tạo một ghi chú để tự tiếp nhận được công việc
 ### Kết quả đúng
 
 Bạn tiếp nhận được việc chỉ từ repo, phân biệt rõ đã kiểm với chưa kiểm và biết quyết định nào không được tự ý đổi. Ghi chú khớp mốc code, không chứa dữ liệu riêng và không tuyên bố sạch chỉ dựa vào trạng thái Git.
-
-### Nhờ AI rà lại
-
-```text
-Chỉ báo cáo, không tự sửa, không chạy lệnh ghi/xóa/push, không đọc hay in khóa bí mật. Không mở .env* hoặc gọi dịch vụ.
-Rà bản nháp bàn giao và repo được chỉ định, không mở chat cũ.
-1. Mốc code và trạng thái: cách kiểm: đối chiếu ghi chú với git log -1 --oneline và git status --short.
-2. Phạm vi, kết quả, lý do quyết định: cách kiểm: chỉ dòng ghi chú tương ứng với diff của thay đổi.
-3. Cách chạy, kiểm và phần chưa kiểm: cách kiểm: xác nhận đường dẫn tài liệu tồn tại, đối chiếu output đã cung cấp; không chạy lại.
-4. Bước tiếp và điều phải giữ: cách kiểm: chỉ dòng đủ để người mới tiếp nhận, đánh dấu chỗ còn phải đoán.
-Báo cáo từng điểm: đạt / chưa đạt / chưa xác minh, kèm bằng chứng và phần còn thiếu.
-```

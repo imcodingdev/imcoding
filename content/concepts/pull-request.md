@@ -176,15 +176,3 @@ Mục tiêu: đọc một PR nhỏ và viết quyết định có lý do. Chỉ 
 ### Kết quả đúng
 
 Bạn đối chiếu được từng thay đổi với issue, chỉ đúng chiều head vào base và giải thích quyết định bằng diff. Không có commit nào của bài tập đi vào nhánh chính hay repo thật.
-
-### Nhờ AI rà lại
-
-```text
-Chỉ báo cáo, không tự sửa, không chạy lệnh ghi/xóa/push, không đọc hay in khóa bí mật. Không mở .env* hoặc gọi dịch vụ.
-Rà PR mẫu hoặc bản ghi đã cung cấp; không đăng review, merge hay đóng PR.
-1. Chiều thay đổi: cách kiểm: đối chiếu head/base và danh sách commit, xác nhận đều thuộc nhánh thử.
-2. Đúng issue: cách kiểm: dẫn file/dòng diff ứng với tiêu chí sửa câu chữ, đánh dấu thay đổi ngoài phạm vi.
-3. Checks và quyết định: cách kiểm: đối chiếu trạng thái kiểm ở commit đang review với lý do Comment, Approve hoặc Request changes.
-4. Bàn giao: cách kiểm: chỉ bằng chứng PR còn mở, điều kiện merge/đóng và main chưa nhận commit thử; thiếu thì chưa xác minh.
-Báo cáo từng điểm: đạt / chưa đạt / chưa xác minh, kèm bằng chứng và phần còn thiếu.
-```

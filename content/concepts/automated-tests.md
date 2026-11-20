@@ -67,13 +67,6 @@ Còn đây là thay đổi của AI trong tình huống mở bài, xem bằng `g
 
 Dòng mô tả vẫn nói phí là 30.000đ, nhưng con số kỳ vọng đã thành 0. Chỉ cần đọc được hai dòng này là bạn chặn được sự cố.
 
-## Khi nào chưa cần
-
-Ưu tiên test bảo vệ tiêu chí nghiệm thu, không lấy số file test làm mục tiêu.
-
-- **Viết test cho mọi file** — chưa cần khi test chỉ xác nhận có giá trị mà không kiểm hành vi; cần khi còn tiêu chí chưa được kiểm, nhất là tiền, đơn hàng và quyền truy cập.
-- **Viết lại toàn bộ test khi tính năng đổi** — chưa cần khi quy định cũ vẫn giữ nguyên; cần khi quy định thật đã đổi, với mô tả và kỳ vọng cùng khớp quyết định đó.
-
 ## Tìm trong project của bạn
 
 1. **Project có test không?** Tìm các file có đuôi `.test.ts`, `.test.tsx`, `.spec.ts` hoặc thư mục `__tests__`, `tests`, `e2e`. Mở `package.json`, tìm dòng `"test"` trong phần `"scripts"`. Không có file test nào nghĩa là mọi kiểm tra đang dựa vào việc bạn tự bấm thử.

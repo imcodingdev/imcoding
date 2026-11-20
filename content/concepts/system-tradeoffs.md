@@ -34,13 +34,13 @@ App đặt lịch có 40 khách mỗi ngày. Bạn nhờ AI: "Gửi email nhắc
 
 ### Đáp án
 
-AI chọn lời giải gửi email đúng giờ cho hệ thống lớn, trong khi 40 khách/ngày chỉ cần tác vụ mỗi sáng. Redis phải trả tiền, có thể hết hạn; worker có thể dừng âm thầm; thư viện cần cập nhật; biến môi trường phải đúng mọi nơi. Viết nhanh nhưng bạn phải vận hành hằng tháng. Năm chỗ có thể hỏng, không chỗ nào được giám sát, nên tính năng hỏng im lặng.
+AI giải bài toán gửi email đúng giờ cho hệ thống lớn. Với 40 khách mỗi ngày, tác vụ theo lịch mỗi sáng là đủ. Mỗi thành phần thêm chi phí kéo dài: Redis có hóa đơn, có thể hết hạn; worker có thể dừng âm thầm; thư viện cần cập nhật; biến môi trường phải khai đúng mọi nơi. Viết nhanh, nhưng bạn phải vận hành hằng tháng. Tính năng hỏng im lặng vì có năm chỗ có thể hỏng, không chỗ nào được giám sát.
 
 ## Ví dụ mẫu
 
-Quán 20 ghế làm mười bánh/ngày chưa cần lò công nghiệp: chạy tốt nhưng tốn điện, chỗ, bảo dưỡng và người sửa.
+Quán cà phê 20 ghế làm mười bánh mỗi ngày không cần lò công nghiệp. Lò chạy tốt nhưng tốn điện, chiếm chỗ, cần bảo dưỡng và người sửa. Mua về là phải nuôi.
 
-**Trade-off (đánh đổi)**: mọi lựa chọn đều có giá. Thư viện, dịch vụ, bảng, biến môi trường, lớp code trung gian đều cần cập nhật, trả tiền, bảo mật, giám sát và hiểu khi hỏng. AI dễ làm quá mức (over-engineering): học kiến trúc lớn, viết code ít tốn công nên đề xuất "chuẩn doanh nghiệp" cho việc nhỏ. Bạn chịu phí bảo trì.
+Trong phần mềm, **trade-off (đánh đổi)** nghĩa là mọi lựa chọn đều có giá. Thêm thư viện, dịch vụ, bảng, biến môi trường hay lớp code trung gian là thêm thứ phải cập nhật, trả tiền, bảo mật, giám sát và hiểu khi hỏng. AI dễ làm phức tạp quá mức (over-engineering): học nhiều kiến trúc hệ thống lớn, viết code gần như không tốn công, nên hay đề xuất "chuẩn doanh nghiệp" cho bài toán nhỏ. Bạn trả phí bảo trì.
 
 Phiên bản AI tự chọn, nhìn qua phần `dependencies` của `package.json`:
 
@@ -65,7 +65,7 @@ Phiên bản đơn giản nhất đáp ứng nhu cầu dùng tính năng chạy 
 }
 ```
 
-Mỗi ngày, Vercel gọi `/api/cron/reminders` để đọc lịch hẹn ngày mai trong database rồi gửi email, không cần Redis, worker, hàng đợi. API vẫn mở ra Internet, phải kiểm tra người gọi.
+Mỗi ngày một lần, Vercel gọi vào `/api/cron/reminders`. API này đọc các lịch hẹn của ngày mai trong database rồi gửi email. Không Redis, không worker, không hàng đợi. Đường dẫn này vẫn là một API mở ra Internet, nên phải kiểm tra người gọi như mọi API khác.
 
 Bốn câu nên hỏi AI **trước khi** cho nó viết code:
 
@@ -74,9 +74,9 @@ Bốn câu nên hỏi AI **trước khi** cho nó viết code:
 3. Với mỗi thứ thêm mới: nếu nó hỏng thì tôi biết bằng cách nào, và ai phải ___ ?
 4. Ở quy mô nào thì phiên bản đơn giản không còn đủ?
 
-Phức tạp hơn chỉ đáng khi có nhu cầu thật, thay vì "sau này biết đâu cần".
+Phức tạp hơn không phải lúc nào cũng sai. Nó chỉ đáng khi bạn chỉ ra được nhu cầu thật đang có, không phải nhu cầu "sau này biết đâu cần".
 
-**Tự xây hay dùng dịch vụ sẵn có?** Agent có thể tự code thanh toán, email, đăng nhập dù đã có dịch vụ phù hợp. Trước khi chọn, hỏi mỗi phương án đáp ứng quy tắc nào, phí sử dụng, bảo trì, nơi dữ liệu chuyển tới. Chọn theo nhu cầu và ngân sách, tính cả vận hành, không chỉ lượng code.
+**Tự xây hay dùng dịch vụ sẵn có?** Hiểu bài toán và ngân sách trước khi chọn. Agent có thể đề xuất tự code thanh toán, gửi email hoặc đăng nhập dù đã có dịch vụ phù hợp. Hỏi mỗi phương án đáp ứng quy tắc nào, tốn phí sử dụng và công bảo trì gì, dữ liệu chuyển đi đâu. Chọn thứ vừa nhu cầu lẫn ngân sách, kể cả công vận hành, thay vì chỉ so lượng code viết được.
 
 App có thể lớn dần theo bậc. Bậc đầu, một máy chủ hoặc nền tảng host cộng **CDN** có thể đủ lâu nếu vẫn đáp ứng nhu cầu đã đo; chưa cần tách dịch vụ. CDN là mạng máy chủ phân bố nhiều nơi, giữ bản sao nội dung để phục vụ từ nơi gần người dùng, giảm tải máy chủ gốc. Nó không giải quyết mọi nút thắt. Bậc tiếp theo, khi đo thấy chậm, sửa đúng chỗ nghẽn và tăng tài nguyên nếu cần; chưa cần chia toàn bộ app. Chỉ ở bậc có phần cần vận hành hoặc mở rộng độc lập mới cân nhắc tách phần đó; chưa cần tách mọi phần. Agent đề xuất **microservices**, nhiều dịch vụ nhỏ vận hành riêng, ngay từ đầu là dấu hiệu cần hỏi lại: nhu cầu nào buộc phải tách, bằng chứng ở đâu?
 
@@ -103,11 +103,11 @@ Yêu cầu agent chỉ ra nhu cầu thật trước khi thêm thành phần:
 
 ### Vì sao "AI viết thêm cũng chẳng tốn công" không có nghĩa là thêm vào thì miễn phí?
 
-Viết code ít tốn công; sở hữu vẫn tốn phí. Mỗi thành phần cần vá bảo mật, biến môi trường đúng ở máy cá nhân, Preview, Production và đọc lại khi AI sửa tính năng liên quan. Nó thêm một chỗ có thể hỏng mà bạn phải vận hành sau khi AI viết xong.
+Chi phí viết code gần bằng không, nhưng chi phí sở hữu thì không. Mỗi thành phần cần được cập nhật khi có bản vá bảo mật, cần biến môi trường đúng ở cả máy cá nhân, bản Preview và Production, cần được đọc lại mỗi lần AI sửa tính năng liên quan, và là một chỗ nữa có thể hỏng. AI viết xong là xong việc. Bạn là người ở lại với hệ thống.
 
 ### Nếu bỏ hàng đợi Redis và chỉ chạy một tác vụ theo lịch mỗi ngày, bạn mất gì và được gì?
 
-Mất: gửi hàng chục nghìn email cùng lúc, thử lại riêng từng email, gửi đúng phút. Được: bớt một dịch vụ trả phí, hai thư viện, một tiến trình cần giám sát; luồng dữ liệu ngắn, dễ lần theo khi hỏng. Với 40 khách/ngày, phần mất đi chưa cần.
+Mất: khả năng gửi hàng chục nghìn email cùng lúc, tự thử lại từng email riêng lẻ, gửi đúng từng phút. Được: ít hơn một dịch vụ trả phí, ít hơn hai thư viện, ít hơn một tiến trình phải giám sát, và một luồng dữ liệu đủ ngắn để bạn tự lần theo khi hỏng. Với 40 khách mỗi ngày, những thứ mất đi là thứ bạn chưa cần.
 
 ## Trắc nghiệm
 
@@ -186,7 +186,7 @@ Việc cần kiểm tra trước:
 
 ## Bài tập thực hành
 
-Mục tiêu: kê các thành phần app phụ thuộc để thấy toàn bộ chi phí bảo trì. Chỉ đọc và ghi chép, không sửa code.
+Mục tiêu: lập bảng kê những thứ app của bạn đang phụ thuộc, để lần đầu nhìn thấy toàn bộ chi phí bảo trì ở một chỗ. Bài tập chỉ đọc và ghi chép, không sửa code.
 
 ### Việc cần làm
 
@@ -199,14 +199,3 @@ Mục tiêu: kê các thành phần app phụ thuộc để thấy toàn bộ ch
 ### Kết quả đúng
 
 Bạn có một bảng kê mà dòng nào cũng có lý do tồn tại, hoặc được đánh dấu rõ là "chưa biết vì sao cần". Bạn nêu được ít nhất một thành phần có thể bỏ hoặc thay bằng thứ đã có, kèm lý do.
-
-### Nhờ AI rà lại
-
-```text
-Chỉ báo cáo, không tự sửa, không chạy lệnh ghi/xóa/push, không đọc hay in khóa bí mật. Không mở .env* hoặc gọi dịch vụ.
-Chỉ rà bảng kê, tên biến và code đã chỉ định; không mở cấu hình chứa giá trị bí mật.
-1. Dịch vụ ngoài và mười thư viện: cách kiểm: đối chiếu bảng với danh sách tên dịch vụ đã che và dependencies trong package.json.
-2. Lý do và phát hiện sự cố: cách kiểm: chỉ từng ô còn thiếu trong hai cột, không tự điền bằng phỏng đoán.
-3. Thành phần được chọn: cách kiểm: đối chiếu bốn câu trả lời về phương án đơn giản, thành phần thêm, chi phí, người vận hành và dấu hiệu cần nâng cấp; nêu file/dòng dùng nó nếu có.
-Báo cáo từng điểm: đạt / chưa đạt / chưa xác minh, kèm bằng chứng và phần còn thiếu.
-```

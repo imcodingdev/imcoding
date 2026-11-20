@@ -28,11 +28,11 @@ sources:
 
 ### Kiểm thử tự động (automated test) giúp gì mà việc tự bấm thử bằng tay không làm được?
 
-Một lệnh chạy lại nhất quán mọi test đã viết, giúp phát hiện AI làm hỏng tính năng cũ, kể cả chỗ bạn quên bấm thử.
+Test tự động chạy lại toàn bộ các kiểm tra đã viết chỉ bằng một lệnh, giống nhau ở mọi lần. Nhờ vậy bạn phát hiện AI sửa tính năng mới làm hỏng tính năng cũ, kể cả những chỗ bạn không nghĩ tới để bấm thử.
 
 ### Khi bạn đẩy một nhánh không phải nhánh Production lên GitHub, Vercel làm gì với nó?
 
-Vercel tạo Preview có đường dẫn riêng. Tên miền chính giữ bản cũ tới khi thay đổi vào nhánh Production.
+Vercel tạo một bản Preview có đường dẫn riêng cho nhánh đó. Tên miền chính vẫn chạy bản Production cũ cho tới khi thay đổi được hợp nhất vào nhánh Production.
 
 ## Đoán trước
 
@@ -40,11 +40,11 @@ Project của bạn có 30 bài test, và bạn luôn dặn AI "chạy test trư
 
 ### Đáp án
 
-Không có gì **bắt buộc** test chạy và qua trước khi thay đổi tới khách. Bạn dựa vào trí nhớ và lời AI; nó có thể chạy thiếu, chạy trước lần sửa cuối hoặc đoán kết quả. Vercel chỉ build, không chạy test. **CI** (Continuous Integration, kiểm tra tự động khi code thay đổi) tạo cửa kiểm: máy chủ sạch chạy lint, test, build và công khai kết quả xanh/đỏ theo sự kiện đã cấu hình.
+Vì không có gì **bắt buộc** test phải chạy và phải qua trước khi thay đổi tới người dùng. Việc chạy test đang dựa vào trí nhớ của bạn và lời báo của AI. AI có thể chỉ chạy một phần, chạy trước lần sửa cuối, hoặc báo theo dự đoán. Còn Vercel chỉ chạy lệnh build của project, mà lệnh build không chạy các bài test. **CI** (Continuous Integration, kiểm tra tự động mỗi khi code thay đổi) biến "nhớ thì chạy" thành một cửa kiểm tra: mỗi lần đẩy code, một máy chủ sạch tự chạy lint, test, build và hiện kết quả xanh hoặc đỏ cho mọi người thấy.
 
 ## Ví dụ mẫu
 
-Cửa soi chiếu sân bay tự kiểm mọi hành khách như nhau, không miễn vì lời khai "đã kiểm ở nhà".
+Ở sân bay, hành khách nào cũng đi qua cửa soi chiếu. Không ai được miễn vì "tôi đã tự kiểm tra hành lý ở nhà". Cửa soi không tin lời khai, nó tự kiểm tra, lần nào cũng như lần nào.
 
 Với phần mềm, các cửa thường gặp là:
 
@@ -52,7 +52,7 @@ Với phần mềm, các cửa thường gặp là:
 - **Test:** chạy các bài kiểm thử tự động.
 - **Build:** đóng gói thử toàn bộ app, bắt lỗi kiểu dữ liệu TypeScript và lỗi import.
 
-**CD** (Continuous Deployment, triển khai tự động): code vào nhánh Production thì tự deploy. Vercel làm sẵn; build cũng là cửa kiểm: lỗi thì không lên bản mới, Production giữ bản cũ.
+**CD** (Continuous Deployment, triển khai tự động) là nửa sau: khi code vào nhánh Production, hệ thống tự deploy. Vercel làm sẵn phần này. Build của Vercel cũng là một cửa: build lỗi thì bản mới không lên, Production giữ bản cũ.
 
 Trên GitHub, các cửa được khai báo trong file **workflow** của GitHub Actions, đặt ở `.github/workflows/`. Bạn không cần viết, chỉ cần đọc được:
 
@@ -89,13 +89,6 @@ Khi CI đỏ và bạn bảo AI "sửa cho CI xanh", AI có hai cách: sửa cod
       - run: npm run build        # Vì sao hai dòng trên nguy hiểm hơn cả việc không có CI? ___
 ```
 
-## Khi nào chưa cần
-
-Thêm cửa kiểm theo chỗ còn thiếu, giữ các cửa đang bảo vệ thay đổi.
-
-- **Tự dựng thêm hệ thống deploy** — chưa cần khi Vercel đã triển khai đúng nhánh; cần khi đường triển khai hiện tại chưa đáp ứng yêu cầu đã xác định.
-- **Thêm workflow chạy trùng các kiểm tra** — chưa cần khi PR đã chạy đủ lint, test, build trên đúng commit; cần khi có đường đưa code vào Production chưa qua kiểm bắt buộc.
-
 ## Tìm trong project của bạn
 
 1. **Có cửa nào không:** tìm thư mục `.github/workflows/` trong project. Ổn: có ít nhất một file `.yml` chạy khi có `pull_request` hoặc `push`. Có vấn đề: không có thư mục này, nghĩa là mọi kiểm tra đang dựa vào trí nhớ.
@@ -111,7 +104,7 @@ Thêm cửa kiểm theo chỗ còn thiếu, giữ các cửa đang bảo vệ th
 
 ### Vì sao CI chạy trên một máy chủ sạch lại đáng tin hơn câu "trên máy tôi test đều qua"?
 
-Máy bạn có `.env.local`, thư viện cài tay, file chưa commit và dữ liệu cũ; code có thể vô tình phụ thuộc chúng. CI dùng code đã commit và thư viện theo `package-lock.json`. Chạy qua ở đó cho thấy thay đổi không cần phần riêng trên máy bạn; kết quả do máy ghi lại.
+Máy của bạn có sẵn file `.env.local`, thư viện cài tay, file chưa commit, dữ liệu cũ. Code có thể chạy được nhờ những thứ đó mà không ai biết. Máy CI bắt đầu từ con số không: chỉ có đúng những gì đã commit và đúng thư viện trong `package-lock.json`. Nếu ở đó vẫn qua thì thay đổi tự đứng được. Kết quả cũng do máy ghi lại, không qua lời kể của ai.
 
 ### Nếu bỏ bước `npm test` khỏi workflow và chỉ giữ `npm run build`, loại lỗi nào sẽ lọt qua?
 
@@ -119,7 +112,7 @@ Build bắt được lỗi cú pháp, lỗi kiểu dữ liệu, import sai. Buil
 
 ### Vì sao build trên Vercel được coi là một cửa, nhưng không thay được CI?
 
-Build lỗi thì Vercel giữ bản cũ cho khách. Nhưng Vercel không tự chạy test, và deploy khi code vào nhánh Production mà không chờ GitHub Actions. Để test đỏ chặn Production, phải qua PR bắt buộc CI xanh trước khi merge.
+Là một cửa vì build lỗi thì Vercel không đưa bản mới lên, khách vẫn dùng bản cũ đang chạy tốt. Không thay được CI vì Vercel chỉ chạy lệnh build. Nó không tự chạy test của bạn, và nó deploy ngay khi code vào nhánh Production mà không chờ kết quả GitHub Actions. Muốn test đỏ chặn được Production, thay đổi phải đi qua pull request với quy tắc bắt buộc CI xanh mới được merge.
 
 ## Trắc nghiệm
 
@@ -221,14 +214,3 @@ Mục tiêu: tự thấy cửa kiểm chặn lỗi. Chỉ dùng repo thử, nhá
 ### Kết quả đúng
 
 Bạn vẽ được một dòng mô tả đường đi của thay đổi trong project mình, ví dụ: "push nhánh → CI: lint, test, build → Preview → merge → build Vercel → Production", và chỉ ra cửa nào đang thiếu. Ở bước 4, bạn tự tìm được dòng lỗi trong nhật ký build mà không cần hỏi AI, và tên miền chính của app không hề thay đổi trong suốt bài tập.
-
-### Nhờ AI rà lại
-
-```text
-Chỉ báo cáo, không tự sửa, không chạy lệnh ghi/xóa/push, không đọc hay in khóa bí mật. Không mở .env* hoặc gọi dịch vụ.
-Rà workflow, scripts và bằng chứng thử đã cung cấp; không chạy CI hay deploy.
-1. Cửa kiểm: cách kiểm: chỉ file/dòng workflow và scripts chạy lint, test, build; đánh dấu cửa thiếu hoặc bị vô hiệu hóa.
-2. Đỏ rồi xanh: cách kiểm: đối chiếu commit nhánh thu-ci với log build trước/sau sửa, nêu file/dòng lỗi.
-3. Production giữ nguyên: cách kiểm: đối chiếu bản ghi deployment và nhánh; thiếu bằng chứng thì chưa xác minh, không suy từ Preview xanh.
-Báo cáo từng điểm: đạt / chưa đạt / chưa xác minh, kèm bằng chứng và phần còn thiếu.
-```

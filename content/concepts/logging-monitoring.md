@@ -79,13 +79,6 @@ export async function POST(req: Request) {
 
 Khách chụp màn hình có `requestId`, bạn dán mã đó vào ô tìm kiếm của tab Logs là ra đúng dòng lỗi.
 
-## Khi nào chưa cần
-
-Thêm công cụ khi log và cảnh báo hiện có chưa trả lời được câu hỏi vận hành.
-
-- **Mua thêm dịch vụ theo dõi lỗi** — chưa cần khi cơ chế hiện có đã báo đúng lỗi tới người xử lý; cần khi lỗi quan trọng vẫn chỉ được phát hiện qua khách.
-- **Ghi log ở mọi dòng xử lý** — chưa cần khi tên việc, requestId và kết quả đã đủ khoanh vùng; cần khi thiếu dấu vết của bước lỗi, chỉ bổ sung thông tin cần thiết và không chứa bí mật.
-
 ## Tìm trong project của bạn
 
 1. **Tìm chỗ nuốt lỗi:** tìm toàn dự án từ khóa `catch`. Với mỗi khối `catch` trong `app/api/` và các file có `'use server'`, xem bên trong có `console.error` kèm thông tin lỗi không. Ổn: có tên việc và thông báo lỗi. Có vấn đề: `catch {}` rỗng, hoặc chỉ in một chữ như `'error'`.

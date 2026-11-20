@@ -71,13 +71,6 @@ if (url.includes(PROD_REF) || process.env.VERCEL_ENV === 'production') {
 
 `VERCEL_ENV` là biến Vercel tự gắn, có giá trị `production`, `preview` hoặc `development`. Chốt chặn này chỉ là lớp phụ. Lớp chính vẫn là: máy làm việc không có khóa thật.
 
-## Khi nào chưa cần
-
-Tách dữ liệu thật khỏi thử là bắt buộc, số môi trường thêm phải có lý do.
-
-- **Tạo thêm môi trường thử** — chưa cần khi Development và Preview đã có database, khóa thử và schema đúng để kiểm; cần khi chưa có nơi thử tách khỏi dữ liệu và dịch vụ thật.
-- **Thêm chốt chặn môi trường cho mọi script** — chưa cần khi script chỉ đọc, không ghi dữ liệu; cần khi script có thể ghi đè hoặc xóa, đồng thời máy và agent vẫn chỉ được giữ khóa thử.
-
 ## Tìm trong project của bạn
 
 1. **Đếm số project database:** Mở trang quản trị Supabase. Có một hay hai project? Tên có cho biết cái nào thật, cái nào thử không?

@@ -168,15 +168,3 @@ Mục tiêu: lập bảng bằng chứng cho một thay đổi nhỏ trên bản
 ### Kết quả đúng
 
 Mỗi kết luận đều trỏ tới kết quả quan sát hoặc output, không có ô “đạt” chỉ vì agent nói vậy. Bạn chỉ ra được bằng chứng nào thuộc test nhỏ, bằng chứng nào thuộc toàn luồng, và phần nào vẫn chưa đủ để nghiệm thu.
-
-### Nhờ AI rà lại
-
-```text
-Chỉ báo cáo, không tự sửa, không chạy lệnh ghi/xóa/push, không đọc hay in khóa bí mật. Không mở .env* hoặc gọi dịch vụ.
-Rà bảng bằng chứng và output đã che tôi cung cấp, không chạy thêm luồng thử.
-1. Đúng phiên bản và môi trường: cách kiểm: đối chiếu mốc code, dữ liệu giả và thời điểm của từng bằng chứng.
-2. Từng tiêu chí: cách kiểm: chỉ dòng output hoặc kết quả quan sát tương ứng; đánh dấu ô đạt chỉ dựa lời agent.
-3. Toàn luồng và đầu vào sai: cách kiểm: lần theo bản ghi từ thao tác đầu tới kết quả cuối, phân biệt với test nhỏ.
-4. Phần bị chặn và kết luận: cách kiểm: chỉ lỗi, bước chưa thực hiện và điều còn phải kiểm, đối chiếu lời agent với bằng chứng.
-Báo cáo từng điểm: đạt / chưa đạt / chưa xác minh, kèm bằng chứng và phần còn thiếu.
-```

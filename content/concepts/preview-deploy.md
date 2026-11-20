@@ -75,13 +75,6 @@ Bảo vệ link và tách dịch vụ là hai việc khác nhau. Người có qu
 
 Khi PR đến từ fork, Vercel mặc định cần người có quyền cho phép triển khai để tránh lộ thông tin môi trường cho code chưa tin cậy. Không tắt bảo vệ chỉ vì agent muốn thấy link ngay. Đọc đề xuất trước; một PR hợp lệ về cú pháp vẫn có thể chứa code lấy dữ liệu cấu hình.
 
-## Khi nào chưa cần
-
-Dùng preview để kiểm đúng thay đổi, không nhân thêm bản triển khai khi chưa có nhu cầu.
-
-- **Tạo project Vercel mới cho mỗi sửa câu chữ** — chưa cần khi project thử đã có deployment ban đầu và preview đúng commit; cần khi chưa có nơi thử tách khỏi dịch vụ thật.
-- **Tạo biến riêng cho từng nhánh** — chưa cần khi cấu hình Preview chung đã trỏ đúng tài nguyên thử; cần khi nhánh cần cấu hình khác, rồi phải kiểm trên deployment mới.
-
 ## Tìm trong project của bạn
 
 Khảo sát bằng cách xem metadata được phép, không thử gửi email, thanh toán hay ghi dữ liệu thật. Không đọc hoặc dán giá trị khóa vào chat; ghi tên biến và tài nguyên đích đã được xác nhận.
@@ -181,14 +174,3 @@ Mục tiêu: kiểm một thay đổi câu chữ qua preview và ghi bằng ch�
 ### Kết quả đúng
 
 Bản ghi nối được PR với đúng commit và deployment, xác nhận dữ liệu thử cùng quyền xem link. Bạn phân biệt được “deployment đã tạo” với “tiêu chí đã kiểm” và nêu rõ phần chưa thử.
-
-### Nhờ AI rà lại
-
-```text
-Chỉ báo cáo, không tự sửa, không chạy lệnh ghi/xóa/push, không đọc hay in khóa bí mật. Không mở .env* hoặc gọi dịch vụ.
-Chỉ rà bản ghi preview và metadata đã che tôi cung cấp; không mở luồng ghi dữ liệu.
-1. Đúng bản: cách kiểm: đối chiếu PR, nhánh, commit, URL deployment và nhãn Preview; kiểm project đã có deployment ban đầu.
-2. Tách môi trường và quyền xem: cách kiểm: chỉ bằng chứng tài nguyên thử, phạm vi biến và Deployment Protection, không xem giá trị khóa.
-3. Câu chữ và điều hướng: cách kiểm: so tiêu chí với mong đợi/thực tế, chỉ phần chưa thử và điều kiện trước merge; ghi rõ nếu chỉ làm trên giấy.
-Báo cáo từng điểm: đạt / chưa đạt / chưa xác minh, kèm bằng chứng và phần còn thiếu.
-```

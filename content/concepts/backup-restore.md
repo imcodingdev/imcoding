@@ -35,7 +35,7 @@ Git lưu các phiên bản của file code. Đơn hàng không phải file trong
 
 ## Ví dụ mẫu
 
-Bản photo sổ đỏ cất ở nhà bố mẹ chỉ có giá trị khi còn đó, đọc được và là bản mới nhất. Chưa ai mở kiểm thì mới chỉ là hy vọng.
+Bạn có bản photo sổ đỏ cất ở nhà bố mẹ. Nó chỉ có giá trị nếu bạn biết chắc nó còn ở đó, còn đọc được, và là bản mới nhất. Một bản photo chưa ai mở ra xem bao giờ thì mới chỉ là hy vọng.
 
 Dữ liệu của app nằm ở ba nơi, mỗi nơi có cách lấy lại khác nhau:
 
@@ -68,13 +68,6 @@ Kết luận: bản sao lưu này ___
 ```
 
 File `backup-dev.sql` chứa dữ liệu, kể cả khi chỉ là dữ liệu thử. Không commit nó lên Git, và coi file sao lưu của project thật như một khóa bí mật.
-
-## Khi nào chưa cần
-
-Nâng mức sao lưu theo lượng dữ liệu có thể mất và thời gian khôi phục chấp nhận được.
-
-- **Bật khôi phục tới từng thời điểm** — chưa cần khi bản sao lưu hiện có đáp ứng mức mất dữ liệu cho phép; cần khi mất gần một ngày dữ liệu là quá mức đó.
-- **Tự viết bộ sao lưu thay dịch vụ sẵn có** — chưa cần khi đã có bản đủ dữ liệu và diễn tập khôi phục được; cần khi chưa có bản sao dùng được, nhưng vẫn phải kiểm phạm vi và nơi cất.
 
 ## Tìm trong project của bạn
 

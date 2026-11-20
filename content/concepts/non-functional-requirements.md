@@ -63,13 +63,6 @@ Theo web.dev, đánh giá các ngưỡng này tại phân vị 75, tách thiết
 
 Câu “mất kết nối thì không mất đơn” cũng cần làm rõ. Nếu máy chủ đã lưu mà phản hồi bị mất, app phải tra lại kết quả. Nếu chưa gửi được, app cần giữ bản nháp theo thiết kế đã duyệt hoặc báo chưa lưu để người dùng biết. Không thể hứa đơn đã nằm trên máy chủ khi yêu cầu chưa tới. Hãy yêu cầu agent mô tả từng trạng thái và bằng chứng lưu thành công.
 
-## Khi nào chưa cần
-
-Chọn mức chất lượng theo nhu cầu và bằng chứng, không theo số lượng công cụ.
-
-- **Theo dõi mọi chỉ số** — chưa cần khi vài chỉ số đã trả lời được câu hỏi về luồng quan trọng; cần khi có câu hỏi thực tế chưa được đo.
-- **Đổi kiến trúc để chịu tải lớn** — chưa cần khi chưa đo được giới hạn; cần khi thử bằng dữ liệu giả cho thấy chỗ nghẽn và thay đổi nhỏ hơn chưa đáp ứng mục tiêu.
-
 ## Tìm trong project của bạn
 
 Chỉ đọc tài liệu và code được phép xem; chưa thay cấu hình hay thử gây lỗi trên app thật.
@@ -165,15 +158,3 @@ Mục tiêu: biến một yêu cầu mơ hồ thành bộ tiêu chí kiểm đư
 ### Kết quả đúng
 
 Mỗi tiêu chí có điều kiện, thao tác và kết quả quan sát được. Bạn phân biệt được mục tiêu thử với SLO vận hành, chỉ số với mục tiêu, và không dùng lời agent tự nhận làm bằng chứng.
-
-### Nhờ AI rà lại
-
-```text
-Chỉ báo cáo, không tự sửa, không chạy lệnh ghi/xóa/push, không đọc hay in khóa bí mật. Không mở .env* hoặc gọi dịch vụ.
-Chỉ rà tiêu chí và bản ghi thử đã che tôi cung cấp.
-1. Tốc độ: cách kiểm: chỉ thiết bị, mạng, dữ liệu giả, mốc đo và ngưỡng; phân biệt mục tiêu thử với SLO vận hành.
-2. Mất kết nối: cách kiểm: đối chiếu hai ca chưa gửi và đã lưu mất phản hồi với trạng thái cùng dữ liệu cuối.
-3. Quyền truy cập: cách kiểm: đối chiếu ca hai tài khoản giả với phản hồi máy chủ, không chỉ nút bị ẩn.
-4. Tải tăng: cách kiểm: chỉ câu hỏi, bằng chứng chỗ nghẽn và điều chưa cần làm; đánh dấu ca chưa thử.
-Báo cáo từng điểm: đạt / chưa đạt / chưa xác minh, kèm bằng chứng và phần còn thiếu.
-```

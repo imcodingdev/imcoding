@@ -171,15 +171,3 @@ Mục tiêu: phân biệt bản trên máy với bản trên GitHub qua ghi chú
 ### Kết quả đúng
 
 Bạn chỉ được nơi lưu từng bản, đích của `origin`, và phân biệt lưu commit với đồng bộ. Ghi chú xử lý khóa đặt thu hồi trước dọn lịch sử, không có secret hoặc thay đổi nào trên repo thật.
-
-### Nhờ AI rà lại
-
-```text
-Chỉ báo cáo, không tự sửa, không chạy lệnh ghi/xóa/push, không đọc hay in khóa bí mật. Không mở .env* hoặc gọi dịch vụ.
-Chỉ rà ghi chú và metadata đã che tôi cung cấp; không kết nối remote.
-1. Bản máy và GitHub: cách kiểm: đối chiếu chủ, repo, public/private và đích origin trong ghi chú.
-2. Commit cùng nhánh: cách kiểm: so hai mã commit và thời điểm ghi nhận; thiếu một phía thì chưa xác minh.
-3. Chiều đồng bộ: cách kiểm: đối chiếu hai tình huống với hướng push/pull và điều cần kiểm trước; không thực hiện lệnh.
-4. Khóa giả bị lộ: cách kiểm: chỉ dòng đặt thu hồi trước dọn lịch sử, đánh dấu kết luận chỉ xóa file là đủ.
-Báo cáo từng điểm: đạt / chưa đạt / chưa xác minh, kèm bằng chứng và phần còn thiếu.
-```

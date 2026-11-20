@@ -203,14 +203,3 @@ Mục tiêu: tự tạo một xung đột trên file thử, đọc và giải qu
 ### Kết quả đúng
 
 Ở bước 4 bạn chỉ ra được phần nào là của `thu-a` (HEAD), phần nào là của `thu-b`. Sau bước 5, `git status` báo không còn gì dang dở và tìm `<<<<<<<` trong file không ra kết quả. Sau bước 6, thư mục dự án không có `thu-nghiem.md` và `git log` của `main` không có commit thử nào.
-
-### Nhờ AI rà lại
-
-```text
-Chỉ báo cáo, không tự sửa, không chạy lệnh ghi/xóa/push, không đọc hay in khóa bí mật. Không mở .env* hoặc gọi dịch vụ.
-Rà repo thử; không chuyển nhánh.
-1. Hai phía xung đột: cách kiểm: đọc git show thu-a^1:thu-nghiem.md và git show thu-a^2:thu-nghiem.md ở hai cha của commit merge, đối chiếu bản ghi conflict.
-2. Kết quả giải quyết: cách kiểm: đọc file ở thu-a, tìm dấu conflict còn sót; dùng git status --short kiểm thay đổi dở dang.
-3. Main chưa nhận bài thử: cách kiểm: dùng git branch --show-current, git log main --oneline và git ls-tree --name-only main; đối chiếu mốc main ban đầu.
-Báo cáo từng điểm: đạt / chưa đạt / chưa xác minh, kèm bằng chứng và phần còn thiếu.
-```
