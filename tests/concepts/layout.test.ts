@@ -20,12 +20,12 @@ function c(id: string, group: ConceptGroup, prerequisites: string[] = []): Conce
 }
 
 describe('buildMapLayout', () => {
-  it('bản đồ 55 bài đủ id, cạnh prerequisite và không đè vị trí', () => {
+  it('bản đồ 58 bài đủ id, cạnh prerequisite và không đè vị trí', () => {
     const lessons = loadConcepts('content/concepts')
     const { nodes, edges } = buildMapLayout(lessons)
-    expect(nodes).toHaveLength(55)
+    expect(nodes).toHaveLength(58)
     expect(nodes.map(node => node.id).sort()).toEqual([...LESSON_IDS].sort())
-    expect(new Set(nodes.map(node => `${node.x},${node.y}`)).size).toBe(55)
+    expect(new Set(nodes.map(node => `${node.x},${node.y}`)).size).toBe(58)
     const ids = new Set(nodes.map(node => node.id))
     for (const edge of edges) {
       expect(ids.has(edge.from)).toBe(true)

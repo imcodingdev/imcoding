@@ -1,4 +1,4 @@
-// Bảng đã đối chiếu Lesson 4, ROUND-HARNESS-1, ROUND-GITHUB-1 và ROUND-PYTHON-1; kỳ vọng độc lập với nội dung.
+// Bảng đã đối chiếu Lesson 4, ROUND-HARNESS-1, ROUND-GITHUB-1, ROUND-PYTHON-1 và ROUND-SA-1; kỳ vọng độc lập với nội dung.
 export const CURRICULUM = [
   ['acceptance-criteria', 2, 1],
   ['agent-handoff', 2, 2],
@@ -19,6 +19,7 @@ export const CURRICULUM = [
   ['client-server', 1, 1],
   ['code-review', 2, 1],
   ['component', 2, 1],
+  ['concurrent-writes', 3, 1],
   ['control-flow', 2, 2],
   ['data-crud', 2, 2],
   ['data-flow', 2, 1],
@@ -39,9 +40,11 @@ export const CURRICULUM = [
   ['hosting-deploy', 3, 1],
   ['html-css-js', 2, 1],
   ['http-request-response', 2, 1],
+  ['idempotency-retries', 3, 1],
   ['input-validation', 3, 1],
   ['json', 2, 1],
   ['logging-monitoring', 4, 2],
+  ['non-functional-requirements', 2, 2],
   ['package-dependencies', 1, 1],
   ['preview-deploy', 3, 2],
   ['programming-values', 2, 2],

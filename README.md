@@ -29,7 +29,7 @@ Each step is based on learning research: retrieval practice, self-explanation, f
 
 ## Features
 
-- **Knowledge map:** 55 lessons linked by prerequisites, with a suggested next lesson that prioritizes earlier stages.
+- **Knowledge map:** 58 lessons linked by prerequisites, with a suggested next lesson that prioritizes earlier stages.
 - Four risk-based stages (before letting AI edit code, before accepting AI-written features, before real users, operations) with advisory warnings, never locks.
 - **Progress tracking:** sign in with GitHub, mark each concept as "seen in my code" or "understood".
 - **Resume where you left off:** return to your current lesson step, saved to your account when signed in or to your browser otherwise.
@@ -74,7 +74,7 @@ MIT. See [LICENSE](LICENSE).
 
 ImCoding là nền tảng học giúp founder và người mới hiểu những gì AI đã viết trong project của chính mình. Mỗi ngày 30 phút, học từng khái niệm một.
 
-Lộ trình gồm 55 bài trong 4 chặng theo rủi ro (trước khi giao AI sửa code, trước khi nhận tính năng AI viết, trước khi mở app cho người dùng thật, khi vận hành), chỉ cảnh báo khuyến nghị và không khóa bài. Mỗi bài khoảng 30 phút gồm: nhắc lại (nếu có bài cần học trước), đoán trước, xem ví dụ có chú thích, tìm trong code của bạn, tự giải thích vì sao, Trắc nghiệm, kiểm tra không dùng AI và xem lỗi suy luận thường gặp. Đa số bài có thêm Bài tập thực hành trong 10–15 phút.
+Lộ trình gồm 58 bài trong 4 chặng theo rủi ro (trước khi giao AI sửa code, trước khi nhận tính năng AI viết, trước khi mở app cho người dùng thật, khi vận hành), chỉ cảnh báo khuyến nghị và không khóa bài. Mỗi bài khoảng 30 phút gồm: nhắc lại (nếu có bài cần học trước), đoán trước, xem ví dụ có chú thích, tìm trong code của bạn, tự giải thích vì sao, Trắc nghiệm, kiểm tra không dùng AI và xem lỗi suy luận thường gặp. Đa số bài có thêm Bài tập thực hành trong 10–15 phút.
 
 - **Học tiếp chỗ đang dở:** quay lại bước đang học, lưu theo tài khoản khi đăng nhập hoặc trên trình duyệt khi chưa đăng nhập.
 - **Hỏi thực chiến ([/hoi](https://imcoding.dev/hoi)):** tìm bài không dùng AI; hỏi AI bằng Gemini key của chính người học.
