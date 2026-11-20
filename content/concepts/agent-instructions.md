@@ -164,3 +164,15 @@ Mục tiêu: soạn một mục lục hướng dẫn đủ cho người mới hi
 ### Kết quả đúng
 
 Bạn có bản nháp ngắn, đường dẫn kiểm được, quy tắc không mâu thuẫn và danh sách thông tin còn thiếu. Người đọc phân biệt được luật bắt buộc với hướng dẫn tham khảo. Không có khóa, dữ liệu khách hay lệnh tác động hệ thống thật trong bản nháp.
+
+### Nhờ AI rà lại
+
+```text
+Chỉ báo cáo, không tự sửa, không chạy lệnh ghi/xóa/push, không đọc hay in khóa bí mật. Không mở .env* hoặc gọi dịch vụ.
+Rà bản nháp hướng dẫn được chỉ định, chưa áp dụng vào hướng dẫn của đội.
+1. Mục đích app, quy tắc và ranh giới dữ liệu thử: cách kiểm: chỉ dòng bản nháp và nguồn xác nhận quy tắc.
+2. Đường dẫn cách chạy, kiểm, tiến độ: cách kiểm: mở tài liệu được trỏ tới, nêu file/dòng; thiếu thì ghi thiếu, không đoán lệnh.
+3. Luật bắt buộc và tham khảo: cách kiểm: đối chiếu từng chỉ dẫn, chỉ dòng mâu thuẫn hoặc chưa phân biệt.
+4. Khả năng tiếp nhận: cách kiểm: trả lời năm câu hỏi ở mục tìm project bằng dòng bản nháp; đánh dấu câu phải đoán.
+Báo cáo từng điểm: đạt / chưa đạt / chưa xác minh, kèm bằng chứng và phần còn thiếu.
+```

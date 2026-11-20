@@ -52,7 +52,7 @@ Với phần mềm, các cửa thường gặp là:
 - **Test:** chạy các bài kiểm thử tự động.
 - **Build:** đóng gói thử toàn bộ app, bắt lỗi kiểu dữ liệu TypeScript và lỗi import.
 
-**CD** (Continuous Deployment, triển khai tự động) là nửa sau: khi code vào nhánh Production, hệ thống tự deploy. Vercel làm sẵn phần này. Build của Vercel cũng là một cửa: build lỗi thì bản mới không lên, Production giữ bản cũ.
+**CD** (Continuous Deployment, triển khai tự động): code vào nhánh Production thì tự deploy. Vercel làm sẵn; build cũng là cửa kiểm: lỗi thì không lên bản mới, Production giữ bản cũ.
 
 Trên GitHub, các cửa được khai báo trong file **workflow** của GitHub Actions, đặt ở `.github/workflows/`. Bạn không cần viết, chỉ cần đọc được:
 
@@ -221,3 +221,14 @@ Mục tiêu: tự thấy cửa kiểm chặn lỗi. Chỉ dùng repo thử, nhá
 ### Kết quả đúng
 
 Bạn vẽ được một dòng mô tả đường đi của thay đổi trong project mình, ví dụ: "push nhánh → CI: lint, test, build → Preview → merge → build Vercel → Production", và chỉ ra cửa nào đang thiếu. Ở bước 4, bạn tự tìm được dòng lỗi trong nhật ký build mà không cần hỏi AI, và tên miền chính của app không hề thay đổi trong suốt bài tập.
+
+### Nhờ AI rà lại
+
+```text
+Chỉ báo cáo, không tự sửa, không chạy lệnh ghi/xóa/push, không đọc hay in khóa bí mật. Không mở .env* hoặc gọi dịch vụ.
+Rà workflow, scripts và bằng chứng thử đã cung cấp; không chạy CI hay deploy.
+1. Cửa kiểm: cách kiểm: chỉ file/dòng workflow và scripts chạy lint, test, build; đánh dấu cửa thiếu hoặc bị vô hiệu hóa.
+2. Đỏ rồi xanh: cách kiểm: đối chiếu commit nhánh thu-ci với log build trước/sau sửa, nêu file/dòng lỗi.
+3. Production giữ nguyên: cách kiểm: đối chiếu bản ghi deployment và nhánh; thiếu bằng chứng thì chưa xác minh, không suy từ Preview xanh.
+Báo cáo từng điểm: đạt / chưa đạt / chưa xác minh, kèm bằng chứng và phần còn thiếu.
+```

@@ -181,3 +181,14 @@ Mục tiêu: lập bản cấp quyền tối thiểu cho agent. Chỉ dùng repo
 ### Kết quả đúng
 
 Phiếu gắn từng quyền với một nhu cầu, có hạn dùng và danh sách repo rõ ràng. Bạn phân biệt được PAT, GITHUB_TOKEN, fork và quy tắc nhánh, đồng thời chỉ ra phần cần người quản lý xác nhận trước khi cấp quyền thật.
+
+### Nhờ AI rà lại
+
+```text
+Chỉ báo cáo, không tự sửa, không chạy lệnh ghi/xóa/push, không đọc hay in khóa bí mật. Không mở .env* hoặc gọi dịch vụ.
+Chỉ rà phiếu quyền và cấu hình giả tôi cung cấp, không tạo token hay gọi GitHub.
+1. Phạm vi quyền: cách kiểm: đối chiếu Resource owner, Repository access, Permissions, Expiration với tác vụ sửa hướng dẫn và mở PR thử.
+2. Quy tắc nhánh: cách kiểm: chỉ dòng yêu cầu PR, review, checks, chặn force push và ngoại lệ bypass; đánh dấu phần cần quản lý xác nhận.
+3. Job chỉ đọc: cách kiểm: chỉ dòng permissions dự kiến, giải thích vì sao quyền ghi thừa; phân biệt GITHUB_TOKEN với PAT và quyền của PR từ fork.
+Báo cáo từng điểm: đạt / chưa đạt / chưa xác minh, kèm bằng chứng và phần còn thiếu.
+```

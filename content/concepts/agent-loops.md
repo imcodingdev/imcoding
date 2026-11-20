@@ -175,3 +175,15 @@ Mục tiêu: kiểm thiết kế vòng lặp bằng mô phỏng trên giấy ho�
 ### Kết quả đúng
 
 Bản thiết kế có mục tiêu, phạm vi, kiểm sau mỗi vòng, giới hạn và nơi lưu trạng thái. Bạn giải thích được vì sao mô phỏng lỗi lặp phải dừng, chỉ ra cơ chế kiểm soát còn cần có trước khi tự động hóa, và không nhầm việc dừng với việc hoàn thành.
+
+### Nhờ AI rà lại
+
+```text
+Chỉ báo cáo, không tự sửa, không chạy lệnh ghi/xóa/push, không đọc hay in khóa bí mật. Không mở .env* hoặc gọi dịch vụ.
+Chỉ rà bản thiết kế và nhật ký giả tôi cung cấp, không khởi động vòng chạy.
+1. Mục tiêu, phạm vi và kiểm mỗi vòng: cách kiểm: chỉ dòng tiêu chí, file được sửa và bằng chứng dự kiến.
+2. Số vòng, ngân sách, thời gian và cách dừng: cách kiểm: đối chiếu giới hạn giả định với cơ chế còn thiếu, không coi lời dặn là chốt chặn.
+3. Hai lần gặp cùng lỗi: cách kiểm: dẫn hai dòng nhật ký, quy tắc dừng, nội dung bàn giao và điều kiện chạy lại.
+4. Dừng đạt và dừng bị chặn: cách kiểm: đối chiếu hai tình huống giả với tiêu chí, không coi hết lượt là hoàn thành.
+Báo cáo từng điểm: đạt / chưa đạt / chưa xác minh, kèm bằng chứng và phần còn thiếu.
+```

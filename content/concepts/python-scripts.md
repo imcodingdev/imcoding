@@ -192,3 +192,15 @@ Mục tiêu: gộp dữ liệu giả và chứng minh file nguồn còn nguyên.
 ### Kết quả đúng
 
 `ket-qua.csv` có một tiêu đề và đủ hai dòng giả; hai file nguồn còn nguyên, không có thao tác ngoài thư mục thử. Nếu bị lỗi, có bản ghi đủ để khoanh vùng, chưa coi là hoàn thành chỉ vì AI báo “xong”.
+
+### Nhờ AI rà lại
+
+```text
+Chỉ báo cáo, không tự sửa, không chạy lệnh ghi/xóa/push, không đọc hay in khóa bí mật. Không mở .env* hoặc gọi dịch vụ.
+Rà gop.py và file mẫu trong python-thu được chỉ định; không chạy script.
+1. Phạm vi: cách kiểm: chỉ file/dòng đọc a.csv, b.csv và tạo ket-qua.csv; đánh dấu đường dẫn ngoài thư mục thử.
+2. An toàn ghi: cách kiểm: chỉ dòng dừng khi đầu ra tồn tại, cách mở file, imports; rà ghi đè, xóa, đổi tên hoặc gọi mạng.
+3. Kết quả: cách kiểm: so CSV với bản ghi nguồn ban đầu, một tiêu đề và hai dòng Mau A, Mau B; thiếu bản gốc thì chưa xác minh nguồn nguyên vẹn.
+4. Môi trường chạy: cách kiểm: đối chiếu bản ghi lệnh, thư mục, venv và output hoặc traceback có file/dòng.
+Báo cáo từng điểm: đạt / chưa đạt / chưa xác minh, kèm bằng chứng và phần còn thiếu.
+```

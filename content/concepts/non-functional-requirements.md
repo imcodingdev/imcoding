@@ -165,3 +165,15 @@ Mục tiêu: biến một yêu cầu mơ hồ thành bộ tiêu chí kiểm đư
 ### Kết quả đúng
 
 Mỗi tiêu chí có điều kiện, thao tác và kết quả quan sát được. Bạn phân biệt được mục tiêu thử với SLO vận hành, chỉ số với mục tiêu, và không dùng lời agent tự nhận làm bằng chứng.
+
+### Nhờ AI rà lại
+
+```text
+Chỉ báo cáo, không tự sửa, không chạy lệnh ghi/xóa/push, không đọc hay in khóa bí mật. Không mở .env* hoặc gọi dịch vụ.
+Chỉ rà tiêu chí và bản ghi thử đã che tôi cung cấp.
+1. Tốc độ: cách kiểm: chỉ thiết bị, mạng, dữ liệu giả, mốc đo và ngưỡng; phân biệt mục tiêu thử với SLO vận hành.
+2. Mất kết nối: cách kiểm: đối chiếu hai ca chưa gửi và đã lưu mất phản hồi với trạng thái cùng dữ liệu cuối.
+3. Quyền truy cập: cách kiểm: đối chiếu ca hai tài khoản giả với phản hồi máy chủ, không chỉ nút bị ẩn.
+4. Tải tăng: cách kiểm: chỉ câu hỏi, bằng chứng chỗ nghẽn và điều chưa cần làm; đánh dấu ca chưa thử.
+Báo cáo từng điểm: đạt / chưa đạt / chưa xác minh, kèm bằng chứng và phần còn thiếu.
+```

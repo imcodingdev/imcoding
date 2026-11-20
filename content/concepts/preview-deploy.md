@@ -181,3 +181,14 @@ Mục tiêu: kiểm một thay đổi câu chữ qua preview và ghi bằng ch�
 ### Kết quả đúng
 
 Bản ghi nối được PR với đúng commit và deployment, xác nhận dữ liệu thử cùng quyền xem link. Bạn phân biệt được “deployment đã tạo” với “tiêu chí đã kiểm” và nêu rõ phần chưa thử.
+
+### Nhờ AI rà lại
+
+```text
+Chỉ báo cáo, không tự sửa, không chạy lệnh ghi/xóa/push, không đọc hay in khóa bí mật. Không mở .env* hoặc gọi dịch vụ.
+Chỉ rà bản ghi preview và metadata đã che tôi cung cấp; không mở luồng ghi dữ liệu.
+1. Đúng bản: cách kiểm: đối chiếu PR, nhánh, commit, URL deployment và nhãn Preview; kiểm project đã có deployment ban đầu.
+2. Tách môi trường và quyền xem: cách kiểm: chỉ bằng chứng tài nguyên thử, phạm vi biến và Deployment Protection, không xem giá trị khóa.
+3. Câu chữ và điều hướng: cách kiểm: so tiêu chí với mong đợi/thực tế, chỉ phần chưa thử và điều kiện trước merge; ghi rõ nếu chỉ làm trên giấy.
+Báo cáo từng điểm: đạt / chưa đạt / chưa xác minh, kèm bằng chứng và phần còn thiếu.
+```

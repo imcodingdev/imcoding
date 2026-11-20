@@ -185,3 +185,15 @@ Mục tiêu: quan sát hai người tranh một tài nguyên. Chỉ dùng projec
 ### Kết quả đúng
 
 Chỉ một người có chỗ, người còn lại nhận thông báo đúng. Số bản ghi và số lượt còn lại khớp nhau, không có thay đổi dở dang. Báo cáo nêu cả giới hạn của thử tay và cơ chế database giữ quy tắc.
+
+### Nhờ AI rà lại
+
+```text
+Chỉ báo cáo, không tự sửa, không chạy lệnh ghi/xóa/push, không đọc hay in khóa bí mật. Không mở .env* hoặc gọi dịch vụ.
+Rà code và kết quả thử đã che, không gửi yêu cầu hay chạy SQL.
+1. Hai người tranh một chỗ: cách kiểm: đối chiếu tài nguyên, hai tài khoản giả và thông báo thắng/thua trong bản ghi.
+2. Không cấp dư, không dở dang: cách kiểm: so số lượt và bản ghi trước/sau, không chỉ nhìn số dư.
+3. Cơ chế giữ luật: cách kiểm: chỉ file/dòng ràng buộc, transaction hoặc khóa phù hợp với tài nguyên và nhánh xử lý xung đột.
+4. Ca chen nhau có kiểm soát: cách kiểm: chỉ file/dòng test và output đã cung cấp; thử tay chưa đủ thì ghi rõ giới hạn.
+Báo cáo từng điểm: đạt / chưa đạt / chưa xác minh, kèm bằng chứng và phần còn thiếu.
+```
