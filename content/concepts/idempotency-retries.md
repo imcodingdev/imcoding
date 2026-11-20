@@ -76,6 +76,13 @@ Có trường hợp hai Event riêng biệt biểu diễn thông báo trùng v�
 
 Idempotency key cho yêu cầu gửi đi và event ID cho webhook nhận về giải quyết hai đường khác nhau. Có key không tự ngăn webhook cộng quyền hai lần. Khi rà thiết kế, hỏi agent việc ghi dấu đã xử lý và cập nhật nghiệp vụ có thể bị chen ngang hoặc bị ngắt giữa chừng không. Một câu “đã có bảng event” chưa chứng minh toàn bộ luồng an toàn.
 
+## Khi nào chưa cần
+
+Chống trùng theo tác động của thao tác, không thêm cùng một bộ máy cho mọi yêu cầu.
+
+- **Dựng hàng đợi và bảng chống trùng cho mọi lần đọc** — chưa cần khi chỉ đọc, không tạo tác động tiền hay dữ liệu; cần khi thao tác có thể lặp tác động, nhưng phải chứng minh từng thành phần cần thêm.
+- **Cho mọi lỗi tự thử lại nhiều lần** — chưa cần khi lỗi tham số cần sửa đầu vào; cần khi lỗi kết nối có thể thử lại an toàn, có giới hạn và cách đối chiếu trạng thái.
+
 ## Tìm trong project của bạn
 
 Chỉ đọc code và tài liệu được phép; không mở file khóa hoặc gửi yêu cầu thanh toán thật.

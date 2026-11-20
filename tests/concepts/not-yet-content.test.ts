@@ -4,10 +4,9 @@ import { expect, it } from 'vitest'
 import { loadConcepts } from '@/lib/concepts/load'
 import { lessonStepCount } from '@/lib/concepts/lesson'
 
-it('chỉ bài đánh đổi có ba đề xuất chưa cần, giữ chín bước và giới hạn âm tiết', () => {
+it('bài đánh đổi giữ ba đề xuất chưa cần, chín bước và giới hạn âm tiết', () => {
   const concepts = loadConcepts('content/concepts')
   expect(concepts).toHaveLength(58)
-  expect(concepts.filter(concept => concept.format === 2 && concept.notYet).map(concept => concept.id)).toEqual(['system-tradeoffs'])
   const concept = concepts.find(concept => concept.id === 'system-tradeoffs')!
   if (concept.format !== 2) throw new Error('Cần bài v2')
   const lines = concept.notYet!.split('\n').filter(line => line.startsWith('- '))

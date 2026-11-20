@@ -68,6 +68,13 @@ Chờ: người phụ trách xác nhận môi trường kiểm
 
 Trần ghi bằng lời cần được hỗ trợ bằng cơ chế giới hạn thực tế của môi trường chạy hoặc người giám sát. Kiểm chi phí sau mỗi vòng vẫn có thể phát hiện quá muộn nếu một vòng quá đắt. Trước khi chạy tự động, xác nhận cách chặn chi tiêu, giới hạn thời gian mỗi lần và cách dừng tiến trình. Nếu chưa có khả năng đó, chỉ chạy từng vòng có người theo dõi, không để chạy không giám sát.
 
+## Khi nào chưa cần
+
+Bắt đầu bằng vòng có giám sát, chỉ tự động hóa khi kiểm soát được lần chạy.
+
+- **Dựng bộ điều phối vòng lặp lớn** — chưa cần khi quy tắc rõ và công cụ hiện có đủ hỗ trợ; cần khi chưa theo dõi được trạng thái, kiểm tra và quyết định dừng bằng cách hiện tại.
+- **Cho agent chạy không giám sát** — chưa cần khi chưa có cơ chế chặn chi phí, thời gian và dừng tiến trình; cần khi đã xác nhận các cơ chế đó, phạm vi và bằng chứng nghiệm thu cho việc nhỏ.
+
 ## Tìm trong project của bạn
 
 1. Tìm yêu cầu hoặc tài liệu có các cụm “cứ thử”, “retry”, “đến khi xong”. Ghi mục tiêu cụ thể và điều kiện dừng hiện tại: `[đạt khi ... / dừng chặn khi ...]`.

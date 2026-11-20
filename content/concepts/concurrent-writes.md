@@ -83,6 +83,13 @@ Khóa dòng chỉ khóa dòng tìm thấy. Nếu đang kiểm “chưa có lư�
 
 **Mức cô lập** quy định một giao dịch nhìn thấy và tương tác với thay đổi của giao dịch khác thế nào. Mức Serializable nhằm cho kết quả như các giao dịch chạy lần lượt, nhưng database có thể từ chối một giao dịch bằng lỗi serialization khi không thể giữ bảo đảm đó. App phải hủy và thử lại toàn bộ transaction từ đầu, đọc lại dữ liệu, không chỉ gửi lại câu ghi cuối. Cần giới hạn thử lại và báo lỗi phù hợp nếu vẫn không thành công.
 
+## Khi nào chưa cần
+
+Chọn cơ chế giữ đúng luật khi ghi, không cộng mọi loại khóa vào mọi thao tác.
+
+- **Thêm khóa dòng cho mọi truy vấn** — chưa cần khi chỉ đọc, không quyết định cấp tài nguyên; cần khi phải giữ dòng tài nguyên đã có trong lúc quyết định và ghi.
+- **Gom mọi thao tác vào transaction lớn** — chưa cần khi các việc không phải cùng thành công; cần khi trừ lượt và tạo bản ghi phải cùng thành công hoặc cùng hủy.
+
 ## Tìm trong project của bạn
 
 Chỉ đọc code và định nghĩa bảng được phép. Không chạy SQL, thay ràng buộc hoặc thử tranh chỗ trên database thật.

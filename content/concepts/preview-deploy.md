@@ -75,6 +75,13 @@ Bảo vệ link và tách dịch vụ là hai việc khác nhau. Người có qu
 
 Khi PR đến từ fork, Vercel mặc định cần người có quyền cho phép triển khai để tránh lộ thông tin môi trường cho code chưa tin cậy. Không tắt bảo vệ chỉ vì agent muốn thấy link ngay. Đọc đề xuất trước; một PR hợp lệ về cú pháp vẫn có thể chứa code lấy dữ liệu cấu hình.
 
+## Khi nào chưa cần
+
+Dùng preview để kiểm đúng thay đổi, không nhân thêm bản triển khai khi chưa có nhu cầu.
+
+- **Tạo project Vercel mới cho mỗi sửa câu chữ** — chưa cần khi project thử đã có deployment ban đầu và preview đúng commit; cần khi chưa có nơi thử tách khỏi dịch vụ thật.
+- **Tạo biến riêng cho từng nhánh** — chưa cần khi cấu hình Preview chung đã trỏ đúng tài nguyên thử; cần khi nhánh cần cấu hình khác, rồi phải kiểm trên deployment mới.
+
 ## Tìm trong project của bạn
 
 Khảo sát bằng cách xem metadata được phép, không thử gửi email, thanh toán hay ghi dữ liệu thật. Không đọc hoặc dán giá trị khóa vào chat; ghi tên biến và tài nguyên đích đã được xác nhận.

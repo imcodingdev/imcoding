@@ -63,6 +63,13 @@ Theo web.dev, đánh giá các ngưỡng này tại phân vị 75, tách thiết
 
 Câu “mất kết nối thì không mất đơn” cũng cần làm rõ. Nếu máy chủ đã lưu mà phản hồi bị mất, app phải tra lại kết quả. Nếu chưa gửi được, app cần giữ bản nháp theo thiết kế đã duyệt hoặc báo chưa lưu để người dùng biết. Không thể hứa đơn đã nằm trên máy chủ khi yêu cầu chưa tới. Hãy yêu cầu agent mô tả từng trạng thái và bằng chứng lưu thành công.
 
+## Khi nào chưa cần
+
+Chọn mức chất lượng theo nhu cầu và bằng chứng, không theo số lượng công cụ.
+
+- **Theo dõi mọi chỉ số** — chưa cần khi vài chỉ số đã trả lời được câu hỏi về luồng quan trọng; cần khi có câu hỏi thực tế chưa được đo.
+- **Đổi kiến trúc để chịu tải lớn** — chưa cần khi chưa đo được giới hạn; cần khi thử bằng dữ liệu giả cho thấy chỗ nghẽn và thay đổi nhỏ hơn chưa đáp ứng mục tiêu.
+
 ## Tìm trong project của bạn
 
 Chỉ đọc tài liệu và code được phép xem; chưa thay cấu hình hay thử gây lỗi trên app thật.
