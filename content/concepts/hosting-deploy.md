@@ -6,6 +6,9 @@ prerequisites: [git-commit, package-dependencies]
 priority: 1
 stage: 3
 format: 2
+sources:
+  - title: MDN — DNS
+    url: https://developer.mozilla.org/en-US/docs/Glossary/DNS
 signals:
   - "vercel.json"
   - ".vercel"
@@ -68,6 +71,10 @@ git add .
 git commit -m "Thêm tính năng thanh toán"
 git push
 ```
+
+**DNS** (Domain Name System) là hệ thống phân cấp, phân tán giúp tra tên miền ra thông tin tương ứng, thường là địa chỉ IP của máy chủ. Có thể hình dung nó như danh bạ: người dùng nhớ tên website, máy cần địa chỉ để kết nối. Khi gắn tên miền riêng vào hosting, bạn cần bản ghi DNS phù hợp; DNS không chứa code app và không thay bước deploy.
+
+**Người dùng đồng thời** là số người đang dùng app cùng lúc, khác tổng số tài khoản đã đăng ký hay số người từng ghé. Khi bàn gói hosting với agent, nói rõ họ đang làm gì: đọc trang giới thiệu hay cùng tạo báo cáo. Tổng số người dùng không tự cho biết tải tại một thời điểm; cần quan sát tác vụ và mức sử dụng thực tế trước khi nâng gói.
 
 ## Tìm trong project của bạn
 

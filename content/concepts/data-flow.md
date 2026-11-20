@@ -6,6 +6,9 @@ prerequisites: [client-server, api-endpoint, database-table]
 priority: 1
 stage: 2
 format: 2
+sources:
+  - title: Mermaid — Sơ đồ tuần tự
+    url: https://mermaid.js.org/syntax/sequenceDiagram.html
 signals:
   - "onSubmit"
   - "fetch('/api/"
@@ -34,9 +37,9 @@ Một tính năng lưu dữ liệu qua API thường có **5 trạm nối tiếp
 
 ## Ví dụ mẫu
 
-Hãy hình dung quy trình gọi món trong quán ăn: khách ghi phiếu ở bàn (Trạm 1), nhân viên mang phiếu tới quầy (Trạm 2), quầy kiểm tra và ghi vào sổ bán hàng (Trạm 3 & 4), rồi báo lại để bảng điện tử tại bàn cập nhật món đã gọi (Trạm 5). Nếu khách than "gọi rồi mà không thấy món", người quản lý sẽ dò từng trạm xem tờ phiếu đang kẹt ở đâu.
+Trong quán ăn, khách ghi phiếu tại bàn (Trạm 1), nhân viên đưa tới quầy (Trạm 2), quầy kiểm và ghi sổ bán hàng (Trạm 3–4), rồi báo để bảng điện tử tại bàn cập nhật món (Trạm 5). Khách gọi rồi chưa thấy món thì người quản lý dò phiếu đang kẹt ở trạm nào.
 
-**Data Flow (Dòng chảy dữ liệu)** là thói quen nhìn một tính năng như hành trình đi qua các trạm từ trình duyệt tới database rồi quay về. Khi gặp lỗi, thay vì ra lệnh chung chung cho AI `"Nút lưu không chạy, sửa đi"` (khiến AI đoán mò và sửa hỏng chỗ đang đúng), bạn xác định đúng trạm bị đứt gãy rồi chỉ thẳng cho AI sửa file ở trạm đó.
+**Data Flow (Dòng chảy dữ liệu)** là nhìn tính năng qua các trạm từ trình duyệt tới database rồi quay về. Khi lỗi, xác định trạm đứt gãy và file cần sửa; chỉ bảo AI “Nút lưu không chạy, sửa đi” dễ khiến nó đoán mò, sửa hỏng chỗ đúng.
 
 Đoạn 1 — Trạm 1 (giao diện gửi đi) và Trạm 5 (giao diện cập nhật) trong `components/AddProductForm.tsx`:
 
@@ -73,9 +76,11 @@ export async function POST(req: Request) {
 }
 ```
 
+Nhờ agent vẽ **sơ đồ tuần tự** Mermaid `sequenceDiagram` để thấy “ai gọi ai” theo thứ tự: giao diện gửi, máy chủ ghi database, kết quả quay về. Chỉ vẽ đủ hiểu luồng đang xét, chưa cần mọi hàm phụ. Soát từng mũi tên: nơi nhận dữ liệu, chờ kết quả, cập nhật màn hình. Sơ đồ AI có thể sai; đối chiếu với code, ghi file tương ứng hoặc đánh dấu chưa xác minh.
+
 ## Tìm trong project của bạn
 
-Chọn một tính năng có nút **"Lưu" / "Tạo mới" / "Cập nhật"** trong dự án của bạn và lần theo dấu vết dữ liệu qua các bước sau:
+Chọn nút **"Lưu" / "Tạo mới" / "Cập nhật"** trong dự án, rồi lần theo dữ liệu:
 
 1. **Tìm Trạm 1 (Nơi bắt đầu trên giao diện):** Mở file component chứa biểu mẫu (form), tìm thuộc tính `onSubmit` hoặc `action`. Xem nó đang gom những trường dữ liệu nào và gọi tới đường dẫn `fetch('/api/...')` nào (hoặc gọi hàm `'use server'` nào).
 2. **Tìm Trạm 2 & 3 (Cửa ngõ máy chủ):** Mở file `app/api/.../route.ts` tương ứng với đường dẫn vừa tìm được. So sánh tên các trường lấy ra từ `await req.json()` xem có khớp từng chữ cái (kể cả viết hoa/thường) với tên trường gửi đi ở Trạm 1 không.

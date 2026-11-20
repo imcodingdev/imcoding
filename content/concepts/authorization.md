@@ -6,6 +6,9 @@ prerequisites: [authentication, data-relations]
 priority: 1
 stage: 3
 format: 2
+sources:
+  - title: Supabase — Row Level Security
+    url: https://supabase.com/docs/guides/database/postgres/row-level-security
 signals:
   - "enable row level security"
   - "create policy"
@@ -69,6 +72,8 @@ with check ( auth.uid() = ___ );         -- dòng mới phải ghi đúng chủ
 Cách đọc: `using` lọc các dòng **đang có** mà người gọi được đụng tới. `with check` kiểm tra dòng **sắp ghi vào**. Mỗi thao tác `select`, `insert`, `update`, `delete` cần policy riêng. Thao tác nào không có policy thì bị chặn.
 
 Còn một loại khóa nữa: **`service_role`** (tên mới là secret key). Khóa này **bỏ qua toàn bộ RLS**. Nó dành cho việc quản trị ở máy chủ như xử lý webhook thanh toán. Nó không bao giờ được mang tiền tố `NEXT_PUBLIC_`, không xuất hiện trong file có `'use client'`. Khi code máy chủ dùng khóa này, database không còn canh giúp nữa, nên chính đoạn code đó phải tự kiểm tra người gọi được làm gì.
+
+App **multi-tenant** phục vụ nhiều khách hoặc doanh nghiệp trên cùng hệ thống; mỗi tenant là một bên có phạm vi dữ liệu riêng. Doanh nghiệp A không được thấy dữ liệu của B. Mỗi bảng chứa dữ liệu riêng của khách cần cột xác định chủ sở hữu, chẳng hạn `user_id` cho cá nhân hoặc `tenant_id` cho doanh nghiệp, cùng RLS lọc theo quyền đó. Với doanh nghiệp có nhiều nhân viên, policy phải kiểm người gọi là thành viên được phép của tenant; không tin `tenant_id` trình duyệt tự gửi. Cần kiểm cả dòng đang đọc/sửa và chủ sở hữu của dòng sắp ghi. Dùng hai tài khoản thử thuộc hai doanh nghiệp giả trong môi trường thử tách biệt: mỗi bên thấy dữ liệu mình, bị chặn khi đọc, sửa, xóa của bên kia, kể cả đổi ID trong yêu cầu.
 
 ## Tìm trong project của bạn
 

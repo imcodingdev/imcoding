@@ -6,6 +6,11 @@ prerequisites: [browser-devtools, data-flow, error-handling]
 priority: 1
 stage: 2
 format: 2
+sources:
+  - title: MDN — HTTP caching
+    url: https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/Caching
+  - title: Next.js — CDN caching
+    url: https://nextjs.org/docs/app/guides/cdn-caching
 signals:
   - "console.error"
   - "console.log"
@@ -63,6 +68,8 @@ Yêu cầu: giải thích nguyên nhân trước, chưa sửa gì.
 ```
 
 Dòng cuối rất quan trọng. Khi AI phải nêu nguyên nhân trước, bạn có cơ hội đối chiếu lời giải thích với bằng chứng. Nếu AI nói "do nút bấm bị hỏng" trong khi Network cho thấy request đã đi, bạn biết ngay nó đang đoán.
+
+Đã sửa và deploy mà vẫn thấy bản cũ? Trước khi bắt agent sửa code tiếp, kiểm đúng bản triển khai rồi xét **cache**, bản phản hồi được giữ để dùng lại ở trình duyệt hoặc CDN (mạng máy chủ phân phối nội dung). Tải lại không dùng cache trình duyệt bằng tùy chọn “Disable cache” trong Network khi DevTools mở; thử tab ẩn danh với cùng tài khoản thử. Tab ẩn danh không bỏ qua CDN và có thể khác phiên đăng nhập. Xem header phản hồi: `Cache-Control` mô tả quy tắc cache, `Age` nếu có cho biết tuổi bản lưu. Next.js dùng `Cache-Control` cho CDN; `revalidatePath()` làm mất hiệu lực cache server không tự xóa bản CDN độc lập. Nếu vẫn cũ, ghi URL, bản triển khai và header đã che bí mật cho agent đối chiếu; cache là giả thuyết cần kiểm chứng, không phải kết luận sẵn.
 
 ## Tìm trong project của bạn
 
