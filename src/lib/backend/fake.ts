@@ -1,4 +1,4 @@
-import type { AppUser, Backend } from './types'
+import type { AppUser, Backend, ReviewRow } from './types'
 import { validateStep, type ResumePoint } from './types'
 import type { ProgressMap } from '@/lib/progress/status'
 
@@ -6,6 +6,9 @@ const USER_KEY = 'imcoding-fake-user'
 const PROGRESS_KEY = 'imcoding-fake-progress'
 const FAIL_KEY = 'imcoding-fake-fail'
 const STEPS_KEY = 'imcoding-fake-steps'
+// E2E có thể đặt JSON mảng ReviewRow: [{ conceptId, understoodAt: ISO, lastReviewedAt: ISO | null }].
+// Đồng thời đặt imcoding-fake-progress[conceptId] = 'understood' và imcoding-fake-user.
+const REVIEWS_KEY = 'imcoding-fake-reviews'
 
 const FAKE_USER: AppUser = {
   id: 'fake-user',
@@ -30,6 +33,7 @@ export function createFakeBackend(): Backend {
     return raw ? (JSON.parse(raw) as ProgressMap) : {}
   }
   const readSteps = (): Record<string, ResumePoint> => JSON.parse(localStorage.getItem(STEPS_KEY) ?? '{}')
+  const readReviews = (): ReviewRow[] => JSON.parse(localStorage.getItem(REVIEWS_KEY) ?? '[]')
 
   return {
     async getUser() {
@@ -80,6 +84,26 @@ export function createFakeBackend(): Backend {
         PROGRESS_KEY,
         JSON.stringify({ ...readProgress(), [conceptId]: 'understood' }),
       )
+      const rows = readReviews()
+      localStorage.setItem(REVIEWS_KEY, JSON.stringify([
+        ...rows.filter(row => row.conceptId !== conceptId),
+        { conceptId, understoodAt: new Date().toISOString(), lastReviewedAt: rows.find(row => row.conceptId === conceptId)?.lastReviewedAt ?? null },
+      ]))
+    },
+    async loadReviews() {
+      if (!readUser()) throw new Error('Chưa đăng nhập')
+      if (failing()) throw new Error('Bản giả: lỗi tải lịch ôn')
+      const progress = readProgress()
+      return readReviews().filter(row => progress[row.conceptId] === 'understood' && !!row.understoodAt)
+    },
+    async markReviewed(conceptId) {
+      if (!readUser()) throw new Error('Chưa đăng nhập')
+      if (failing()) throw new Error('Bản giả: lỗi lưu ôn tập')
+      const rows = readReviews()
+      const row = rows.find(row => row.conceptId === conceptId && row.understoodAt)
+      if (!row || readProgress()[conceptId] !== 'understood') throw new Error('Chưa có tiến độ đã hiểu để ôn bài này')
+      const now = new Date().toISOString()
+      localStorage.setItem(REVIEWS_KEY, JSON.stringify(rows.map(item => item === row ? { ...item, lastReviewedAt: now } : item)))
     },
   }
 }

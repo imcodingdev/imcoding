@@ -49,6 +49,8 @@ const noBackend = (): Backend => {
     loadResume: fail,
     saveStep: fail,
     markUnderstood: fail,
+    loadReviews: fail,
+    markReviewed: fail,
   }
 }
 

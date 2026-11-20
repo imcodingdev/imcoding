@@ -29,6 +29,8 @@ export function createUnconfiguredBackend(): Backend {
     loadResume: fail,
     saveStep: fail,
     markUnderstood: fail,
+    loadReviews: fail,
+    markReviewed: fail,
   }
 }
 
@@ -83,6 +85,31 @@ export function createSupabaseBackend(): Backend {
         { onConflict: 'user_id,concept_id' },
       )
       if (error) throw error
+    },
+    async loadReviews() {
+      const { data: auth } = await client.auth.getSession()
+      const userId = auth.session?.user.id
+      if (!userId) throw new Error('Chưa đăng nhập')
+      const { data, error } = await client.from('progress')
+        .select('concept_id, understood_at, last_reviewed_at')
+        .eq('user_id', userId).eq('status', 'understood').not('understood_at', 'is', null)
+      if (error) throw error
+      return (data ?? []).map(row => ({
+        conceptId: row.concept_id, understoodAt: row.understood_at, lastReviewedAt: row.last_reviewed_at,
+      }))
+    },
+    async markReviewed(conceptId) {
+      const { data: auth } = await client.auth.getSession()
+      const userId = auth.session?.user.id
+      if (!userId) throw new Error('Chưa đăng nhập')
+      const now = new Date().toISOString()
+      const { data, error } = await client.from('progress')
+        .update({ last_reviewed_at: now, updated_at: now })
+        .eq('user_id', userId).eq('concept_id', conceptId)
+        .eq('status', 'understood').not('understood_at', 'is', null)
+        .select('concept_id').maybeSingle()
+      if (error) throw error
+      if (!data) throw new Error('Chưa có tiến độ đã hiểu để ôn bài này')
     },
     async loadResume() {
       const { data, error } = await client.from('progress')

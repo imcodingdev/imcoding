@@ -16,6 +16,14 @@ export interface Backend {
   loadResume(): Promise<ResumePoint | null>
   saveStep(conceptId: string, step: number): Promise<void>
   markUnderstood(conceptId: string): Promise<void>
+  loadReviews(): Promise<ReviewRow[]>
+  markReviewed(conceptId: string): Promise<void>
+}
+
+export interface ReviewRow {
+  conceptId: string
+  understoodAt: string
+  lastReviewedAt: string | null
 }
 
 export interface ResumePoint {

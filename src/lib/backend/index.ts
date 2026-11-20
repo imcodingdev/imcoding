@@ -2,7 +2,7 @@ import type { Backend } from './types'
 import { createFakeBackend } from './fake'
 import { createSupabaseBackend } from './supabase'
 
-export type { AppUser, Backend } from './types'
+export type { AppUser, Backend, ReviewRow } from './types'
 
 export function createBackend(
   env: { fake?: string; vercel?: string } = {

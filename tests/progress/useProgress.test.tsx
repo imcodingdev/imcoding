@@ -34,6 +34,8 @@ async function setup(overrides: Partial<Backend>) {
     loadResume: async () => null,
     saveStep: async () => {},
     markUnderstood: async () => {},
+    loadReviews: async () => [],
+    markReviewed: async () => {},
     ...overrides,
   }
   vi.resetModules() // BackendProvider cache backend ở module scope
