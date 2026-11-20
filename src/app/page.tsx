@@ -5,6 +5,8 @@ import { loadConcepts } from "@/lib/concepts/load";
 import { lessonStepCount } from "@/lib/concepts/lesson";
 import { ResumeCard } from "@/components/ResumeCard";
 import { PracticalSearch } from "@/components/PracticalSearch";
+import { CommonMistakes } from "@/components/CommonMistakes";
+import { COMMON_MISTAKES } from "@/lib/concepts/common-mistakes";
 
 const steps = [
   { title: "Nhắc lại, đoán trước, xem ví dụ", minutes: 10, body: "Nhớ lại bài trước, tự đoán cách xử lý một sự cố ngắn, rồi xem ví dụ code có chú thích." },
@@ -19,6 +21,10 @@ const focus =
 
 export default function Home() {
   const lessons = loadConcepts().map(c => ({ id: c.id, title: c.title, stepCount: c.format === 2 ? lessonStepCount(c) : 0 }));
+  const mistakes = COMMON_MISTAKES.flatMap(item => {
+    const lesson = lessons.find(lesson => lesson.id === item.lessonId);
+    return lesson ? [{ ...item, title: lesson.title }] : [];
+  });
   return (
     <main className="mx-auto w-full max-w-3xl px-4 py-12 md:px-6 md:py-20">
       <section className="flex flex-col items-start gap-5">
@@ -51,6 +57,8 @@ export default function Home() {
         <ResumeCard lessons={lessons} />
         <PracticalSearch />
       </section>
+
+      <CommonMistakes items={mistakes} />
 
       <section className="mt-14 md:mt-20" aria-labelledby="learn-heading">
         <h2 id="learn-heading" className="font-display text-2xl font-bold text-ink">
