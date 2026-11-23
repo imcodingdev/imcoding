@@ -9,6 +9,7 @@ export interface ConceptRef {
   prerequisites: string[]
   priority: 1 | 2
   stage: Stage
+  signals?: string[]
 }
 
 /** Gợi ý bài nên học tiếp. `progress === null` nghĩa là chưa đăng nhập. */

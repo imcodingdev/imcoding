@@ -1,11 +1,13 @@
 'use client'
 
-import { useMemo, useState, type ReactNode } from 'react'
+import Link from 'next/link'
+import { useId, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useProgress, useUser } from '@/components/BackendProvider'
 import { ConceptList } from '@/components/ConceptList'
 import { ConceptMap } from '@/components/ConceptMap'
 import { NextUpCard } from '@/components/NextUpCard'
 import type { MapEdge, MapNode } from '@/lib/concepts/layout'
+import { filterLessons } from '@/lib/concepts/search'
 import { nextConcept, type ConceptRef } from '@/lib/progress/next'
 import { nodeStatus, type NodeStatus } from '@/lib/progress/status'
 
@@ -21,6 +23,10 @@ export function MapView({ nodes, edges, concepts, todayCard }: { nodes: MapNode[
   const { user, loading } = useUser()
   const { progress, error } = useProgress(ids)
   const [tab, setTab] = useState<Tab>('list')
+  const [query, setQuery] = useState('')
+  const searchId = useId()
+  const searchInput = useRef<HTMLInputElement>(null)
+  const filtered = useMemo(() => filterLessons(query, concepts), [query, concepts])
   const statuses = useMemo(() => {
     const out: Record<string, NodeStatus> = {}
     for (const id of ids) out[id] = nodeStatus(progress, id)
@@ -80,8 +86,27 @@ export function MapView({ nodes, edges, concepts, todayCard }: { nodes: MapNode[
       <div className={tab === 'map' ? 'block' : 'hidden md:block'}>
         <ConceptMap key={tab} nodes={nodes} edges={edges} statuses={statuses} />
       </div>
-      <div className={tab === 'list' ? 'block' : 'hidden md:block'}>
-        <ConceptList concepts={concepts} statuses={statuses} showProgress={!!user && progress !== null} />
+      <div className={`min-w-0 space-y-4 ${tab === 'list' ? 'block' : 'hidden md:block'}`}>
+        <div>
+          <label htmlFor={searchId} className="mb-2 block font-semibold text-ink">Tìm bài</label>
+          <div className="relative">
+            <input ref={searchInput} id={searchId} type="search" value={query}
+              onChange={event => setQuery(event.target.value)}
+              placeholder="Ví dụ: database, đăng nhập, bảo mật"
+              className="min-h-[44px] w-full min-w-0 rounded-xl border border-line bg-surface py-2 pl-3 pr-14 text-base text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent [&::-webkit-search-cancel-button]:appearance-none"
+            />
+            {query && <button type="button" aria-label="Xoá tìm kiếm"
+              onClick={() => { setQuery(''); searchInput.current?.focus() }}
+              className="absolute inset-y-0 right-0 inline-flex min-h-[44px] min-w-[44px] items-center justify-center rounded-xl text-xl text-ink-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            >×</button>}
+          </div>
+        </div>
+        <p aria-live="polite" className="text-sm text-ink-muted">Tìm thấy {filtered.length} bài</p>
+        {filtered.length === 0 && <div className="rounded-xl border border-line bg-surface p-4">
+          <p className="text-ink">Chưa có bài khớp.</p>
+          <Link href={`/hoi?q=${encodeURIComponent(query)}`} className="mt-2 inline-flex min-h-[44px] items-center rounded-lg text-accent underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">Hỏi thực chiến</Link>
+        </div>}
+        <ConceptList concepts={filtered} allConcepts={concepts} statuses={statuses} showProgress={!!user && progress !== null} />
       </div>
     </div>
   )

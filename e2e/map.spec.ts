@@ -1,6 +1,10 @@
 import { expect, test } from '@playwright/test'
 import { LESSON_IDS } from '../tests/fixtures/curriculum'
 
+test.beforeEach(async ({ context }) => {
+  await context.route('**/*', route => ['localhost', '127.0.0.1'].includes(new URL(route.request().url()).hostname) ? route.continue() : route.abort())
+})
+
 const openMapView = async (page: import('@playwright/test').Page, testInfo: import('@playwright/test').TestInfo) => {
   if (testInfo.project.name === 'mobile') await page.getByRole('tab', { name: 'Sơ đồ' }).click()
 }
@@ -10,9 +14,9 @@ test('bản đồ có 58 bài và 1 fixture, bấm node chuyển trang', async (
   await page.goto('/map')
   await openMapView(page, testInfo)
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Bản đồ kiến thức')
-  const nodes = page.locator('[data-testid="concept-node"]')
+  const nodes = page.locator('[data-testid="concept-node"]').filter({ visible: true })
   await expect(nodes).toHaveCount(59)
-  expect((await page.locator('.react-flow__node').evaluateAll(elements => elements.map(element => element.getAttribute('data-id')))).sort())
+  expect((await page.locator('.react-flow__node').filter({ visible: true }).evaluateAll(elements => elements.map(element => element.getAttribute('data-id')))).sort())
     .toEqual([...LESSON_IDS, 'v2-lesson'].sort())
   await nodes.filter({ hasText: 'Client–Server' }).first().click()
   await expect(page).toHaveURL(/\/concepts\/client-server$/)
@@ -27,10 +31,10 @@ test('lộ trình có bốn chặng, mô tả và đủ bài ở chặng 4', asy
     'Chặng 4 · Khi vận hành',
   ])
   await expect(page.getByText('Giữ khóa bí mật, có mốc lưu để quay lại, biết code nào chạy ở đâu.')).toBeVisible()
-  await expect(page.getByTestId('concept-list').getByText('Sắp có')).toHaveCount(0)
+  await expect(page.getByTestId('concept-list').getByText('Sắp có').filter({ visible: true })).toHaveCount(0)
   await expect(page.locator('[data-testid="concept-list"] a[data-status][href="/concepts/ci-cd"]')).toBeVisible()
   await expect(page.locator('[data-testid="concept-list"] a[data-status][href="/concepts/agent-loops"]')).toBeVisible()
-  await expect(page.getByTestId('concept-list').getByText(/bài đã hiểu/)).toHaveCount(0)
+  await expect(page.getByTestId('concept-list').getByText(/bài đã hiểu/).filter({ visible: true })).toHaveCount(0)
   await expect(page.locator('[data-testid="concept-list"] a[data-status][href="/concepts/client-server"]')).toBeVisible()
 })
 
@@ -48,9 +52,9 @@ const LOGIN = async (page: import('@playwright/test').Page) =>
 test('chưa đăng nhập: mọi node trung tính, có lời mời đăng nhập', async ({ page }, testInfo) => {
   await page.goto('/map')
   await openMapView(page, testInfo)
-  const nodes = page.locator('[data-testid="concept-node"]')
+  const nodes = page.locator('[data-testid="concept-node"]').filter({ visible: true })
   await expect(nodes).toHaveCount(59)
-  await expect(page.locator('[data-testid="concept-node"][data-status="neutral"]')).toHaveCount(59)
+  await expect(page.locator('[data-testid="concept-node"][data-status="neutral"]').filter({ visible: true })).toHaveCount(59)
   await expect(page.getByText('Đăng nhập để thấy tiến độ của bạn')).toBeVisible()
   await expect(page.getByText('Chưa học · Đã gặp trong code · Đã hiểu')).toBeVisible()
 })
@@ -58,20 +62,21 @@ test('chưa đăng nhập: mọi node trung tính, có lời mời đăng nhập
 test('đã đánh dấu đã hiểu: node tô xanh, 58 node còn lại trung tính', async ({ page }, testInfo) => {
   await page.goto('/concepts/client-server')
   await LOGIN(page)
-  const summaries = page.locator('details > summary')
+  const summaries = page.locator('details > summary').filter({ visible: true })
   const n = await summaries.count()
   for (let i = 0; i < n; i++) await summaries.nth(i).click()
   await page.getByRole('button', { name: 'Mình đã hiểu bài này' }).click()
   await expect(page.getByText('✓ Đã hiểu')).toBeVisible()
   await page.goto('/map')
   await openMapView(page, testInfo)
-  const done = page.locator('[data-testid="concept-node"][data-status="understood"]')
+  const done = page.locator('[data-testid="concept-node"][data-status="understood"]').filter({ visible: true })
   await expect(done).toHaveCount(1)
   await expect(done).toContainText('Client–Server')
   await expect(done).toContainText('✓')
-  await expect(page.locator('[data-testid="concept-node"][data-status="neutral"]')).toHaveCount(58)
-  await expect(page.locator('[data-testid="concept-list"] a[data-status="understood"]')).toHaveCount(1)
-  await expect(page.getByText('Đăng nhập để thấy tiến độ của bạn')).toHaveCount(0)
+  await expect(page.locator('[data-testid="concept-node"][data-status="neutral"]').filter({ visible: true })).toHaveCount(58)
+  if (testInfo.project.name === 'mobile') await page.getByRole('tab', { name: 'Lộ trình' }).click()
+  await expect(page.locator('[data-testid="concept-list"] a[data-status="understood"]').filter({ visible: true })).toHaveCount(1)
+  await expect(page.getByText('Đăng nhập để thấy tiến độ của bạn').filter({ visible: true })).toHaveCount(0)
 })
 
 test('lỗi tải tiến độ: báo lỗi, node trung tính, không crash', async ({ page }, testInfo) => {
@@ -82,7 +87,7 @@ test('lỗi tải tiến độ: báo lỗi, node trung tính, không crash', asy
   await page.reload()
   await expect(page.getByText('Không tải được tiến độ')).toBeVisible()
   await openMapView(page, testInfo)
-  await expect(page.locator('[data-testid="concept-node"][data-status="neutral"]')).toHaveCount(59)
+  await expect(page.locator('[data-testid="concept-node"][data-status="neutral"]').filter({ visible: true })).toHaveCount(59)
 })
 
 test('mobile: mặc định tab Lộ trình, bấm Sơ đồ thấy 59 node', async ({ page }, testInfo) => {
@@ -92,7 +97,7 @@ test('mobile: mặc định tab Lộ trình, bấm Sơ đồ thấy 59 node', as
   await expect(page.locator('[data-testid="concept-list"] a[data-status][href="/concepts/client-server"]')).toBeVisible()
   await page.getByRole('tab', { name: 'Sơ đồ' }).click()
   await expect(page.getByRole('tab', { name: 'Sơ đồ' })).toHaveAttribute('aria-selected', 'true')
-  await expect(page.locator('[data-testid="concept-node"]')).toHaveCount(59)
+  await expect(page.locator('[data-testid="concept-node"]').filter({ visible: true })).toHaveCount(59)
   await expect(page.locator('[data-testid="concept-node"]').first()).toBeVisible()
 })
 
@@ -100,7 +105,7 @@ test('desktop: sơ đồ luôn hiện, không có tab', async ({ page }, testInf
   test.skip(testInfo.project.name === 'mobile')
   await page.goto('/map')
   await expect(page.getByRole('tablist')).toBeHidden()
-  await expect(page.locator('[data-testid="concept-node"]')).toHaveCount(59)
+  await expect(page.locator('[data-testid="concept-node"]').filter({ visible: true })).toHaveCount(59)
   await expect(page.locator('[data-testid="concept-node"]').first()).toBeVisible()
 })
 
@@ -111,7 +116,7 @@ test('thẻ Bài nên học tiếp: đổi sau khi hiểu client-server', async 
   await expect(card).toContainText('Client')
   await page.goto('/concepts/client-server')
   await LOGIN(page)
-  const summaries = page.locator('details > summary')
+  const summaries = page.locator('details > summary').filter({ visible: true })
   const n = await summaries.count()
   for (let i = 0; i < n; i++) await summaries.nth(i).click()
   await page.getByRole('button', { name: 'Mình đã hiểu bài này' }).click()
@@ -135,7 +140,7 @@ test('đã đăng nhập nhưng tải tiến độ lỗi: không hiện thẻ g�
   await page.evaluate(() => localStorage.setItem('imcoding-fake-fail', '1'))
   await page.reload()
   await expect(page.getByText('Không tải được tiến độ')).toBeVisible()
-  await expect(page.locator('[data-testid="next-up"]')).toHaveCount(0)
+  await expect(page.locator('[data-testid="next-up"]').filter({ visible: true })).toHaveCount(0)
 })
 
 test('desktop: node bản đồ đọc được và không cuộn ngang trang', async ({ page }, testInfo) => {
@@ -148,4 +153,53 @@ test('desktop: node bản đồ đọc được và không cuộn ngang trang', 
   const box = await node.boundingBox()
   expect(box!.height).toBeGreaterThanOrEqual(28)
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+})
+
+test('tìm bài không dấu, lọc ngay trong Lộ trình và xoá để hiện lại tất cả', async ({ page }, testInfo) => {
+  await page.goto('/map')
+  const search = page.getByRole('searchbox', { name: 'Tìm bài' })
+  await expect(search).toHaveAttribute('placeholder', 'Ví dụ: database, đăng nhập, bảo mật')
+  const list = page.getByTestId('concept-list').filter({ visible: true })
+  const lessons = list.locator('a[data-status]').filter({ visible: true })
+  await expect(lessons).toHaveCount(59)
+  await search.fill('dang nhap')
+  await expect(list.locator('a[data-status][href="/concepts/authentication"]')).toBeVisible()
+  await expect(lessons).not.toHaveCount(59)
+  await expect(page.getByRole('main').locator('[aria-live="polite"]')).toHaveText(`Tìm thấy ${await lessons.count()} bài`)
+  await expect(page).toHaveURL(/\/map$/)
+  // Tìm kiếm chỉ lọc danh sách, sơ đồ vẫn có toàn bộ bài.
+  await openMapView(page, testInfo)
+  await expect(page.getByTestId('concept-node').filter({ visible: true })).toHaveCount(59)
+  if (testInfo.project.name === 'mobile') await page.getByRole('tab', { name: 'Lộ trình' }).click()
+  await page.getByRole('button', { name: 'Xoá tìm kiếm' }).click()
+  await expect(search).toHaveValue('')
+  await expect(search).toBeFocused()
+  await expect(lessons).toHaveCount(59)
+  await expect(page.getByRole('button', { name: 'Xoá tìm kiếm' }).filter({ visible: true })).toHaveCount(0)
+})
+
+test('không có kết quả: ẩn chặng rỗng, mở Hỏi thực chiến với query mã hoá', async ({ page }) => {
+  await page.goto('/map')
+  const query = 'zzkhongkhop đăng & ?/#'
+  await page.getByRole('searchbox', { name: 'Tìm bài' }).fill(query)
+  await expect(page.getByText('Chưa có bài khớp.', { exact: true })).toBeVisible()
+  await expect(page.getByRole('main').locator('[aria-live="polite"]')).toHaveText('Tìm thấy 0 bài')
+  await expect(page.getByTestId('concept-list').getByRole('heading').filter({ visible: true })).toHaveCount(0)
+  const ask = page.getByRole('main').getByRole('link', { name: 'Hỏi thực chiến', exact: true })
+  await expect(ask).toHaveAttribute('href', `/hoi?q=${encodeURIComponent(query)}`)
+  await expect(page).toHaveURL(/\/map$/)
+  await page.reload()
+  await expect(page.getByRole('searchbox', { name: 'Tìm bài' })).toHaveValue('')
+})
+
+test('ô tìm bài tại 375px không tràn ngang khi gõ chuỗi dài', async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 })
+  await page.goto('/map')
+  const search = page.getByRole('searchbox', { name: 'Tìm bài' })
+  await search.fill('zzkhongkhop'.repeat(40))
+  await expect(page.getByText('Chưa có bài khớp.', { exact: true })).toBeVisible()
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+  for (const target of [search, page.getByRole('button', { name: 'Xoá tìm kiếm' }), page.getByRole('main').getByRole('link', { name: 'Hỏi thực chiến', exact: true })]) {
+    expect((await target.boundingBox())?.height).toBeGreaterThanOrEqual(44)
+  }
 })

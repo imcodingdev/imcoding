@@ -1,8 +1,19 @@
 import { GROUPS, type Concept } from './types'
 
 export type SearchLesson = Pick<Concept, 'id' | 'title' | 'signals' | 'group'>
-const normalize = (text: string) => text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd')
-const words = (text: string) => normalize(text).match(/[a-z0-9]+/g) ?? []
+export const normalize = (text: string) => text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd')
+export const words = (text: string) => normalize(text).match(/[a-z0-9]+/g) ?? []
+
+/** Lọc lộ trình theo mọi từ tìm kiếm, khớp tiền tố và giữ nguyên thứ tự. */
+export function filterLessons<T extends Omit<SearchLesson, 'signals'> & { signals?: string[] }>(query: string, concepts: T[]): T[] {
+  const terms = words(query)
+  if (!terms.length) return concepts
+  return concepts.filter(concept => {
+    const group = GROUPS.find(group => group.id === concept.group)?.title ?? ''
+    const tokens = words([concept.title, ...(concept.signals ?? []), concept.id, group].join(' '))
+    return terms.every(term => tokens.some(token => token.startsWith(term)))
+  })
+}
 
 /** Xếp theo số từ khớp; tên bài có trọng số cao nhất, giữ thứ tự khi đồng điểm. */
 export function searchLessons<T extends SearchLesson>(query: string, concepts: T[]): T[] {

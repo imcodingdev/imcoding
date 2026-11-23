@@ -21,6 +21,7 @@ export default function MapPage() {
     prerequisites: c.prerequisites,
     priority: c.priority,
     stage: c.stage,
+    signals: c.signals,
   }))
   return (
     <main className="mx-auto w-full min-w-0 max-w-5xl space-y-6 px-4 py-6 md:px-6 md:py-10">
