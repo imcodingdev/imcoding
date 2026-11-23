@@ -19,11 +19,11 @@ async function seedReview(page: Page, hoursAgo: number) {
 
 test('bài hiểu hai ngày trước: thẻ ở trang chủ/map, ôn và giữ kết quả sau tải lại', async ({ page }) => {
   await seedReview(page, 48)
-  const card = page.getByTestId('review-due-card')
-  await expect(card).toContainText('Hôm nay có 1 bài cần ôn')
+  const card = page.getByTestId('today-card').filter({ visible: true })
+  await expect(card).toContainText('Ôn 1 bài đến hạn')
   await page.goto('/map')
-  await expect(card).toContainText('Hôm nay có 1 bài cần ôn')
-  await card.getByRole('link', { name: 'Ôn tập', exact: true }).click()
+  await expect(card).toContainText('Ôn 1 bài đến hạn')
+  await card.getByRole('link', { name: 'Ôn 1 bài đến hạn', exact: true }).click()
   await expect(page).toHaveURL(/\/on-tap$/)
   await expect(page).toHaveTitle('Ôn tập – ImCoding')
   const review = page.getByRole('article')
@@ -39,7 +39,8 @@ test('bài hiểu hai ngày trước: thẻ ở trang chủ/map, ôn và giữ k
   await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('imcoding-fake-reviews')!)[0].lastReviewedAt)).not.toBeNull()
   await page.getByRole('banner').locator('a[href="/"]').click()
   await expect(page.getByRole('button', { name: 'Đăng xuất' })).toBeVisible()
-  await expect(card.filter({ visible: true })).toHaveCount(0)
+  await expect(card.getByRole('link', { name: /^Bài mới ·/ })).toBeVisible()
+  await expect(card.getByRole('link', { name: /^Ôn / }).filter({ visible: true })).toHaveCount(0)
   await page.goto('/on-tap')
   await expect(page.getByText('Chưa có bài cần ôn hôm nay')).toBeVisible()
 })
@@ -50,7 +51,9 @@ test('bài hiểu một giờ trước chưa có thẻ nhắc ôn', async ({ pag
   await expect(page.getByText('Chưa có bài cần ôn hôm nay')).toBeVisible()
   await page.goto('/')
   await expect(page.getByRole('button', { name: 'Đăng xuất' })).toBeVisible()
-  await expect(page.getByTestId('review-due-card').filter({ visible: true })).toHaveCount(0)
+  const card = page.getByTestId('today-card').filter({ visible: true })
+  await expect(card.getByRole('link', { name: /^Bài mới ·/ })).toBeVisible()
+  await expect(card.getByRole('link', { name: /^Ôn / }).filter({ visible: true })).toHaveCount(0)
 })
 
 test('khách được mời đăng nhập trên trang ôn', async ({ page }) => {
@@ -58,7 +61,7 @@ test('khách được mời đăng nhập trên trang ôn', async ({ page }) => 
   const main = page.getByRole('main')
   await expect(main.getByText('Đăng nhập để xem lịch ôn tập và lưu những bài bạn đã ôn.')).toBeVisible()
   await expect(main.getByRole('button', { name: 'Đăng nhập bằng GitHub' })).toBeVisible()
-  await expect(main.getByRole('button', { name: 'Đã ôn xong' })).toHaveCount(0)
+  await expect(main.getByRole('button', { name: 'Đã ôn xong' }).filter({ visible: true })).toHaveCount(0)
 })
 
 test('lỗi lưu giữ bài và cho phép thử lại', async ({ page }) => {

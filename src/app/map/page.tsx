@@ -3,8 +3,7 @@ import { MapView } from '@/components/MapView'
 import { buildMapLayout } from '@/lib/concepts/layout'
 import { loadConcepts } from '@/lib/concepts/load'
 import type { ConceptRef } from '@/lib/progress/next'
-import { ResumeCard } from '@/components/ResumeCard'
-import { ReviewDueCard } from '@/components/ReviewDueCard'
+import { TodayCard } from '@/components/TodayCard'
 import { lessonStepCount } from '@/lib/concepts/lesson'
 
 export const ensureStatic = 'navigation'
@@ -30,10 +29,10 @@ export default function MapPage() {
         <p className="text-base text-ink-muted">Chưa học · Đã gặp trong code · Đã hiểu</p>
       </div>
       <MapView nodes={nodes} edges={edges} concepts={refs}
-        resumeCard={<>
-          <ResumeCard lessons={concepts.map(c => ({ id: c.id, title: c.title, stepCount: c.format === 2 ? lessonStepCount(c) : 0 }))} />
-          <ReviewDueCard knownIds={concepts.map(c => c.id)} />
-        </>} />
+        todayCard={<TodayCard
+          lessons={concepts.map(c => ({ id: c.id, title: c.title, stepCount: c.format === 2 ? lessonStepCount(c) : 0 }))}
+          concepts={refs} includeNew={false}
+        />} />
     </main>
   )
 }

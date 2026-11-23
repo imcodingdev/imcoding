@@ -13,7 +13,7 @@ test('trang chủ có h1, CTA và link bản đồ', async ({ page }) => {
 test('trang chủ giới thiệu bài v2.1 và nói rõ định vị', async ({ page }) => {
   await page.goto('/')
   await expect(page.getByRole('heading', { level: 2, name: 'Mỗi bài 30 phút, học bằng cách tự làm', exact: true })).toBeVisible()
-  const cards = page.getByTestId('learn-step')
+  const cards = page.getByTestId('learn-step').filter({ visible: true })
   await expect(cards).toHaveCount(5)
   const titles = ['Nhắc lại, đoán trước, xem ví dụ', 'Tìm trong code của bạn', 'Tự giải thích', 'Trắc nghiệm', 'Kiểm tra không dùng AI']
   const minutes = [10, 7, 4, 3, 8]
@@ -27,13 +27,14 @@ test('trang chủ giới thiệu bài v2.1 và nói rõ định vị', async ({ 
   await expect(page.getByRole('heading', { name: 'Học tiếp chỗ đang dở', exact: true })).toBeVisible()
   await expect(page.getByRole('link', { name: 'Hỏi thực chiến', exact: true })).toHaveAttribute('href', '/hoi')
   await expect(page.getByRole('searchbox')).toBeVisible()
+  await expect(page.getByTestId('today-card').filter({ visible: true })).toContainText('Buổi học hôm nay · khoảng 30 phút')
 })
 
 test('trang chủ giới thiệu 4 chặng và liên kết lộ trình', async ({ page }) => {
   await page.goto('/')
   const stages = page.getByRole('region', { name: 'Lộ trình chia 4 chặng theo rủi ro thật' })
   await expect(stages.getByRole('heading', { level: 2 })).toBeVisible()
-  await expect(stages.getByRole('listitem')).toHaveCount(4)
+  await expect(stages.getByRole('listitem').filter({ visible: true })).toHaveCount(4)
   for (const stage of STAGES) {
     await expect(stages.getByRole('heading', { name: `Chặng ${stage.id} · ${stage.title}`, exact: true })).toBeVisible()
     await expect(stages.getByText(stage.description, { exact: true })).toBeVisible()

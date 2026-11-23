@@ -16,7 +16,7 @@ const TABS: { id: Tab; label: string }[] = [
   { id: 'map', label: 'Sơ đồ' },
 ]
 
-export function MapView({ nodes, edges, concepts, resumeCard }: { nodes: MapNode[]; edges: MapEdge[]; concepts: ConceptRef[]; resumeCard?: ReactNode }) {
+export function MapView({ nodes, edges, concepts, todayCard }: { nodes: MapNode[]; edges: MapEdge[]; concepts: ConceptRef[]; todayCard?: ReactNode }) {
   const ids = useMemo(() => concepts.map((c) => c.id), [concepts])
   const { user, loading } = useUser()
   const { progress, error } = useProgress(ids)
@@ -53,7 +53,7 @@ export function MapView({ nodes, edges, concepts, resumeCard }: { nodes: MapNode
           Đã hiểu {counts.understood} · Đã gặp {counts.seen} · Chưa học {counts.unseen}
         </p>
       )}
-      {resumeCard}
+      {todayCard}
       {!loading && (!user || progress) && <NextUpCard concept={next} total={concepts.length} />}
 
       <div

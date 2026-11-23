@@ -3,8 +3,7 @@ import { Logo } from "@/components/Logo";
 import { STAGES } from "@/lib/concepts/stages";
 import { loadConcepts } from "@/lib/concepts/load";
 import { lessonStepCount } from "@/lib/concepts/lesson";
-import { ResumeCard } from "@/components/ResumeCard";
-import { ReviewDueCard } from "@/components/ReviewDueCard";
+import { TodayCard } from "@/components/TodayCard";
 import { PracticalSearch } from "@/components/PracticalSearch";
 import { CommonMistakes } from "@/components/CommonMistakes";
 import { COMMON_MISTAKES } from "@/lib/concepts/common-mistakes";
@@ -21,7 +20,9 @@ const focus =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-canvas";
 
 export default function Home() {
-  const lessons = loadConcepts().map(c => ({ id: c.id, title: c.title, stepCount: c.format === 2 ? lessonStepCount(c) : 0 }));
+  const concepts = loadConcepts();
+  const lessons = concepts.map(c => ({ id: c.id, title: c.title, stepCount: c.format === 2 ? lessonStepCount(c) : 0 }));
+  const refs = concepts.map(({ id, title, group, prerequisites, priority, stage }) => ({ id, title, group, prerequisites, priority, stage }));
   const mistakes = COMMON_MISTAKES.flatMap(item => {
     const lesson = lessons.find(lesson => lesson.id === item.lessonId);
     return lesson ? [{ ...item, title: lesson.title }] : [];
@@ -55,8 +56,7 @@ export default function Home() {
             Xem bản đồ kiến thức
           </Link>
         </div>
-        <ResumeCard lessons={lessons} />
-        <ReviewDueCard knownIds={lessons.map(lesson => lesson.id)} />
+        <TodayCard lessons={lessons} concepts={refs} includeNew />
         <PracticalSearch />
       </section>
 
@@ -98,7 +98,7 @@ export default function Home() {
         </div>
         <div className="min-w-0 rounded-2xl border border-line bg-surface p-5">
           <h2 className="font-display text-xl font-bold text-ink">Học tiếp chỗ đang dở</h2>
-          <p className="mt-2 leading-relaxed text-ink-muted">Thẻ Học tiếp đưa bạn về bước đang học. Điểm dừng lưu theo tài khoản khi đăng nhập, hoặc trên trình duyệt khi chưa đăng nhập.</p>
+          <p className="mt-2 leading-relaxed text-ink-muted">Mục Học tiếp trong Buổi học hôm nay đưa bạn về bước đang học. Điểm dừng lưu theo tài khoản khi đăng nhập, hoặc trên trình duyệt khi chưa đăng nhập.</p>
         </div>
       </section>
 
